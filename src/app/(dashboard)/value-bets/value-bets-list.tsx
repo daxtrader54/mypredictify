@@ -1,9 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { TrendingUp, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { TrendingUp, AlertCircle } from 'lucide-react';
+import { ValueBetCard, type ValueBetData } from './value-bet-card';
 
 interface MatchData {
   fixtureId: number;
@@ -27,21 +26,6 @@ interface PredictionEntry {
   confidence: number;
 }
 
-interface ValueBet {
-  fixtureId: number;
-  league: string;
-  homeTeam: string;
-  awayTeam: string;
-  kickoff: string;
-  bet: string;
-  modelProb: number;
-  impliedProb: number;
-  odds: number;
-  edge: number;
-  predictedScore: string;
-  confidence: number;
-}
-
 async function getLatestGameweekDir(): Promise<string | null> {
   const baseDir = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
   try {
@@ -55,7 +39,7 @@ async function getLatestGameweekDir(): Promise<string | null> {
   }
 }
 
-async function getValueBets(): Promise<ValueBet[]> {
+async function getValueBets(): Promise<ValueBetData[]> {
   const gwDir = await getLatestGameweekDir();
   if (!gwDir) return [];
 
@@ -72,7 +56,7 @@ async function getValueBets(): Promise<ValueBet[]> {
   }
 
   const matchMap = new Map(matches.map((m) => [m.fixtureId, m]));
-  const valueBets: ValueBet[] = [];
+  const valueBets: ValueBetData[] = [];
   const MIN_EDGE = 0.05; // 5% edge threshold
 
   for (const pred of predictions) {
@@ -145,63 +129,8 @@ export async function ValueBetsList() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {valueBets.map((vb, i) => (
-          <Card key={`${vb.fixtureId}-${vb.bet}`} className="overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="text-xs">{vb.league}</Badge>
-                <div className="flex items-center gap-1 text-green-500 font-bold text-sm">
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                  +{(vb.edge * 100).toFixed(1)}% edge
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="font-semibold text-sm">
-                  {vb.homeTeam} vs {vb.awayTeam}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {new Date(vb.kickoff).toLocaleDateString('en-GB', {
-                    weekday: 'short',
-                    day: 'numeric',
-                    month: 'short',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
-              </div>
-
-              <div className="p-3 bg-gradient-to-br from-green-500/10 to-transparent rounded-xl border border-green-500/20">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Value Bet</p>
-                <p className="text-lg font-bold text-green-500">{vb.bet}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Predicted score: {vb.predictedScore}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div className="p-2 bg-muted/50 rounded-lg">
-                  <p className="font-bold text-sm">{(vb.modelProb * 100).toFixed(0)}%</p>
-                  <p className="text-muted-foreground">Our Model</p>
-                </div>
-                <div className="p-2 bg-muted/50 rounded-lg">
-                  <p className="font-bold text-sm">{(vb.impliedProb * 100).toFixed(0)}%</p>
-                  <p className="text-muted-foreground">Bookmaker</p>
-                </div>
-                <div className="p-2 bg-muted/50 rounded-lg">
-                  <p className="font-bold text-sm">{vb.odds.toFixed(2)}</p>
-                  <p className="text-muted-foreground">Odds</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                <Badge variant="secondary" className="text-xs">
-                  {(vb.confidence * 100).toFixed(0)}% confident
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
+        {valueBets.map((vb) => (
+          <ValueBetCard key={`${vb.fixtureId}-${vb.bet}`} vb={vb} />
         ))}
       </div>
     </div>

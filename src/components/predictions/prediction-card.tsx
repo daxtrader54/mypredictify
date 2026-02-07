@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,10 +16,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Calendar, MapPin, Lock, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, Lock, TrendingUp, ArrowRight, Sparkles, Coins } from 'lucide-react';
 import { format } from 'date-fns';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
 import { cn } from '@/lib/utils';
+import { useCredits } from '@/hooks/use-credits';
+import { CREDIT_COSTS } from '@/config/pricing';
 
 interface PredictionCardProps {
   fixture: ProcessedFixture;
@@ -26,12 +29,49 @@ interface PredictionCardProps {
   isLocked?: boolean;
 }
 
+// Track which predictions have been unlocked this session (shared across all cards)
+const unlockedPredictions = new Set<number>();
+
 export function PredictionCard({ fixture, prediction, isLocked = false }: PredictionCardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const [creditError, setCreditError] = useState<string | null>(null);
+  const [deducting, setDeducting] = useState(false);
+  const { data: session } = useSession();
+  const { deductCredits, hasEnoughCredits } = useCredits();
 
-  const handleViewDetails = () => {
-    setShowDetails(true);
-  };
+  const handleViewDetails = useCallback(async () => {
+    setCreditError(null);
+
+    if (!session?.user) {
+      setCreditError('Sign in to view prediction details');
+      return;
+    }
+
+    // Already unlocked this session — open for free
+    if (unlockedPredictions.has(fixture.id)) {
+      setShowDetails(true);
+      return;
+    }
+
+    if (!hasEnoughCredits(CREDIT_COSTS.VIEW_PREDICTION)) {
+      setCreditError('Not enough credits');
+      return;
+    }
+
+    setDeducting(true);
+    const result = await deductCredits(
+      CREDIT_COSTS.VIEW_PREDICTION,
+      `View prediction: ${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`
+    );
+    setDeducting(false);
+
+    if (result.success) {
+      unlockedPredictions.add(fixture.id);
+      setShowDetails(true);
+    } else {
+      setCreditError(result.error || 'Failed to deduct credits');
+    }
+  }, [session, fixture, deductCredits, hasEnoughCredits]);
 
   const getAdviceBadgeVariant = (advice?: string) => {
     if (!advice) return 'secondary';
@@ -203,17 +243,33 @@ export function PredictionCard({ fixture, prediction, isLocked = false }: Predic
         {/* View details button */}
         {prediction && !isLocked && (
           <Dialog open={showDetails} onOpenChange={setShowDetails}>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full group/btn border-border/50 hover:border-primary/50 hover:bg-primary/5"
-                onClick={handleViewDetails}
-              >
-                View Details
-                <ArrowRight className="h-3 w-3 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-              </Button>
-            </DialogTrigger>
+            <div className="space-y-1.5">
+              {creditError && (
+                <p className="text-xs text-destructive text-center">{creditError}</p>
+              )}
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full group/btn border-border/50 hover:border-primary/50 hover:bg-primary/5"
+                  onClick={handleViewDetails}
+                  disabled={deducting}
+                >
+                  {deducting ? 'Unlocking...' : (
+                    <>
+                      View Details
+                      {!unlockedPredictions.has(fixture.id) && (
+                        <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-muted-foreground">
+                          <Coins className="h-3 w-3" />
+                          {CREDIT_COSTS.VIEW_PREDICTION}
+                        </span>
+                      )}
+                      <ArrowRight className="h-3 w-3 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </Button>
+              </DialogTrigger>
+            </div>
             <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle className="text-xl">
