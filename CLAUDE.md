@@ -16,6 +16,7 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
 - **Auth**: Google OAuth (project: "My Predictify" in Google Cloud Console)
 - DB connection: code checks both `DATABASE_URL` and `POSTGRES_URL` (Vercel sets both via Neon integration)
 - Schema migrations: `npx drizzle-kit push` (but note: custom pg schema requires `CREATE SCHEMA predictify` first — drizzle-kit won't auto-create it)
+- PENDING: `gold` value added to tier enum in schema — run `npx drizzle-kit push` or `ALTER TYPE predictify.tier ADD VALUE 'gold'` on Neon
 - Sign-in callback is non-blocking on DB errors — user record created on first dashboard visit via `getOrCreateUser`
 
 ## Tech Stack
@@ -26,6 +27,9 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
 - **Database**: Neon PostgreSQL (Drizzle ORM)
 - **Auth**: NextAuth.js with Google OAuth
 - **Payments**: Stripe (GBP pricing, live keys configured)
+  - Tiers: Free (100 credits, PL) → Pro £19/mo (500 credits, PL) → Gold £49/mo (2000 credits, all leagues)
+  - Annual: Pro £159/yr, Gold £410/yr
+  - Stripe price IDs hardcoded in `src/config/pricing.ts`
 - **AI**: OpenAI GPT-4o-mini
 - **Data**: SportMonks Football API v3
 - **Pipeline**: Claude CLI skills + TypeScript scripts
