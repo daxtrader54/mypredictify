@@ -40,15 +40,12 @@ export default function HomePage() {
               Machine learning predictions, value bet analysis, and AI-generated accumulators
               for the top European leagues. Make data-driven decisions.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="text-base px-8 h-12">
+            <div className="mt-10 flex items-center justify-center">
+              <Button asChild size="lg" className="text-base px-10 h-13 bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/25">
                 <Link href="/predictions">
                   View Predictions
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="text-base px-8 h-12">
-                <Link href="/login">Sign Up Free</Link>
               </Button>
             </div>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
@@ -93,8 +90,9 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 border-y border-border/50 bg-muted/20">
-        <div className="container">
+      <section className="relative py-12 border-y border-border/50 bg-muted/20 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+        <div className="container relative">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary">5</div>
@@ -117,8 +115,9 @@ export default function HomePage() {
       </section>
 
       {/* Leagues */}
-      <section className="py-16">
-        <div className="container">
+      <section className="relative py-16 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_25%,rgba(var(--primary-rgb,34,197,94),0.03)_25%,rgba(var(--primary-rgb,34,197,94),0.03)_50%,transparent_50%,transparent_75%,rgba(var(--primary-rgb,34,197,94),0.03)_75%)] bg-[length:40px_40px]" />
+        <div className="container relative">
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-60">
             <span className="text-lg font-semibold">Premier League</span>
             <span className="text-lg font-semibold">La Liga</span>
@@ -130,8 +129,11 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 md:py-28">
-        <div className="container">
+      <section className="relative py-20 md:py-28 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+        <div className="absolute top-20 right-10 w-72 h-72 rounded-full bg-primary/3 blur-3xl" />
+        <div className="absolute bottom-20 left-10 w-96 h-96 rounded-full bg-purple-500/3 blur-3xl" />
+        <div className="container relative">
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Features</Badge>
             <h2 className="text-3xl md:text-4xl font-bold">
@@ -225,8 +227,10 @@ export default function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 md:py-28 bg-muted/30">
-        <div className="container">
+      <section className="relative py-20 md:py-28 bg-muted/30 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:48px_48px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent" />
+        <div className="container relative">
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Simple Process</Badge>
             <h2 className="text-3xl md:text-4xl font-bold">
@@ -267,8 +271,9 @@ export default function HomePage() {
       </section>
 
       {/* Pricing Preview */}
-      <section className="py-20 md:py-28">
-        <div className="container">
+      <section className="relative py-20 md:py-28 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,_var(--tw-gradient-stops))] from-yellow-500/5 via-transparent to-transparent" />
+        <div className="container relative">
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Pricing</Badge>
             <h2 className="text-3xl md:text-4xl font-bold">
@@ -284,7 +289,7 @@ export default function HomePage() {
               <CardContent className="pt-6">
                 <div className="text-center mb-6">
                   <h3 className="font-semibold text-lg">Free</h3>
-                  <div className="text-4xl font-bold mt-2">$0</div>
+                  <div className="text-4xl font-bold mt-2">£0</div>
                   <p className="text-muted-foreground text-sm mt-1">Forever free</p>
                 </div>
                 <ul className="space-y-3 text-sm">
@@ -314,7 +319,7 @@ export default function HomePage() {
               <CardContent className="pt-6">
                 <div className="text-center mb-6">
                   <h3 className="font-semibold text-lg">Pro</h3>
-                  <div className="text-4xl font-bold mt-2">$19</div>
+                  <div className="text-4xl font-bold mt-2">£19</div>
                   <p className="text-muted-foreground text-sm mt-1">per month</p>
                 </div>
                 <ul className="space-y-3 text-sm">
@@ -347,8 +352,9 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20 md:py-28">
         <div className="container">
-          <div className="relative rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-8 md:p-16 text-center overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+          <div className="relative rounded-2xl bg-gradient-to-br from-green-600/20 via-green-600/10 to-transparent p-8 md:p-16 text-center overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-500/10 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px]" />
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Ready to Start Winning?
@@ -356,10 +362,10 @@ export default function HomePage() {
               <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
                 Join thousands of users making smarter betting decisions with AI-powered predictions.
               </p>
-              <Button asChild size="lg" className="text-base px-8 h-12">
-                <Link href="/login">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-4 w-4" />
+              <Button asChild size="lg" className="text-base px-10 h-13 bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/25">
+                <Link href="/predictions">
+                  View Predictions
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
             </div>
