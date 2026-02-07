@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Menu, LogOut, User, CreditCard, Coins, Target, TrendingUp, Layers, Crown } from 'lucide-react';
+import { Menu, LogOut, User, CreditCard, Coins, TrendingUp, Layers, Crown, Target } from 'lucide-react';
+import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -51,9 +52,7 @@ export function Header() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <Target className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <Logo className="h-9 w-9" />
           <span className="font-bold text-xl hidden sm:inline-block">{siteConfig.name}</span>
         </Link>
 

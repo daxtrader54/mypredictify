@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCredits } from '@/hooks/use-credits';
 import { siteConfig, ADMIN_EMAIL } from '@/config/site';
 import { LEAGUES } from '@/config/leagues';
+import { Logo } from './logo';
 
 const navItems = [
   {
@@ -90,12 +91,10 @@ export function Sidebar() {
 
   return (
     <div className="flex h-full flex-col bg-gradient-to-b from-card to-card/50">
-      {/* Logo */}
-      <div className="flex h-16 items-center border-b border-border/50 px-4">
+      {/* Logo - only visible in mobile sheet */}
+      <div className="flex h-16 items-center border-b border-border/50 px-4 md:hidden">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <Target className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <Logo className="h-9 w-9" />
           <span className="font-bold text-xl">{siteConfig.name}</span>
         </Link>
       </div>

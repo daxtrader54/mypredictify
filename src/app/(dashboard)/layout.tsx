@@ -11,7 +11,7 @@ export default function DashboardLayout({
       <Header />
       <div className="flex">
         {/* Desktop Sidebar */}
-        <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:pt-14 border-r bg-card">
+        <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:top-16 md:bottom-0 border-r bg-card overflow-y-auto">
           <Sidebar />
         </aside>
 
