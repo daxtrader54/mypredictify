@@ -39,10 +39,9 @@ export const authOptions: NextAuthOptions = {
       if (user.email) {
         try {
           await getOrCreateUser(user.email, user.name, user.image);
-          return true;
         } catch (error) {
-          console.error('Error during sign in:', error);
-          return false;
+          console.error('Error during sign in (DB):', error);
+          // Don't block sign-in if DB fails — user record created on next request
         }
       }
       return true;
