@@ -42,13 +42,13 @@ export default function HomePage() {
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="text-base px-8 h-12">
-                <Link href="/login">
-                  Start Free
+                <Link href="/predictions">
+                  View Predictions
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="text-base px-8 h-12">
-                <Link href="/predictions">View Predictions</Link>
+                <Link href="/login">Sign Up Free</Link>
               </Button>
             </div>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
@@ -64,6 +64,29 @@ export default function HomePage() {
                 <Check className="h-4 w-4 text-primary" />
                 +10 daily bonus
               </span>
+            </div>
+
+            {/* Credits explanation */}
+            <div className="mt-12 max-w-2xl mx-auto">
+              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-semibold">How credits work</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
+                  <p className="text-lg font-bold text-primary">1</p>
+                  <p className="text-xs text-muted-foreground">View prediction</p>
+                </div>
+                <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
+                  <p className="text-lg font-bold text-primary">3</p>
+                  <p className="text-xs text-muted-foreground">Detailed stats</p>
+                </div>
+                <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
+                  <p className="text-lg font-bold text-primary">5</p>
+                  <p className="text-xs text-muted-foreground">Generate ACCA</p>
+                </div>
+                <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
+                  <p className="text-lg font-bold text-primary">2</p>
+                  <p className="text-xs text-muted-foreground">Value bet</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

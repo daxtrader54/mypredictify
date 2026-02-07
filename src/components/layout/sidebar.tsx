@@ -80,7 +80,7 @@ const navItems = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { credits, tier, isPro, canRedeemDaily, redeemDailyCredits, loading } = useCredits();
@@ -90,7 +90,7 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-full flex-col bg-gradient-to-b from-card to-card/50">
+    <div className="flex h-full flex-col bg-gradient-to-b from-card to-card/50 overflow-y-auto">
       {/* Logo - only visible in mobile sheet */}
       <div className="flex h-16 items-center border-b border-border/50 px-4 md:hidden">
         <Link href="/" className="flex items-center space-x-2">
@@ -160,6 +160,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={isLocked ? '/pricing' : item.href}
+              onClick={onNavigate}
               className={cn(
                 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
                 isActive
@@ -202,6 +203,7 @@ export function Sidebar() {
               <Link
                 key={league.id}
                 href={isLocked ? '/pricing' : leagueHref}
+                onClick={onNavigate}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
                   isActive
@@ -224,7 +226,7 @@ export function Sidebar() {
       {/* Upgrade CTA */}
       {tier === 'free' && session && (
         <div className="p-4 border-t border-border/50">
-          <Link href="/pricing">
+          <Link href="/pricing" onClick={onNavigate}>
             <div className="rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-4 border border-primary/20 hover:border-primary/40 transition-colors">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="h-4 w-4 text-primary" />

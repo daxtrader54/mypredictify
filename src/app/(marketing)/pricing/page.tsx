@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Check, Sparkles, Zap } from 'lucide-react';
 import { PRICING_PLANS, ADD_ONS, formatPrice, CREDIT_COSTS } from '@/config/pricing';
+import { SubscribeButton } from './subscribe-button';
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -73,15 +74,16 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button
-                  asChild
-                  className="w-full"
-                  variant={plan.popular ? 'default' : 'outline'}
-                >
-                  <Link href={plan.price === 0 ? '/login' : '/login?upgrade=' + plan.id}>
-                    {plan.price === 0 ? 'Get Started Free' : 'Subscribe'}
-                  </Link>
-                </Button>
+                {plan.price === 0 ? (
+                  <Button asChild className="w-full" variant="outline">
+                    <Link href="/login">Get Started Free</Link>
+                  </Button>
+                ) : (
+                  <SubscribeButton
+                    priceId={plan.stripePriceIdMonthly || ''}
+                    popular={plan.popular}
+                  />
+                )}
               </CardFooter>
             </Card>
           ))}

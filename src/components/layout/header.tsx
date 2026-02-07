@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signIn, signOut } from 'next-auth/react';
@@ -30,6 +31,7 @@ const navItems = [
 ];
 
 export function Header() {
+  const [sheetOpen, setSheetOpen] = useState(false);
   const { data: session, status } = useSession();
   const { credits, tier, loading: creditsLoading } = useCredits();
   const pathname = usePathname();
@@ -38,7 +40,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         {/* Mobile menu */}
-        <Sheet>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden mr-2">
               <Menu className="h-5 w-5" />
@@ -46,7 +48,7 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72 p-0">
-            <Sidebar />
+            <Sidebar onNavigate={() => setSheetOpen(false)} />
           </SheetContent>
         </Sheet>
 
