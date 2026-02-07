@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth/get-session';
 import { getOrCreateUser } from '@/lib/db/users';
 import { DashboardContent } from './dashboard-content';
+import { AccuracyTracker } from '@/components/dashboard/accuracy-tracker';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -22,5 +23,10 @@ export default async function DashboardPage() {
     session.user.image
   );
 
-  return <DashboardContent user={user} />;
+  return (
+    <div className="space-y-8">
+      <DashboardContent user={user} />
+      <AccuracyTracker />
+    </div>
+  );
 }
