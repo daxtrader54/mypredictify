@@ -1,0 +1,28 @@
+{
+  "signalWeights": {
+    "form": 0.25,
+    "squad": 0.15,
+    "tactical": 0.15,
+    "market": 0.30,
+    "narrative": 0.15
+  },
+  "elo": {
+    "kFactor": 20,
+    "homeAdvantage": 65,
+    "initialRating": 1500
+  },
+  "poisson": {
+    "maxGoals": 5
+  },
+  "synthesis": {
+    "model": "gpt-4o-mini",
+    "temperature": 0.3
+  },
+  "confidenceThreshold": 0.6,
+  "errorHandling": {
+    "maxRetries": 3,
+    "retryDelayMs": 2000,
+    "skipOnFailure": true,
+    "logErrors": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "gameweeks": [],
+  "cumulative": {
+    "totalPredictions": 0,
+    "correctOutcomes": 0,
+    "correctScores": 0,
+    "avgLogLoss": null,
+    "avgBrierScore": null
+  }
+}

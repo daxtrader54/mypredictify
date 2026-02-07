@@ -1,0 +1,581 @@
+{
+  "ratings": {
+    "1": {
+      "rating": 1342,
+      "team": "West Ham United",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "3": {
+      "rating": 1553,
+      "team": "Sunderland",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "6": {
+      "rating": 1426,
+      "team": "Tottenham Hotspur",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "8": {
+      "rating": 1595,
+      "team": "Liverpool",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "9": {
+      "rating": 1679,
+      "team": "Manchester City",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "11": {
+      "rating": 1532,
+      "team": "Fulham",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "13": {
+      "rating": 1511,
+      "team": "Everton",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "14": {
+      "rating": 1637,
+      "team": "Manchester United",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "15": {
+      "rating": 1658,
+      "team": "Aston Villa",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "18": {
+      "rating": 1616,
+      "team": "Chelsea",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "19": {
+      "rating": 1700,
+      "team": "Arsenal",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "20": {
+      "rating": 1489,
+      "team": "Newcastle United",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "27": {
+      "rating": 1321,
+      "team": "Burnley",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "29": {
+      "rating": 1300,
+      "team": "Wolverhampton Wanderers",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "36": {
+      "rating": 1574,
+      "team": "Celta de Vigo",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "37": {
+      "rating": 1616,
+      "team": "Roma",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "43": {
+      "rating": 1553,
+      "team": "Lazio",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "44": {
+      "rating": 1653,
+      "team": "Olympique Marseille",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "51": {
+      "rating": 1405,
+      "team": "Crystal Palace",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "52": {
+      "rating": 1468,
+      "team": "AFC Bournemouth",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "59": {
+      "rating": 1347,
+      "team": "Nantes",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "63": {
+      "rating": 1363,
+      "team": "Nottingham Forest",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "68": {
+      "rating": 1676,
+      "team": "Borussia Dortmund",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.524Z"
+    },
+    "71": {
+      "rating": 1384,
+      "team": "Leeds United",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "78": {
+      "rating": 1447,
+      "team": "Brighton & Hove Albion",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "79": {
+      "rating": 1629,
+      "team": "Olympique Lyonnais",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "82": {
+      "rating": 1371,
+      "team": "Werder Bremen",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "83": {
+      "rating": 1700,
+      "team": "FC Barcelona",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "90": {
+      "rating": 1465,
+      "team": "FC Augsburg",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "93": {
+      "rating": 1300,
+      "team": "Real Oviedo",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "102": {
+      "rating": 1384,
+      "team": "Genoa",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "106": {
+      "rating": 1384,
+      "team": "Getafe",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "109": {
+      "rating": 1342,
+      "team": "Fiorentina",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "113": {
+      "rating": 1679,
+      "team": "AC Milan",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "214": {
+      "rating": 1363,
+      "team": "Valencia",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "231": {
+      "rating": 1468,
+      "team": "Girona",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "236": {
+      "rating": 1574,
+      "team": "Brentford",
+      "league": "Premier League",
+      "updatedAt": "2026-02-07T11:06:58.034Z"
+    },
+    "266": {
+      "rating": 1441,
+      "team": "Brest",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "268": {
+      "rating": 1595,
+      "team": "Como",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "271": {
+      "rating": 1676,
+      "team": "Lens",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "277": {
+      "rating": 1606,
+      "team": "RB Leipzig",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "289": {
+      "rating": 1535,
+      "team": "Toulouse",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "346": {
+      "rating": 1532,
+      "team": "Udinese",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "353": {
+      "rating": 1324,
+      "team": "St. Pauli",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "366": {
+      "rating": 1559,
+      "team": "Eintracht Frankfurt",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "377": {
+      "rating": 1342,
+      "team": "Rayo Vallecano",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "398": {
+      "rating": 1405,
+      "team": "Parma",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "450": {
+      "rating": 1418,
+      "team": "Nice",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "459": {
+      "rating": 1553,
+      "team": "Osasuna",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "485": {
+      "rating": 1616,
+      "team": "Real Betis",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "503": {
+      "rating": 1700,
+      "team": "FC Bayern München",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.524Z"
+    },
+    "510": {
+      "rating": 1394,
+      "team": "VfL Wolfsburg",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "528": {
+      "rating": 1595,
+      "team": "Espanyol",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "585": {
+      "rating": 1468,
+      "team": "Cagliari",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "591": {
+      "rating": 1700,
+      "team": "Paris Saint Germain",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "594": {
+      "rating": 1532,
+      "team": "Real Sociedad",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "597": {
+      "rating": 1658,
+      "team": "Napoli",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "598": {
+      "rating": 1582,
+      "team": "Rennes",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "613": {
+      "rating": 1447,
+      "team": "Torino",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "625": {
+      "rating": 1637,
+      "team": "Juventus",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "645": {
+      "rating": 1426,
+      "team": "Mallorca",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "676": {
+      "rating": 1405,
+      "team": "Sevilla",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "683": {
+      "rating": 1441,
+      "team": "Borussia Mönchengladbach",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "686": {
+      "rating": 1559,
+      "team": "Strasbourg",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "690": {
+      "rating": 1606,
+      "team": "LOSC Lille",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "708": {
+      "rating": 1574,
+      "team": "Atalanta",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "776": {
+      "rating": 1465,
+      "team": "Angers SCO",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "794": {
+      "rating": 1347,
+      "team": "FSV Mainz 05",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "1055": {
+      "rating": 1371,
+      "team": "Le Havre",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "1072": {
+      "rating": 1321,
+      "team": "Pisa",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "1079": {
+      "rating": 1512,
+      "team": "FC Union Berlin",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "1099": {
+      "rating": 1447,
+      "team": "Elche",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "1123": {
+      "rating": 1300,
+      "team": "Hellas Verona",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "2708": {
+      "rating": 1418,
+      "team": "Hamburger SV",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "2714": {
+      "rating": 1489,
+      "team": "Sassuolo",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "2726": {
+      "rating": 1653,
+      "team": "TSG Hoffenheim",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "2831": {
+      "rating": 1300,
+      "team": "Heidenheim",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "2930": {
+      "rating": 1700,
+      "team": "Inter",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "2975": {
+      "rating": 1511,
+      "team": "Deportivo Alavés",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "3319": {
+      "rating": 1629,
+      "team": "VfB Stuttgart",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "3320": {
+      "rating": 1488,
+      "team": "FC Köln",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "3321": {
+      "rating": 1582,
+      "team": "Bayer 04 Leverkusen",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "3457": {
+      "rating": 1321,
+      "team": "Levante",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "3468": {
+      "rating": 1679,
+      "team": "Real Madrid",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "3477": {
+      "rating": 1637,
+      "team": "Villarreal",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "3513": {
+      "rating": 1300,
+      "team": "Metz",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "3543": {
+      "rating": 1535,
+      "team": "SC Freiburg",
+      "league": "Bundesliga",
+      "updatedAt": "2026-02-07T11:06:58.525Z"
+    },
+    "3682": {
+      "rating": 1324,
+      "team": "Auxerre",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "4508": {
+      "rating": 1394,
+      "team": "Paris",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "6789": {
+      "rating": 1488,
+      "team": "Monaco",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "7790": {
+      "rating": 1363,
+      "team": "Lecce",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "7980": {
+      "rating": 1658,
+      "team": "Atlético Madrid",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    },
+    "8513": {
+      "rating": 1511,
+      "team": "Bologna",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "9257": {
+      "rating": 1512,
+      "team": "Lorient",
+      "league": "Ligue 1",
+      "updatedAt": "2026-02-07T11:06:58.973Z"
+    },
+    "10722": {
+      "rating": 1426,
+      "team": "Cremonese",
+      "league": "Serie A",
+      "updatedAt": "2026-02-07T11:06:58.752Z"
+    },
+    "13258": {
+      "rating": 1489,
+      "team": "Athletic Club",
+      "league": "La Liga",
+      "updatedAt": "2026-02-07T11:06:58.277Z"
+    }
+  },
+  "lastUpdated": "2026-02-07T11:06:57.391Z"
+}

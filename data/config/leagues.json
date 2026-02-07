@@ -1,0 +1,10 @@
+{
+  "season": "2025-26",
+  "leagues": [
+    { "id": 8, "name": "Premier League", "country": "England", "seasonId": 25583, "seasonName": "2025/2026" },
+    { "id": 564, "name": "La Liga", "country": "Spain", "seasonId": 25659, "seasonName": "2025/2026" },
+    { "id": 82, "name": "Bundesliga", "country": "Germany", "seasonId": 25646, "seasonName": "2025/2026" },
+    { "id": 384, "name": "Serie A", "country": "Italy", "seasonId": 25533, "seasonName": "2025/2026" },
+    { "id": 301, "name": "Ligue 1", "country": "France", "seasonId": 25651, "seasonName": "2025/2026" }
+  ]
+}

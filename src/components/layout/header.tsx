@@ -1,0 +1,161 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { Menu, LogOut, User, CreditCard, Coins, Target, TrendingUp, Layers, Crown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
+import { Sidebar } from './sidebar';
+import { useCredits } from '@/hooks/use-credits';
+import { siteConfig } from '@/config/site';
+import { cn } from '@/lib/utils';
+
+const navItems = [
+  { href: '/predictions', label: 'Predictions', icon: Target },
+  { href: '/value-bets', label: 'Value Bets', icon: TrendingUp },
+  { href: '/acca-builder', label: 'ACCA Builder', icon: Layers },
+  { href: '/pricing', label: 'Pricing', icon: Crown },
+];
+
+export function Header() {
+  const { data: session, status } = useSession();
+  const { credits, tier, loading: creditsLoading } = useCredits();
+  const pathname = usePathname();
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center">
+        {/* Mobile menu */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden mr-2">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-72 p-0">
+            <Sidebar />
+          </SheetContent>
+        </Sheet>
+
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <Target className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <span className="font-bold text-xl hidden sm:inline-block">{siteConfig.name}</span>
+        </Link>
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center space-x-1 ml-8">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  isActive
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Right side */}
+        <div className="flex flex-1 items-center justify-end space-x-3">
+          {status === 'loading' ? (
+            <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+          ) : session?.user ? (
+            <>
+              {/* Credits display */}
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
+                <div className="h-6 w-6 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                  <Coins className="h-3.5 w-3.5 text-yellow-500" />
+                </div>
+                <span className="text-sm font-semibold">
+                  {creditsLoading ? '...' : credits.toLocaleString()}
+                </span>
+                <Badge
+                  variant={tier === 'free' ? 'secondary' : 'default'}
+                  className={cn(
+                    "text-xs",
+                    tier !== 'free' && "bg-primary/20 text-primary border-primary/30"
+                  )}
+                >
+                  {tier === 'free' ? 'FREE' : 'PRO'}
+                </Badge>
+              </div>
+
+              {/* User menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-border hover:ring-primary/50 transition-all">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={session.user.image || ''} alt={session.user.name || ''} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {session.user.name?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{session.user.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {session.user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className="flex items-center cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/subscription" className="flex items-center cursor-pointer">
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Subscription
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <Button onClick={() => signIn('google')} className="font-medium">
+              Sign In
+            </Button>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}

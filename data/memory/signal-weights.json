@@ -1,0 +1,11 @@
+{
+  "weights": {
+    "form": 0.25,
+    "squad": 0.15,
+    "tactical": 0.15,
+    "market": 0.30,
+    "narrative": 0.15
+  },
+  "history": [],
+  "lastUpdated": null
+}
