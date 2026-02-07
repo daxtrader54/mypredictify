@@ -3,7 +3,21 @@
     "allow": [
       "Bash(git push:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: MyPredictify football prediction SaaS\n\nNext.js 16 + TypeScript + shadcn/ui + Drizzle ORM + Neon PostgreSQL.\nIncludes prediction pipeline, SportMonks integration, Elo/Poisson models,\nACCA builder, and GW25 predictions data.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nSet default site URL to mypredictify.com\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix AccessDenied: don''t block sign-in if DB call fails\n\nThe signIn callback was returning false when getOrCreateUser threw,\nwhich happens if DATABASE_URL is missing or tables don''t exist yet.\nNow lets users through regardless and creates their record later.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npx drizzle-kit push:*)",
+      "Bash(git commit:*)",
+      "Bash(npx tsx -e \"\nconst { neon } = require\\(''@neondatabase/serverless''\\);\nconst sql = neon\\(''postgresql://neondb_owner:npg_mjGob3wkn8Pg@ep-shy-hat-ah32gmee-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require''\\);\nsql\\(''SELECT schema_name FROM information_schema.schemata''\\).then\\(r => console.log\\(JSON.stringify\\(r\\)\\)\\).catch\\(e => console.error\\(e\\)\\);\n\")",
+      "Bash(node -e \"\nconst { neon } = require\\(''@neondatabase/serverless''\\);\nconst sql = neon\\(''postgresql://neondb_owner:npg_mjGob3wkn8Pg@ep-shy-hat-ah32gmee-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require''\\);\nsql\\(''SELECT schema_name FROM information_schema.schemata''\\).then\\(r => console.log\\(JSON.stringify\\(r\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\);\n\")",
+      "Bash(node -e \"\nconst { neon } = require\\(''@neondatabase/serverless''\\);\nconst sql = neon\\(''postgresql://neondb_owner:npg_mjGob3wkn8Pg@ep-shy-hat-ah32gmee-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require''\\);\nsql.query\\(''SELECT schema_name FROM information_schema.schemata''\\).then\\(r => console.log\\(JSON.stringify\\(r.rows || r\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\);\n\")",
+      "Bash(node -e \"\nconst { neon } = require\\(''@neondatabase/serverless''\\);\nconst sql = neon\\(''postgresql://neondb_owner:npg_mjGob3wkn8Pg@ep-shy-hat-ah32gmee-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require''\\);\nsql.query\\(''CREATE SCHEMA IF NOT EXISTS predictify''\\).then\\(r => console.log\\(''Schema created''\\)\\).catch\\(e => console.error\\(e.message\\)\\);\n\")",
+      "Bash(node -e \"\nconst { neon } = require\\(''@neondatabase/serverless''\\);\nconst sql = neon\\(''postgresql://neondb_owner:npg_mjGob3wkn8Pg@ep-shy-hat-ah32gmee-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require''\\);\nsql.query\\(\"\"SELECT table_name FROM information_schema.tables WHERE table_schema = ''predictify''\"\"\\).then\\(r => console.log\\(JSON.stringify\\(r.rows || r\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\);\n\")",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(node -e:*)"
     ]
   }
 }
