@@ -3,7 +3,7 @@ export const ADMIN_EMAIL = 'daxtrader54@gmail.com';
 export const siteConfig = {
   name: 'MyPredictify',
   description: 'AI-powered football predictions and betting recommendations',
-  url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'https://mypredictify.com',
   ogImage: '/og-image.png',
   links: {
     twitter: 'https://twitter.com/mypredictify',
