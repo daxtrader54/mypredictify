@@ -7,11 +7,12 @@ let _db: NeonHttpDatabase<typeof schema> | null = null;
 function getDb(): NeonHttpDatabase<typeof schema> {
   if (_db) return _db;
 
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is required');
+  const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL or POSTGRES_URL environment variable is required');
   }
 
-  const sql: NeonQueryFunction<boolean, boolean> = neon(process.env.DATABASE_URL);
+  const sql: NeonQueryFunction<boolean, boolean> = neon(databaseUrl);
   _db = drizzle(sql, { schema });
   return _db;
 }
