@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth/get-session';
-import { getUser } from '@/lib/db/users';
+import { getOrCreateUser } from '@/lib/db/users';
 import { DashboardContent } from './dashboard-content';
 
 export const metadata: Metadata = {
@@ -16,11 +16,11 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  const user = await getUser(session.user.email);
-
-  if (!user) {
-    redirect('/login');
-  }
+  const user = await getOrCreateUser(
+    session.user.email,
+    session.user.name,
+    session.user.image
+  );
 
   return <DashboardContent user={user} />;
 }

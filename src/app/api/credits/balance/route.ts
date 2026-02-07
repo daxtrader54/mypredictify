@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/get-session';
-import { getUserCredits } from '@/lib/db/users';
+import { getOrCreateUser } from '@/lib/db/users';
 
 export async function GET() {
   try {
@@ -10,12 +10,20 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { credits, tier, hasApiAccess, canRedeemDaily } = await getUserCredits(session.user.email);
+    const user = await getOrCreateUser(
+      session.user.email,
+      session.user.name,
+      session.user.image
+    );
+
+    const now = new Date();
+    const hoursSinceReset = (now.getTime() - user.dailyCreditsLastReset.getTime()) / (1000 * 60 * 60);
+    const canRedeemDaily = hoursSinceReset >= 24 && user.tier === 'free';
 
     return NextResponse.json({
-      credits,
-      tier,
-      hasApiAccess,
+      credits: user.credits,
+      tier: user.tier,
+      hasApiAccess: user.hasApiAccess,
       canRedeemDaily,
     });
   } catch (error) {
