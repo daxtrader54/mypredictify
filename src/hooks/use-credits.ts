@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 
 interface CreditsState {
   credits: number;
-  tier: 'free' | 'pro';
+  tier: 'free' | 'pro' | 'gold';
   hasApiAccess: boolean;
   canRedeemDaily: boolean;
   loading: boolean;
@@ -138,7 +138,9 @@ export function useCredits() {
 
   return {
     ...state,
-    isPro: state.tier === 'pro',
+    isPro: state.tier === 'pro' || state.tier === 'gold',
+    isGold: state.tier === 'gold',
+    isPaid: state.tier !== 'free',
     fetchCredits,
     redeemDailyCredits,
     deductCredits,

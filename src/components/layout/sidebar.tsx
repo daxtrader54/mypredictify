@@ -46,7 +46,6 @@ const navItems = [
     icon: TrendingUp,
     color: 'text-green-500',
     bgColor: 'bg-green-500/10',
-    pro: true,
   },
   {
     title: 'ACCA Builder',
@@ -154,19 +153,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
           .filter((item) => !item.admin || session?.user?.email === ADMIN_EMAIL)
           .map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const isLocked = item.pro && tier === 'free';
 
           return (
             <Link
               key={item.href}
-              href={isLocked ? '/pricing' : item.href}
+              href={item.href}
               onClick={onNavigate}
               className={cn(
                 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                isLocked && 'opacity-60'
               )}
             >
               <div className={cn(
@@ -176,11 +173,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
                 <item.icon className={cn('h-4 w-4', isActive ? 'text-primary-foreground' : item.color)} />
               </div>
               {item.title}
-              {item.pro && tier === 'free' && (
-                <Badge variant="outline" className="ml-auto text-xs border-primary/30 text-primary">
-                  PRO
-                </Badge>
-              )}
             </Link>
           );
         })}
@@ -195,7 +187,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
         </p>
         <div className="space-y-1">
           {LEAGUES.map((league) => {
-            const isLocked = league.tier === 'pro' && tier === 'free';
+            const isLocked = league.tier === 'gold' && tier !== 'gold';
             const leagueHref = `/predictions?league=${league.id}`;
             const isActive = pathname === leagueHref;
 

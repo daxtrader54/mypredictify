@@ -5,7 +5,7 @@ export interface League {
   country: string;
   countryCode: string;
   logo?: string;
-  tier: 'free' | 'pro';
+  tier: 'free' | 'gold';
 }
 
 export const LEAGUES: League[] = [
@@ -23,7 +23,7 @@ export const LEAGUES: League[] = [
     shortName: 'LL',
     country: 'Spain',
     countryCode: 'ES',
-    tier: 'pro',
+    tier: 'gold',
   },
   {
     id: 82,
@@ -31,7 +31,7 @@ export const LEAGUES: League[] = [
     shortName: 'BL',
     country: 'Germany',
     countryCode: 'DE',
-    tier: 'pro',
+    tier: 'gold',
   },
   {
     id: 384,
@@ -39,7 +39,7 @@ export const LEAGUES: League[] = [
     shortName: 'SA',
     country: 'Italy',
     countryCode: 'IT',
-    tier: 'pro',
+    tier: 'gold',
   },
   {
     id: 301,
@@ -47,7 +47,7 @@ export const LEAGUES: League[] = [
     shortName: 'L1',
     country: 'France',
     countryCode: 'FR',
-    tier: 'pro',
+    tier: 'gold',
   },
 ];
 
@@ -60,13 +60,15 @@ export const LEAGUE_BY_ID = LEAGUES.reduce(
 );
 
 export const FREE_LEAGUES = LEAGUES.filter((l) => l.tier === 'free');
-export const PRO_LEAGUES = LEAGUES.filter((l) => l.tier === 'pro');
+export const GOLD_LEAGUES = LEAGUES.filter((l) => l.tier === 'gold');
+/** @deprecated Use GOLD_LEAGUES instead */
+export const PRO_LEAGUES = GOLD_LEAGUES;
 
 export function getLeagueById(id: number): League | undefined {
   return LEAGUE_BY_ID[id];
 }
 
-export function getLeaguesForTier(tier: 'free' | 'pro' | 'unlimited'): League[] {
-  if (tier === 'free') return FREE_LEAGUES;
+export function getLeaguesForTier(tier: 'free' | 'pro' | 'gold' | 'unlimited'): League[] {
+  if (tier === 'free' || tier === 'pro') return FREE_LEAGUES;
   return LEAGUES;
 }

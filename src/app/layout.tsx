@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     creator: '@mypredictify',
   },
   icons: {
-    icon: '/favicon.ico',
+    icon: '/icon.svg',
   },
 };
 

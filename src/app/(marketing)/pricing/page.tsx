@@ -1,12 +1,12 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Check, Sparkles, Zap } from 'lucide-react';
-import { PRICING_PLANS, ADD_ONS, formatPrice, CREDIT_COSTS } from '@/config/pricing';
-import { SubscribeButton } from './subscribe-button';
+import { Check, Zap } from 'lucide-react';
+import { ADD_ONS, formatPrice, CREDIT_COSTS } from '@/config/pricing';
+import { PricingCards } from './pricing-cards';
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -28,69 +28,11 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-          {PRICING_PLANS.map((plan) => (
-            <Card
-              key={plan.id}
-              className={`relative flex flex-col ${
-                plan.popular ? 'border-primary shadow-lg scale-105' : ''
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    Most Popular
-                  </Badge>
-                </div>
-              )}
-              <CardHeader className="text-center pb-2">
-                <CardTitle className="text-xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <div className="text-center mb-6">
-                  <span className="text-4xl font-bold">
-                    {plan.price === 0 ? 'Free' : formatPrice(plan.price)}
-                  </span>
-                  {plan.price > 0 && (
-                    <span className="text-muted-foreground">/month</span>
-                  )}
-                  {plan.priceAnnual > 0 && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      or {formatPrice(plan.priceAnnual)}/year (save 16%)
-                    </p>
-                  )}
-                </div>
-
-                <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                {plan.price === 0 ? (
-                  <Button asChild className="w-full" variant="outline">
-                    <Link href="/login">Get Started Free</Link>
-                  </Button>
-                ) : (
-                  <SubscribeButton
-                    priceId={plan.stripePriceIdMonthly || ''}
-                    popular={plan.popular}
-                  />
-                )}
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        {/* Pricing Cards with billing toggle */}
+        <PricingCards />
 
         {/* API Add-on */}
-        <div className="mt-16 max-w-4xl mx-auto">
+        <div className="mt-16 max-w-5xl mx-auto">
           <div className="text-center mb-8">
             <Badge variant="outline" className="mb-4">
               <Zap className="h-3 w-3 mr-1" />
@@ -124,7 +66,7 @@ export default function PricingPage() {
                     <div className="text-3xl font-bold">{formatPrice(addon.price)}</div>
                     <div className="text-sm text-muted-foreground">/month</div>
                     <Button asChild className="mt-4">
-                      <Link href="/login?addon=api">Add to Pro</Link>
+                      <Link href="/login?addon=api">Add to Plan</Link>
                     </Button>
                   </div>
                 </div>
@@ -225,11 +167,24 @@ export default function PricingPage() {
 
             <Card>
               <CardHeader>
+                <CardTitle className="text-base">What&apos;s the difference between Pro and Gold?</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground">
+                  Pro gives you more credits for Premier League predictions. Gold unlocks
+                  all 5 European leagues (La Liga, Bundesliga, Serie A, Ligue 1) plus
+                  2,000 credits per month.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle className="text-base">Can I add API access later?</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground">
-                  Yes! API access is an optional add-on available to Pro subscribers.
+                  Yes! API access is an optional add-on available to any paid subscriber.
                   You can add or remove it at any time from your dashboard.
                 </p>
               </CardContent>

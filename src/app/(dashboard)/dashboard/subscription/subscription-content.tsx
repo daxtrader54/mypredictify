@@ -12,7 +12,7 @@ import { PRICING_PLANS, formatPrice, CREDIT_COSTS } from '@/config/pricing';
 
 export function SubscriptionContent({ user }: { user: User }) {
   const [portalLoading, setPortalLoading] = useState(false);
-  const isPro = user.tier === 'pro';
+  const isPaid = user.tier !== 'free';
   const currentPlan = PRICING_PLANS.find(p => p.id === user.tier);
 
   const handleManageBilling = async () => {
@@ -44,9 +44,9 @@ export function SubscriptionContent({ user }: { user: User }) {
             <div>
               <CardTitle className="flex items-center gap-2">
                 Current Plan
-                <Badge variant={isPro ? 'default' : 'secondary'} className="ml-2">
-                  {isPro ? (
-                    <><Crown className="h-3 w-3 mr-1" /> PRO</>
+                <Badge variant={isPaid ? 'default' : 'secondary'} className="ml-2">
+                  {isPaid ? (
+                    <><Crown className="h-3 w-3 mr-1" /> {user.tier.toUpperCase()}</>
                   ) : (
                     'FREE'
                   )}
@@ -56,7 +56,7 @@ export function SubscriptionContent({ user }: { user: User }) {
                 {currentPlan?.description}
               </CardDescription>
             </div>
-            {isPro && (
+            {isPaid && (
               <div className="text-right">
                 <div className="text-2xl font-bold">{formatPrice(currentPlan?.price || 0)}</div>
                 <div className="text-sm text-muted-foreground">/month</div>
@@ -75,7 +75,7 @@ export function SubscriptionContent({ user }: { user: User }) {
           </ul>
         </CardContent>
         <CardFooter className="flex gap-3">
-          {isPro ? (
+          {isPaid ? (
             <Button onClick={handleManageBilling} disabled={portalLoading}>
               {portalLoading ? (
                 <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Loading...</>
@@ -87,7 +87,7 @@ export function SubscriptionContent({ user }: { user: User }) {
             <Button asChild>
               <Link href="/pricing">
                 <Crown className="h-4 w-4 mr-2" />
-                Upgrade to Pro
+                View Plans
               </Link>
             </Button>
           )}
@@ -141,11 +141,11 @@ export function SubscriptionContent({ user }: { user: User }) {
             </div>
           </div>
 
-          {!isPro && (
+          {!isPaid && (
             <>
               <Separator />
               <div className="text-sm text-muted-foreground">
-                Free plan includes +{currentPlan?.dailyRefresh} daily bonus credits. Upgrade to Pro for {PRICING_PLANS.find(p => p.id === 'pro')?.credits.toLocaleString()} credits/month.
+                Free plan includes +{currentPlan?.dailyRefresh} daily bonus credits. Upgrade for more credits and league access.
               </div>
             </>
           )}
@@ -153,17 +153,17 @@ export function SubscriptionContent({ user }: { user: User }) {
       </Card>
 
       {/* Upgrade CTA for free users */}
-      {!isPro && (
+      {!isPaid && (
         <Card className="border-primary/50 bg-gradient-to-br from-primary/5 to-transparent">
           <CardContent className="py-8 text-center">
             <Crown className="h-10 w-10 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-bold mb-2">Unlock All 5 Leagues</h3>
+            <h3 className="text-xl font-bold mb-2">Upgrade Your Plan</h3>
             <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
-              Get 1,000 credits/month, all European leagues, value bet alerts, and unlimited AI ACCA recommendations.
+              Get more credits, unlock all 5 European leagues, value bet alerts, and unlimited AI ACCA recommendations.
             </p>
             <Button asChild size="lg">
               <Link href="/pricing">
-                View Pro Plans
+                View Plans
                 <ExternalLink className="h-4 w-4 ml-2" />
               </Link>
             </Button>

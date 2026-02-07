@@ -1,4 +1,4 @@
-export type PricingTier = 'free' | 'pro';
+export type PricingTier = 'free' | 'pro' | 'gold';
 
 export interface PricingPlan {
   id: PricingTier;
@@ -47,13 +47,32 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    description: 'Full access to all European leagues',
+    description: 'More credits for Premier League predictions',
     price: 1900, // £19
     priceAnnual: 15900, // £159/year (£13.25/mo)
-    credits: 1000,
+    credits: 500,
     dailyRefresh: 0,
     features: [
-      '1,000 credits per month',
+      '500 credits per month',
+      'Premier League predictions',
+      'Value bet identification',
+      'Unlimited AI ACCA recommendations',
+      'Advanced match statistics',
+    ],
+    leagues: ['premier-league'],
+    stripePriceIdMonthly: 'price_1SyAY2Lmb0GWa8mAlktlZbHG',
+    stripePriceIdAnnual: 'price_1SyAY3Lmb0GWa8mAQdZad4t1',
+  },
+  {
+    id: 'gold',
+    name: 'Gold',
+    description: 'All 5 European leagues + maximum credits',
+    price: 4900, // £49
+    priceAnnual: 41000, // £410/year (~£34.17/mo)
+    credits: 2000,
+    dailyRefresh: 0,
+    features: [
+      '2,000 credits per month',
       'All 5 European leagues',
       'Value bet identification',
       'Unlimited AI ACCA recommendations',
@@ -61,8 +80,8 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Priority support',
     ],
     leagues: ['premier-league', 'la-liga', 'bundesliga', 'serie-a', 'ligue-1'],
-    stripePriceIdMonthly: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || null,
-    stripePriceIdAnnual: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || null,
+    stripePriceIdMonthly: 'price_1SyLExLmb0GWa8mAieUyCHPU',
+    stripePriceIdAnnual: 'price_1SyLFULmb0GWa8mAcvjpehTq',
     popular: true,
   },
 ];
@@ -73,7 +92,7 @@ export const ADD_ONS: AddOn[] = [
     name: 'API Access',
     description: 'Programmatic access for automation and integrations',
     price: 12900, // £129/mo
-    stripePriceId: process.env.STRIPE_API_ADDON_PRICE_ID || null,
+    stripePriceId: 'price_1SyAY3Lmb0GWa8mAyP7JDZ5D',
     features: [
       'RESTful API access',
       'Webhook notifications',
@@ -117,4 +136,8 @@ export function canAccessLeague(tier: PricingTier, leagueSlug: string): boolean 
 export function getMonthlyCredits(tier: PricingTier): number {
   const plan = getPlanById(tier);
   return plan?.credits || 0;
+}
+
+export function isPaidTier(tier: PricingTier): boolean {
+  return tier === 'pro' || tier === 'gold';
 }

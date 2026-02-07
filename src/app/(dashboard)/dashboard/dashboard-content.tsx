@@ -88,7 +88,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
             {tier === 'free' && (
               <Link href="/pricing" className="block">
                 <Button variant="link" className="p-0 h-auto text-xs text-primary">
-                  Upgrade to Pro <ArrowRight className="w-3 h-3 ml-1" />
+                  View Plans <ArrowRight className="w-3 h-3 ml-1" />
                 </Button>
               </Link>
             )}

@@ -9,7 +9,7 @@ declare module 'next-auth' {
       email: string;
       name: string;
       image: string;
-      tier: 'free' | 'pro';
+      tier: 'free' | 'pro' | 'gold';
       hasApiAccess: boolean;
     };
   }
@@ -18,7 +18,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id?: string;
-    tier?: 'free' | 'pro';
+    tier?: 'free' | 'pro' | 'gold';
     hasApiAccess?: boolean;
   }
 }

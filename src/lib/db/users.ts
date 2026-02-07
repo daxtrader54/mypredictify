@@ -231,9 +231,12 @@ export async function updateUserSubscription(
   if (stripeCustomerId) updates.stripeCustomerId = stripeCustomerId;
   if (stripeSubscriptionId) updates.stripeSubscriptionId = stripeSubscriptionId;
 
-  // Reset monthly credits for Pro users
+  // Reset monthly credits for paid users
   if (tier === 'pro') {
-    updates.credits = 1000;
+    updates.credits = 500;
+    updates.monthlyCreditsLastReset = new Date();
+  } else if (tier === 'gold') {
+    updates.credits = 2000;
     updates.monthlyCreditsLastReset = new Date();
   }
 

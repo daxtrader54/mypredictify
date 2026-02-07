@@ -17,7 +17,7 @@ export function PredictionsFilter({ selectedLeagueId, leagues }: PredictionsFilt
   const { tier } = useCredits();
 
   const handleLeagueChange = (leagueId: number, leagueTier: League['tier']) => {
-    if (leagueTier === 'pro' && tier === 'free') {
+    if (leagueTier === 'gold' && tier !== 'gold') {
       router.push('/pricing');
       return;
     }
@@ -31,7 +31,7 @@ export function PredictionsFilter({ selectedLeagueId, leagues }: PredictionsFilt
     <div className="flex flex-wrap gap-2">
       {leagues.map((league) => {
         const isSelected = league.id === selectedLeagueId;
-        const isLocked = league.tier === 'pro' && tier === 'free';
+        const isLocked = league.tier === 'gold' && tier !== 'gold';
 
         return (
           <Button
