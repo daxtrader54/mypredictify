@@ -18,7 +18,7 @@ export default function DashboardLayout({
           </aside>
 
           {/* Main content */}
-          <main className="flex-1 md:pl-64">
+          <main className="flex-1 md:pl-64 min-w-0 overflow-x-hidden">
             <div className="px-4 py-4 md:px-6">
               {children}
             </div>

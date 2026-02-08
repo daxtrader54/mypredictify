@@ -33,7 +33,9 @@
       "Bash(del \"C:\\\\Users\\\\Chris\\\\Documents\\\\APPLICATIONS-MORALIS\\\\54a-predictions\\\\mypredictify\\\\scripts\\\\tmp-set-gold.mjs\")",
       "Bash(node scripts/tmp-check-users.mjs:*)",
       "Bash(npm run sync-standings:*)",
-      "Bash(npm run sync-results:*)"
+      "Bash(npm run sync-results:*)",
+      "Bash(dir:*)",
+      "Bash(git status:*)"
     ]
   }
 }

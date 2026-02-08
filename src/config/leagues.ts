@@ -4,6 +4,7 @@ export interface League {
   shortName: string;
   country: string;
   countryCode: string;
+  flag: string;
   logo?: string;
   tier: 'free' | 'gold';
   seasonId: number;
@@ -16,6 +17,7 @@ export const LEAGUES: League[] = [
     shortName: 'PL',
     country: 'England',
     countryCode: 'GB-ENG',
+    flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}',
     tier: 'free',
     seasonId: 25583,
   },
@@ -25,6 +27,7 @@ export const LEAGUES: League[] = [
     shortName: 'LL',
     country: 'Spain',
     countryCode: 'ES',
+    flag: '\u{1F1EA}\u{1F1F8}',
     tier: 'gold',
     seasonId: 25659,
   },
@@ -34,6 +37,7 @@ export const LEAGUES: League[] = [
     shortName: 'BL',
     country: 'Germany',
     countryCode: 'DE',
+    flag: '\u{1F1E9}\u{1F1EA}',
     tier: 'gold',
     seasonId: 25646,
   },
@@ -43,6 +47,7 @@ export const LEAGUES: League[] = [
     shortName: 'SA',
     country: 'Italy',
     countryCode: 'IT',
+    flag: '\u{1F1EE}\u{1F1F9}',
     tier: 'gold',
     seasonId: 25533,
   },
@@ -52,6 +57,7 @@ export const LEAGUES: League[] = [
     shortName: 'L1',
     country: 'France',
     countryCode: 'FR',
+    flag: '\u{1F1EB}\u{1F1F7}',
     tier: 'gold',
     seasonId: 25651,
   },

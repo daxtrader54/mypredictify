@@ -56,7 +56,8 @@ export function PredictionsFilter({
             size="sm"
             onClick={() => handleLeagueChange(league.id)}
           >
-            {league.shortName}
+            <span className="md:hidden">{league.flag} {league.shortName}</span>
+            <span className="hidden md:inline">{league.name}</span>
           </Button>
         ))}
       </div>

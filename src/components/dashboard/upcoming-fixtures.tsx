@@ -120,19 +120,19 @@ export async function UpcomingFixtures() {
           Upcoming Fixtures
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-0.5">
+      <CardContent className="space-y-0.5 overflow-hidden">
         {fixtures.map((m) => (
           <Link
             key={m.fixtureId}
             href={`/predictions?league=${m.league.id}`}
-            className="flex items-center gap-3 py-2 px-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer group"
+            className="flex items-center gap-2 md:gap-3 py-2 px-1 md:px-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer group"
           >
             <Badge variant="outline" className="text-[10px] font-mono w-7 justify-center shrink-0 px-0">
               {leagueShort(m.league.name)}
             </Badge>
 
-            <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end text-right">
-              <span className="text-sm font-medium truncate">{m.homeTeam.name}</span>
+            <div className="flex items-center gap-1 md:gap-1.5 flex-1 min-w-0 justify-end text-right">
+              <span className="text-xs md:text-sm font-medium truncate">{m.homeTeam.name}</span>
               {m.homeTeam.logo && (
                 <Image src={m.homeTeam.logo} alt={m.homeTeam.shortCode} width={18} height={18} className="rounded-sm shrink-0" />
               )}
@@ -146,20 +146,20 @@ export async function UpcomingFixtures() {
               <span className="text-xs text-muted-foreground font-medium shrink-0 w-8 text-center">vs</span>
             )}
 
-            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            <div className="flex items-center gap-1 md:gap-1.5 flex-1 min-w-0">
               {m.awayTeam.logo && (
                 <Image src={m.awayTeam.logo} alt={m.awayTeam.shortCode} width={18} height={18} className="rounded-sm shrink-0" />
               )}
-              <span className="text-sm font-medium truncate">{m.awayTeam.name}</span>
+              <span className="text-xs md:text-sm font-medium truncate">{m.awayTeam.name}</span>
             </div>
 
             {m.pred && (
-              <Badge variant="secondary" className="text-[10px] shrink-0 px-1.5">
+              <Badge variant="secondary" className="text-[10px] shrink-0 px-1.5 hidden sm:flex">
                 {predLabel(m.pred.prediction)}
               </Badge>
             )}
 
-            <span className="text-xs text-muted-foreground shrink-0 w-32 text-right group-hover:text-primary transition-colors">
+            <span className="text-[10px] md:text-xs text-muted-foreground shrink-0 w-16 md:w-32 text-right group-hover:text-primary transition-colors">
               {formatKickoff(m.kickoff)}
             </span>
           </Link>

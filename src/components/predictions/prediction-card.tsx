@@ -160,11 +160,11 @@ export function PredictionCard({ fixture, prediction }: PredictionCardProps) {
   const cardClasses = cn(
     "overflow-hidden transition-all group",
     resultAccuracy === 'correct-score'
-      ? "bg-gradient-to-br from-amber-500/15 to-amber-500/5 border-amber-500/50 shadow-amber-500/10 shadow-md"
+      ? "bg-gradient-to-br from-amber-500/30 via-amber-500/15 to-amber-900/10 border-2 border-amber-500 shadow-lg shadow-amber-500/25 ring-1 ring-amber-500/30"
       : resultAccuracy === 'correct-result'
-        ? "bg-gradient-to-br from-green-500/15 to-green-500/5 border-green-500/50 shadow-green-500/10 shadow-md"
+        ? "bg-gradient-to-br from-green-500/25 via-green-500/10 to-green-900/10 border-2 border-green-500 shadow-lg shadow-green-500/25 ring-1 ring-green-500/30"
         : resultAccuracy === 'incorrect'
-          ? "bg-gradient-to-br from-red-500/10 to-red-500/5 border-red-500/40"
+          ? "bg-gradient-to-br from-red-500/20 via-red-500/10 to-red-900/10 border-2 border-red-500/60 shadow-md shadow-red-500/15"
           : "bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
   );
 
@@ -348,19 +348,19 @@ export function PredictionCard({ fixture, prediction }: PredictionCardProps) {
         {/* Result accuracy indicator */}
         {resultAccuracy && showPrediction && (
           <div className={cn(
-            "flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium",
+            "flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-bold",
             resultAccuracy === 'correct-score'
-              ? "bg-amber-500/15 text-amber-500"
+              ? "bg-amber-500/25 text-amber-400 border border-amber-500/40"
               : resultAccuracy === 'correct-result'
-                ? "bg-green-500/15 text-green-500"
-                : "bg-red-500/10 text-red-400"
+                ? "bg-green-500/25 text-green-400 border border-green-500/40"
+                : "bg-red-500/20 text-red-400 border border-red-500/30"
           )}>
             {resultAccuracy === 'correct-score' ? (
-              <><Sparkles className="h-3 w-3" /> Exact Score!</>
+              <><Sparkles className="h-4 w-4" /> Exact Score!</>
             ) : resultAccuracy === 'correct-result' ? (
-              <><Check className="h-3 w-3" /> Correct Result</>
+              <><Check className="h-4 w-4" /> Correct Result</>
             ) : (
-              <><X className="h-3 w-3" /> Incorrect</>
+              <><X className="h-4 w-4" /> Incorrect</>
             )}
           </div>
         )}

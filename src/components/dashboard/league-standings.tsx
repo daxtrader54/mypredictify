@@ -81,7 +81,8 @@ export function LeagueStandings() {
               className="h-7 px-2.5 text-xs"
               onClick={() => setActiveLeague(league.id)}
             >
-              {league.shortName}
+              <span className="md:hidden">{league.flag} {league.shortName}</span>
+              <span className="hidden md:inline">{league.name}</span>
             </Button>
           ))}
         </div>

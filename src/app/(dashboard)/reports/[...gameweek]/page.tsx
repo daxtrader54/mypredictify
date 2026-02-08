@@ -54,6 +54,21 @@ export default async function ReportPage({ params }: ReportPageProps) {
     } catch { /* skip */ }
   }
 
+  // Load results if exists
+  const resultsPath = resolve(gwDir, 'results.json');
+  let results: Array<{
+    fixtureId: number;
+    homeGoals: number;
+    awayGoals: number;
+    status: string;
+  }> = [];
+  if (existsSync(resultsPath)) {
+    try {
+      results = JSON.parse(readFileSync(resultsPath, 'utf-8'));
+    } catch { /* skip */ }
+  }
+  const resultsMap = new Map(results.map((r) => [r.fixtureId, r]));
+
   // Load evaluation if exists
   const evalPath = resolve(gwDir, 'evaluation.json');
   let evaluation: {
@@ -145,9 +160,16 @@ export default async function ReportPage({ params }: ReportPageProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {predictions.map((pred) => (
-                <PredictionRow key={pred.fixtureId} prediction={pred} />
-              ))}
+              {predictions.map((pred) => {
+                const result = resultsMap.get(pred.fixtureId);
+                return (
+                  <PredictionRow
+                    key={pred.fixtureId}
+                    prediction={pred}
+                    result={result ? { home: result.homeGoals, away: result.awayGoals } : undefined}
+                  />
+                );
+              })}
             </div>
           </CardContent>
         </Card>

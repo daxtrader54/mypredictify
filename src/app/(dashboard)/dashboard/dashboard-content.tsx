@@ -23,7 +23,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-4 md:p-5">
+    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-3 md:p-5">
       <div className="relative">
         {/* Top row: badge + greeting */}
         <div className="flex items-center justify-between mb-3">
@@ -39,7 +39,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
         </div>
 
         {/* Inline stat cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 overflow-hidden">
           {/* Credits */}
           <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-2.5">
             <div className="flex items-center justify-between mb-1">
