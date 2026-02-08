@@ -4,6 +4,7 @@ import { PredictionCard } from '@/components/predictions/prediction-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Calendar } from 'lucide-react';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
+import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
 
 interface PredictionsListProps {
   leagueId: number;
@@ -40,19 +41,7 @@ interface PredictionFileEntry {
   };
 }
 
-const GW_BASE_DIR = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
-
-export async function getAvailableGameweeks(): Promise<number[]> {
-  try {
-    const entries = await fs.readdir(GW_BASE_DIR);
-    return entries
-      .filter((e) => e.startsWith('GW'))
-      .map((e) => parseInt(e.replace('GW', '')))
-      .sort((a, b) => b - a); // newest first
-  } catch {
-    return [];
-  }
-}
+export { getAvailableGameweeks } from '@/lib/gameweeks';
 
 async function getGameweekDir(gwNumber?: number): Promise<string | null> {
   try {
