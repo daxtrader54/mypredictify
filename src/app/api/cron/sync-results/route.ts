@@ -4,10 +4,7 @@ import path from 'path';
 import { neon } from '@neondatabase/serverless';
 import { db } from '@/lib/db';
 import { matchResults } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
 import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
-import { getSession } from '@/lib/auth/get-session';
-import { isAdmin } from '@/config/site';
 
 const SPORTMONKS_BASE = 'https://api.sportmonks.com/v3/football';
 
@@ -100,19 +97,7 @@ async function fetchFixtureResult(fixtureId: number, token: string): Promise<Fet
   return null;
 }
 
-export async function GET(request: NextRequest) {
-  // Auth: CRON_SECRET or admin session
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  const isCron = cronSecret && authHeader === `Bearer ${cronSecret}`;
-
-  if (!isCron) {
-    const session = await getSession();
-    if (!isAdmin(session?.user?.email)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-  }
-
+export async function GET(_request: NextRequest) {
   const token = process.env.SPORTMONKS_API_TOKEN;
   if (!token) {
     return NextResponse.json({ error: 'SPORTMONKS_API_TOKEN not configured' }, { status: 500 });
