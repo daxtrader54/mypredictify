@@ -17,7 +17,10 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
 - DB connection: code checks both `DATABASE_URL` and `POSTGRES_URL` (Vercel sets both via Neon integration)
 - Schema migrations: `npx drizzle-kit push` (but note: custom pg schema requires `CREATE SCHEMA predictify` first — drizzle-kit won't auto-create it)
 - Sign-in callback is non-blocking on DB errors — user record created on first dashboard visit via `getOrCreateUser`
-- `leagueStandings` table synced via `npm run sync-standings` (fetches from SportMonks → DB)
+- `leagueStandings` synced via Vercel cron (`/api/cron/sync-standings`) daily at 04:00 UTC
+- `matchResults` synced via Vercel cron (`/api/cron/sync-results`) every 30 min — auto-fetches finished fixtures from SportMonks
+- Cron endpoints auto-create tables on first run via `ensureTable()` — no manual migration needed on production
+- **Local DB ≠ Production DB** — `.env.local` DATABASE_URL points to a different Neon database than Vercel's. `drizzle-kit push` locally does NOT affect production.
 - Admin emails: configured in `src/config/site.ts` via `ADMIN_EMAILS` array + `isAdmin()` helper
 
 ## Tech Stack
@@ -66,12 +69,16 @@ npm run sync-results    # Fetch match results for past fixtures
 │   │   │   ├── today/         # Today's fixtures with predictions
 │   │   │   ├── value-bets/    # Value bet finder
 │   │   │   ├── acca-builder/  # ACCA accumulator
+│   │   │   ├── results/       # Match results vs predictions (accuracy tracking)
 │   │   │   ├── pipeline/      # Pipeline status dashboard
 │   │   │   ├── reports/       # Weekly reports (+ [...gameweek] detail)
 │   │   │   └── error.tsx      # Error boundary for all dashboard routes
-│   │   ├── (marketing)/       # Public pages (landing, pricing)
+│   │   ├── (marketing)/       # Public pages (landing, pricing; redirects auth users to /dashboard)
 │   │   └── api/               # API routes
 │   │       ├── admin/users/   # Admin user management API
+│   │       ├── cron/          # Vercel cron endpoints (unauthenticated)
+│   │       │   ├── sync-standings/  # Daily standings sync from SportMonks → DB
+│   │       │   └── sync-results/    # Every 30min results sync from SportMonks → DB
 │   │       ├── pipeline/sync/ # Data file → Postgres sync (batch upsert)
 │   │       ├── sportmonks/    # Debug/admin proxy (requires auth)
 │   │       └── standings/     # League standings from DB
@@ -87,7 +94,8 @@ npm run sync-results    # Fetch match results for past fixtures
 │   │   ├── sportmonks/        # SportMonks API client + types
 │   │   ├── db/                # Drizzle schema + Neon PostgreSQL
 │   │   ├── auth/              # NextAuth configuration
-│   │   └── gameweeks.ts       # Shared GW scanning utility
+│   │   ├── gameweeks.ts       # Shared GW scanning utility
+│   │   └── results.ts         # Shared results loader (DB first, file fallback)
 │   ├── hooks/                 # Custom React hooks
 │   └── config/                # App config (site.ts has CURRENT_SEASON)
 ├── scripts/                   # CLI tools invoked by Claude
@@ -109,6 +117,7 @@ npm run sync-results    # Fetch match results for past fixtures
 │   └── config/                # Pipeline configuration
 │       ├── leagues.json
 │       └── pipeline.json
+├── vercel.json                # Vercel cron configuration (standings daily, results every 30min)
 ├── drizzle/                   # Generated migration SQL
 ├── .claude/skills/            # Claude CLI skill definitions
 │   ├── ingest-gameweek/       # Fetch fixtures + data from APIs
@@ -160,13 +169,26 @@ npm run sync-results    # Fetch match results for past fixtures
 **Authentication:**
 - Auth enforced in `(dashboard)/layout.tsx` via `getSession()` → redirect to `/login`
 - No middleware.ts — Next.js 16 Edge Runtime breaks `getToken()` on Vercel
+- Auth uses JWT strategy — `getSession()` never hits DB after sign-in. DB can be broken and auth still works.
 - API routes use `getSession()` individually; pipeline sync uses Bearer token
 - SportMonks proxy routes (`/api/sportmonks/*`) also require session auth
+- Cron endpoints (`/api/cron/*`) are unauthenticated — required for Vercel cron to call them
+- Homepage (`/`) redirects authenticated users to `/dashboard`
+- Header nav is conditional: auth users see Dashboard link, unauth users see Pricing
 
 **Database Tables** (all in `predictify` schema):
 - users, creditTransactions, accaHistory, predictionViews (app)
-- leagueStandings (synced from SportMonks via `npm run sync-standings`)
+- leagueStandings (synced via Vercel cron `/api/cron/sync-standings` daily)
+- matchResults (synced via Vercel cron `/api/cron/sync-results` every 30min)
 - gameweeks, matchPredictions, weeklyMetrics, pipelineRuns (pipeline)
+
+**Content Freshness (DB-first architecture):**
+- Standings and results are synced from SportMonks → DB via Vercel cron jobs
+- Pages serve from DB only — never call SportMonks directly in user-facing routes (not scalable)
+- `loadResults()` in `src/lib/results.ts` is the shared loader: DB first, results.json file fallback
+- Cron endpoints auto-create their tables on first run via `ensureTable()` (raw SQL DDL)
+- Time-sensitive pages (`/today`, `/predictions`, `/results`) use `force-dynamic` (not ISR)
+- `vercel.json` defines cron schedules: standings at 04:00 UTC daily, results every 30 minutes
 
 **Tier Access Control**:
 - Gold: unlimited access to all value bets, predictions, fixtures. No credit spend.
@@ -188,17 +210,29 @@ npm run sync-results    # Fetch match results for past fixtures
 
 **Predictions Page** (`/predictions`):
 - URL params: `?league={id}&gw={number}` — league filter + gameweek navigation
-- Gameweek data loaded from `data/gameweeks/{CURRENT_SEASON}/GW{n}/` (matches.json, predictions.json, results.json)
+- Gameweek data loaded from `data/gameweeks/{CURRENT_SEASON}/GW{n}/` (matches.json, predictions.json)
+- Results loaded via `loadResults()` — DB first, file fallback
 - `getAvailableGameweeks()` in `src/lib/gameweeks.ts` — shared utility for GW directory scanning
+- Split into "Upcoming" and "Completed" sections within each gameweek
 - Prediction cards show both final score AND predicted score for finished matches
 - Result-aware card shading: gold = exact score correct, green = correct result, red = incorrect
 - Prev/next GW navigation in `predictions-filter.tsx`
+- Uses `force-dynamic` rendering
+
+**Results Page** (`/results`):
+- Shows all completed matches grouped by gameweek (newest first)
+- Per-GW accuracy badges: correct/total with color coding (green ≥60%, yellow ≥40%, red <40%)
+- Overall stats: matches played, result accuracy %, exact scores, correct results
+- Uses `loadResults()` shared loader for DB-backed results
+- 4-column grid on desktop (`md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`)
+- Uses `force-dynamic` rendering
 
 **Today's Games** (`/today`):
 - Shows fixtures for today's date across all leagues and gameweeks
 - Scans all GW directories, filters by kickoff date matching today
 - Groups by league, sorted by kickoff time; reuses `PredictionCard`
-- ISR with 300s revalidation
+- Uses `force-dynamic` rendering (was ISR 300s, changed for real-time accuracy)
+- Uses `loadResults()` for live/finished score display
 
 **Admin Panel** (`/admin`):
 - Protected by `isAdmin()` check — only listed admin emails can access

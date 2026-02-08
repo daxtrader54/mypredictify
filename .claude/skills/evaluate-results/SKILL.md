@@ -16,8 +16,14 @@ Defaults: latest gameweek that has `predictions.json` but no `evaluation.json`.
 ## Steps
 
 ### 1. Sync Results
-Run `npm run sync-results` to fetch match results from SportMonks for all fixtures in the latest gameweek.
-This writes/updates `data/gameweeks/{season}/GW{n}/results.json` with format:
+Results are synced two ways:
+1. **Vercel cron** (`/api/cron/sync-results`) runs every 30 min — writes to `matchResults` DB table
+2. **Local script** (`npm run sync-results`) — writes to `data/gameweeks/{season}/GW{n}/results.json`
+
+For pipeline evaluation, run `npm run sync-results` to ensure local results.json files exist.
+The cron also populates the DB, which `loadResults()` in `src/lib/results.ts` reads first.
+
+Results format (both file and DB):
 ```json
 [{
   "fixtureId": 12345,
@@ -142,7 +148,8 @@ Run `/generate-report` to add post-match analysis to the report.
 - If evaluation was partial, set a flag so it can be re-run when remaining matches complete
 
 ### Output
-- `data/gameweeks/{season}/GW{n}/results.json` — actual results
+- `data/gameweeks/{season}/GW{n}/results.json` — actual results (file)
+- `matchResults` DB table — actual results (DB, kept fresh by Vercel cron)
 - `data/gameweeks/{season}/GW{n}/evaluation.json` — metrics
 - Updated `data/memory/elo-ratings.json`
 - Updated `data/memory/signal-weights.json`

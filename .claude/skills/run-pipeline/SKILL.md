@@ -89,8 +89,8 @@ Before running the pipeline, verify:
 - [ ] `data/config/leagues.json` exists and has leagues
 - [ ] `data/memory/` directory exists with required files
 - [ ] Previous gameweek pipeline is complete (no stuck "running" state older than 24h)
-- [ ] For evaluate mode: `npm run sync-results` runs successfully before evaluation
-- [ ] Optionally: `npm run sync-standings` to refresh league table data in DB
+- [ ] For evaluate mode: `npm run sync-results` runs successfully before evaluation (note: Vercel cron also syncs results to DB every 30 min)
+- [ ] Optionally: `npm run sync-standings` to refresh league table data locally (note: Vercel cron syncs standings to DB daily at 04:00 UTC)
 
 If health check fails:
 - Log the specific failure
