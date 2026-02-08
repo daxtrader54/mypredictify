@@ -7,6 +7,7 @@ import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/typ
 
 interface PredictionsListProps {
   leagueId: number;
+  gameweek?: number;
 }
 
 interface MatchData {
@@ -39,18 +40,26 @@ interface PredictionFileEntry {
   };
 }
 
-async function getLatestGameweekDir(): Promise<string | null> {
-  const baseDir = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
+const GW_BASE_DIR = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
+
+export async function getAvailableGameweeks(): Promise<number[]> {
   try {
-    const entries = await fs.readdir(baseDir);
-    const gameweeks = entries
+    const entries = await fs.readdir(GW_BASE_DIR);
+    return entries
       .filter((e) => e.startsWith('GW'))
-      .sort((a, b) => {
-        const numA = parseInt(a.replace('GW', ''));
-        const numB = parseInt(b.replace('GW', ''));
-        return numB - numA;
-      });
-    return gameweeks[0] ? path.join(baseDir, gameweeks[0]) : null;
+      .map((e) => parseInt(e.replace('GW', '')))
+      .sort((a, b) => b - a); // newest first
+  } catch {
+    return [];
+  }
+}
+
+async function getGameweekDir(gwNumber?: number): Promise<string | null> {
+  try {
+    const available = await getAvailableGameweeks();
+    if (available.length === 0) return null;
+    const target = gwNumber && available.includes(gwNumber) ? gwNumber : available[0];
+    return path.join(GW_BASE_DIR, `GW${target}`);
   } catch {
     return null;
   }
@@ -85,12 +94,12 @@ function deriveAdvice(homeWin: number, draw: number, awayWin: number): string {
   return 'Draw';
 }
 
-async function getFixturesWithPredictions(leagueId: number): Promise<{
+async function getFixturesWithPredictions(leagueId: number, gwNumber?: number): Promise<{
   fixtures: ProcessedFixture[];
   predictions: Map<number, ProcessedPrediction>;
   error?: string;
 }> {
-  const gwDir = await getLatestGameweekDir();
+  const gwDir = await getGameweekDir(gwNumber);
   if (!gwDir) {
     return { fixtures: [], predictions: new Map(), error: 'No gameweek data found' };
   }
@@ -208,8 +217,8 @@ async function getFixturesWithPredictions(leagueId: number): Promise<{
   return { fixtures, predictions };
 }
 
-export async function PredictionsList({ leagueId }: PredictionsListProps) {
-  const { fixtures, predictions, error } = await getFixturesWithPredictions(leagueId);
+export async function PredictionsList({ leagueId, gameweek }: PredictionsListProps) {
+  const { fixtures, predictions, error } = await getFixturesWithPredictions(leagueId, gameweek);
 
   if (error) {
     return (
@@ -225,10 +234,10 @@ export async function PredictionsList({ leagueId }: PredictionsListProps) {
     return (
       <Alert>
         <Calendar className="h-4 w-4" />
-        <AlertTitle>No upcoming fixtures</AlertTitle>
+        <AlertTitle>No fixtures for this gameweek</AlertTitle>
         <AlertDescription>
-          There are no upcoming fixtures for this league. Check back later or select a different
-          league.
+          There are no fixtures for this league in this gameweek. Try a different league or
+          gameweek.
         </AlertDescription>
       </Alert>
     );

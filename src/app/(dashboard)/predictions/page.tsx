@@ -1,11 +1,10 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { PredictionsList } from './predictions-list';
+import { PredictionsList, getAvailableGameweeks } from './predictions-list';
 import { PredictionsFilter } from './predictions-filter';
 import { PredictionCardSkeleton } from '@/components/predictions/prediction-card';
 import { LEAGUES } from '@/config/leagues';
-import { Badge } from '@/components/ui/badge';
-import { Target, Sparkles } from 'lucide-react';
+import { Target } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Predictions',
@@ -16,7 +15,7 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 interface PredictionsPageProps {
-  searchParams: Promise<{ league?: string; date?: string }>;
+  searchParams: Promise<{ league?: string; gw?: string }>;
 }
 
 export default async function PredictionsPage({ searchParams }: PredictionsPageProps) {
@@ -24,35 +23,33 @@ export default async function PredictionsPage({ searchParams }: PredictionsPageP
   const leagueId = params.league ? parseInt(params.league) : LEAGUES[0].id;
   const selectedLeague = LEAGUES.find((l) => l.id === leagueId) || LEAGUES[0];
 
+  const availableGameweeks = await getAvailableGameweeks();
+  const latestGW = availableGameweeks[0] || 1;
+  const requestedGW = params.gw ? parseInt(params.gw) : latestGW;
+  const currentGW = availableGameweeks.includes(requestedGW) ? requestedGW : latestGW;
+
   return (
-    <div className="space-y-6">
-      {/* Header with gradient */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 md:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-        <div className="relative">
-          <Badge variant="outline" className="mb-3 border-primary/50 text-primary">
-            <Sparkles className="w-3 h-3 mr-1" />
-            ML-Powered
-          </Badge>
-          <h1 className="text-3xl md:text-4xl font-bold flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Target className="h-6 w-6 text-primary" />
-            </div>
-            Predictions
-          </h1>
-          <p className="text-muted-foreground mt-2 max-w-xl">
-            AI-powered match predictions for upcoming fixtures. Our machine learning models analyze team form, head-to-head records, and 50+ other factors.
-          </p>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
+          <Target className="h-4 w-4 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold leading-tight">Predictions</h1>
+          <p className="text-xs text-muted-foreground">ML-powered match predictions across 50+ factors</p>
         </div>
       </div>
 
       <PredictionsFilter
         selectedLeagueId={selectedLeague.id}
         leagues={LEAGUES}
+        currentGameweek={currentGW}
+        availableGameweeks={availableGameweeks}
       />
 
       <Suspense fallback={<PredictionsLoading />}>
-        <PredictionsList leagueId={selectedLeague.id} />
+        <PredictionsList leagueId={selectedLeague.id} gameweek={currentGW} />
       </Suspense>
     </div>
   );

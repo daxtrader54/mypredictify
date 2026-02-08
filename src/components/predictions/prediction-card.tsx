@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -16,40 +16,98 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Calendar, MapPin, Lock, TrendingUp, ArrowRight, Sparkles, Coins } from 'lucide-react';
+import { Calendar, MapPin, Lock, TrendingUp, ArrowRight, Sparkles, Coins, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
 import { cn } from '@/lib/utils';
 import { useCredits } from '@/hooks/use-credits';
-import { CREDIT_COSTS } from '@/config/pricing';
+import { CREDIT_COSTS, isFreeForTier } from '@/config/pricing';
+
+type ResultAccuracy = 'correct-score' | 'correct-result' | 'incorrect' | null;
+
+function getActualResult(score: { home: number; away: number }): string {
+  if (score.home > score.away) return 'Home Win';
+  if (score.away > score.home) return 'Away Win';
+  return 'Draw';
+}
+
+function getResultAccuracy(
+  fixture: ProcessedFixture,
+  prediction?: ProcessedPrediction
+): ResultAccuracy {
+  if (!fixture.score || !prediction?.advice) return null;
+  if (fixture.status !== 'finished') return null;
+
+  const actualResult = getActualResult(fixture.score);
+  const predictedResult = prediction.advice;
+
+  // Check exact score match first
+  if (prediction.predictedScore) {
+    const [predHome, predAway] = prediction.predictedScore.split('-').map((s) => parseInt(s.trim()));
+    if (predHome === fixture.score.home && predAway === fixture.score.away) {
+      return 'correct-score';
+    }
+  }
+
+  // Check result match
+  if (actualResult === predictedResult) return 'correct-result';
+  return 'incorrect';
+}
+
+const UNLOCKED_STORAGE_KEY = 'mypredictify:unlocked';
+
+function getUnlockedSet(): Set<number> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(UNLOCKED_STORAGE_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function persistUnlocked(id: number) {
+  try {
+    const set = getUnlockedSet();
+    set.add(id);
+    localStorage.setItem(UNLOCKED_STORAGE_KEY, JSON.stringify([...set]));
+  } catch { /* quota exceeded — non-critical */ }
+}
 
 interface PredictionCardProps {
   fixture: ProcessedFixture;
   prediction?: ProcessedPrediction;
-  isLocked?: boolean;
 }
 
-// Track which predictions have been unlocked this session (shared across all cards)
-const unlockedPredictions = new Set<number>();
-
-export function PredictionCard({ fixture, prediction, isLocked = false }: PredictionCardProps) {
+export function PredictionCard({ fixture, prediction }: PredictionCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [creditError, setCreditError] = useState<string | null>(null);
   const [deducting, setDeducting] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
   const { data: session } = useSession();
-  const { deductCredits, hasEnoughCredits } = useCredits();
+  const { tier, deductCredits, hasEnoughCredits } = useCredits();
 
-  const handleViewDetails = useCallback(async () => {
+  // Determine if this prediction is free for the user's tier + league
+  const isFree = isFreeForTier(tier, fixture.leagueId);
+
+  // On mount, check localStorage for previously unlocked predictions
+  useEffect(() => {
+    if (isFree || getUnlockedSet().has(fixture.id)) {
+      setUnlocked(true);
+    }
+  }, [isFree, fixture.id]);
+
+  const handleUnlock = useCallback(async () => {
     setCreditError(null);
 
     if (!session?.user) {
-      setCreditError('Sign in to view prediction details');
+      setCreditError('Sign in to view predictions');
       return;
     }
 
-    // Already unlocked this session — open for free
-    if (unlockedPredictions.has(fixture.id)) {
-      setShowDetails(true);
+    // Already free or unlocked
+    if (isFree || unlocked) {
+      setUnlocked(true);
       return;
     }
 
@@ -66,12 +124,16 @@ export function PredictionCard({ fixture, prediction, isLocked = false }: Predic
     setDeducting(false);
 
     if (result.success) {
-      unlockedPredictions.add(fixture.id);
-      setShowDetails(true);
+      persistUnlocked(fixture.id);
+      setUnlocked(true);
     } else {
       setCreditError(result.error || 'Failed to deduct credits');
     }
-  }, [session, fixture, deductCredits, hasEnoughCredits]);
+  }, [session, fixture, isFree, unlocked, deductCredits, hasEnoughCredits]);
+
+  const handleViewDetails = useCallback(() => {
+    setShowDetails(true);
+  }, []);
 
   const getAdviceBadgeVariant = (advice?: string) => {
     if (!advice) return 'secondary';
@@ -92,8 +154,22 @@ export function PredictionCard({ fixture, prediction, isLocked = false }: Predic
     return 'bg-orange-500/10';
   };
 
+  const showPrediction = prediction && unlocked;
+  const resultAccuracy = getResultAccuracy(fixture, prediction);
+
+  const cardClasses = cn(
+    "overflow-hidden transition-all group",
+    resultAccuracy === 'correct-score'
+      ? "bg-gradient-to-br from-amber-500/15 to-amber-500/5 border-amber-500/50 shadow-amber-500/10 shadow-md"
+      : resultAccuracy === 'correct-result'
+        ? "bg-gradient-to-br from-green-500/15 to-green-500/5 border-green-500/50 shadow-green-500/10 shadow-md"
+        : resultAccuracy === 'incorrect'
+          ? "bg-gradient-to-br from-red-500/10 to-red-500/5 border-red-500/40"
+          : "bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+  );
+
   return (
-    <Card className="overflow-hidden bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all group">
+    <Card className={cardClasses}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -135,10 +211,26 @@ export function PredictionCard({ fixture, prediction, isLocked = false }: Predic
           {/* VS / Score / Predicted Score */}
           <div className="px-2 text-center shrink-0">
             {fixture.score ? (
-              <div className="text-2xl font-bold">
-                {fixture.score.home} - {fixture.score.away}
+              <div>
+                <div className="text-2xl font-bold">
+                  {fixture.score.home} - {fixture.score.away}
+                </div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">FT</div>
+                {showPrediction && prediction?.predictedScore && (
+                  <div className="mt-1">
+                    <div className={cn(
+                      "text-xs font-semibold",
+                      resultAccuracy === 'correct-score' ? "text-amber-500" :
+                      resultAccuracy === 'correct-result' ? "text-green-500" :
+                      "text-red-400"
+                    )}>
+                      {prediction.predictedScore}
+                    </div>
+                    <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Predicted</div>
+                  </div>
+                )}
               </div>
-            ) : prediction?.predictedScore ? (
+            ) : showPrediction && prediction?.predictedScore ? (
               <div>
                 <div className="text-lg font-bold text-primary">{prediction.predictedScore}</div>
                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Predicted</div>
@@ -170,8 +262,8 @@ export function PredictionCard({ fixture, prediction, isLocked = false }: Predic
           </div>
         </div>
 
-        {/* Prediction probabilities */}
-        {prediction && !isLocked ? (
+        {/* Prediction data — unlocked */}
+        {showPrediction ? (
           <div className="space-y-3">
             {/* Probability bar */}
             <div className="space-y-2">
@@ -217,18 +309,59 @@ export function PredictionCard({ fixture, prediction, isLocked = false }: Predic
               </div>
             </div>
           </div>
-        ) : isLocked ? (
-          <div className="flex items-center justify-center py-6 rounded-lg bg-muted/50 border border-border/50">
-            <Lock className="h-4 w-4 mr-2 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Upgrade to view predictions</span>
+        ) : prediction && !unlocked ? (
+          /* Prediction exists but locked — blur overlay */
+          <div className="relative">
+            <div className="blur-sm select-none pointer-events-none" aria-hidden>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-medium">
+                  <span className="text-blue-500">45%</span>
+                  <span className="text-muted-foreground">28%</span>
+                  <span className="text-red-500">27%</span>
+                </div>
+                <div className="flex h-2.5 rounded-full overflow-hidden bg-muted">
+                  <div className="bg-blue-500 w-[45%]" />
+                  <div className="bg-gray-500 w-[28%]" />
+                  <div className="bg-red-500 w-[27%]" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-2 mt-2">
+                <span className="text-sm font-medium">Home Win</span>
+                <span className="text-xs">52% confident</span>
+              </div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Lock className="h-5 w-5 text-muted-foreground" />
+            </div>
           </div>
         ) : (
+          /* No prediction data at all */
           <div className="space-y-3">
             <Skeleton className="h-2.5 w-full rounded-full" />
             <div className="flex justify-between">
               <Skeleton className="h-6 w-20" />
               <Skeleton className="h-6 w-24" />
             </div>
+          </div>
+        )}
+
+        {/* Result accuracy indicator */}
+        {resultAccuracy && showPrediction && (
+          <div className={cn(
+            "flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium",
+            resultAccuracy === 'correct-score'
+              ? "bg-amber-500/15 text-amber-500"
+              : resultAccuracy === 'correct-result'
+                ? "bg-green-500/15 text-green-500"
+                : "bg-red-500/10 text-red-400"
+          )}>
+            {resultAccuracy === 'correct-score' ? (
+              <><Sparkles className="h-3 w-3" /> Exact Score!</>
+            ) : resultAccuracy === 'correct-result' ? (
+              <><Check className="h-3 w-3" /> Correct Result</>
+            ) : (
+              <><X className="h-3 w-3" /> Incorrect</>
+            )}
           </div>
         )}
 
@@ -240,145 +373,159 @@ export function PredictionCard({ fixture, prediction, isLocked = false }: Predic
           </div>
         )}
 
-        {/* View details button */}
-        {prediction && !isLocked && (
-          <Dialog open={showDetails} onOpenChange={setShowDetails}>
-            <div className="space-y-1.5">
-              {creditError && (
-                <p className="text-xs text-destructive text-center">{creditError}</p>
-              )}
-              <DialogTrigger asChild>
+        {/* Action button */}
+        {prediction && (
+          <>
+            {unlocked ? (
+              /* View Details — free after unlock */
+              <Dialog open={showDetails} onOpenChange={setShowDetails}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full group/btn border-border/50 hover:border-primary/50 hover:bg-primary/5"
+                    onClick={handleViewDetails}
+                  >
+                    View Details
+                    <ArrowRight className="h-3 w-3 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl">
+                      {fixture.homeTeam.name} vs {fixture.awayTeam.name}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {format(fixture.startTime, 'EEEE, MMMM d, yyyy · HH:mm')}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    {prediction.predictedScore && (
+                      <div className="p-4 bg-gradient-to-br from-primary/10 to-transparent rounded-xl border border-primary/20 text-center">
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Predicted Score</p>
+                        <p className="text-4xl font-bold text-primary">{prediction.predictedScore}</p>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-4 bg-gradient-to-br from-blue-500/10 to-transparent rounded-xl border border-blue-500/20 text-center">
+                        <p className="text-3xl font-bold text-blue-500">{prediction.homeWin.toFixed(1)}%</p>
+                        <p className="text-sm text-muted-foreground mt-1">Home Win</p>
+                      </div>
+                      <div className="p-4 bg-gradient-to-br from-gray-500/10 to-transparent rounded-xl border border-gray-500/20 text-center">
+                        <p className="text-3xl font-bold text-gray-400">{prediction.draw.toFixed(1)}%</p>
+                        <p className="text-sm text-muted-foreground mt-1">Draw</p>
+                      </div>
+                      <div className="p-4 bg-gradient-to-br from-red-500/10 to-transparent rounded-xl border border-red-500/20 text-center">
+                        <p className="text-3xl font-bold text-red-500">{prediction.awayWin.toFixed(1)}%</p>
+                        <p className="text-sm text-muted-foreground mt-1">Away Win</p>
+                      </div>
+                    </div>
+
+                    {prediction.btts && (
+                      <div className="p-4 bg-muted/50 rounded-xl">
+                        <h4 className="font-semibold mb-3">Both Teams to Score</h4>
+                        <div className="flex gap-4">
+                          <div className="flex-1 p-3 bg-green-500/10 rounded-lg text-center">
+                            <span className="text-xl font-bold text-green-500">{prediction.btts.yes.toFixed(1)}%</span>
+                            <p className="text-xs text-muted-foreground mt-1">Yes</p>
+                          </div>
+                          <div className="flex-1 p-3 bg-red-500/10 rounded-lg text-center">
+                            <span className="text-xl font-bold text-red-500">{prediction.btts.no.toFixed(1)}%</span>
+                            <p className="text-xs text-muted-foreground mt-1">No</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="p-4 bg-gradient-to-br from-primary/10 to-transparent rounded-xl border border-primary/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        <h4 className="font-semibold">AI Recommendation</h4>
+                      </div>
+                      <Badge variant={getAdviceBadgeVariant(prediction.advice)} className="text-sm mb-3">
+                        {prediction.advice}
+                      </Badge>
+                      <Progress value={prediction.confidence} className="h-2" />
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {prediction.confidence.toFixed(0)}% confidence level
+                      </p>
+                      {prediction.explanation && (
+                        <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
+                          {prediction.explanation}
+                        </p>
+                      )}
+                    </div>
+
+                    {prediction.modelComponents && (
+                      <div className="p-4 bg-muted/50 rounded-xl">
+                        <h4 className="font-semibold mb-3">Model Breakdown</h4>
+                        <div className="space-y-2">
+                          {prediction.modelComponents.elo && (
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Elo Ratings (30%)</span>
+                              <div className="flex gap-3 font-mono text-xs">
+                                <span className="text-blue-500">H {(prediction.modelComponents.elo.H * 100).toFixed(0)}%</span>
+                                <span className="text-gray-400">D {(prediction.modelComponents.elo.D * 100).toFixed(0)}%</span>
+                                <span className="text-red-500">A {(prediction.modelComponents.elo.A * 100).toFixed(0)}%</span>
+                              </div>
+                            </div>
+                          )}
+                          {prediction.modelComponents.poisson && (
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Poisson Model (30%)</span>
+                              <div className="flex gap-3 font-mono text-xs">
+                                <span className="text-blue-500">H {(prediction.modelComponents.poisson.H * 100).toFixed(0)}%</span>
+                                <span className="text-gray-400">D {(prediction.modelComponents.poisson.D * 100).toFixed(0)}%</span>
+                                <span className="text-red-500">A {(prediction.modelComponents.poisson.A * 100).toFixed(0)}%</span>
+                              </div>
+                            </div>
+                          )}
+                          {prediction.modelComponents.odds && (
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Bookmaker Odds (40%)</span>
+                              <div className="flex gap-3 font-mono text-xs">
+                                <span className="text-blue-500">H {(prediction.modelComponents.odds.H * 100).toFixed(0)}%</span>
+                                <span className="text-gray-400">D {(prediction.modelComponents.odds.D * 100).toFixed(0)}%</span>
+                                <span className="text-red-500">A {(prediction.modelComponents.odds.A * 100).toFixed(0)}%</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              /* Unlock button */
+              <div className="space-y-1.5">
+                {creditError && (
+                  <p className="text-xs text-destructive text-center">{creditError}</p>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full group/btn border-border/50 hover:border-primary/50 hover:bg-primary/5"
-                  onClick={handleViewDetails}
+                  className="w-full border-primary/30 hover:bg-primary/10 hover:border-primary/50"
+                  onClick={handleUnlock}
                   disabled={deducting}
                 >
                   {deducting ? 'Unlocking...' : (
                     <>
-                      View Details
-                      {!unlockedPredictions.has(fixture.id) && (
+                      <Lock className="h-3 w-3 mr-1.5" />
+                      Unlock Prediction
+                      {!isFree && (
                         <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-muted-foreground">
                           <Coins className="h-3 w-3" />
                           {CREDIT_COSTS.VIEW_PREDICTION}
                         </span>
                       )}
-                      <ArrowRight className="h-3 w-3 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                     </>
                   )}
                 </Button>
-              </DialogTrigger>
-            </div>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle className="text-xl">
-                  {fixture.homeTeam.name} vs {fixture.awayTeam.name}
-                </DialogTitle>
-                <DialogDescription>
-                  {format(fixture.startTime, 'EEEE, MMMM d, yyyy · HH:mm')}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                {/* Predicted Score */}
-                {prediction.predictedScore && (
-                  <div className="p-4 bg-gradient-to-br from-primary/10 to-transparent rounded-xl border border-primary/20 text-center">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Predicted Score</p>
-                    <p className="text-4xl font-bold text-primary">{prediction.predictedScore}</p>
-                  </div>
-                )}
-
-                {/* Detailed prediction content */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="p-4 bg-gradient-to-br from-blue-500/10 to-transparent rounded-xl border border-blue-500/20 text-center">
-                    <p className="text-3xl font-bold text-blue-500">{prediction.homeWin.toFixed(1)}%</p>
-                    <p className="text-sm text-muted-foreground mt-1">Home Win</p>
-                  </div>
-                  <div className="p-4 bg-gradient-to-br from-gray-500/10 to-transparent rounded-xl border border-gray-500/20 text-center">
-                    <p className="text-3xl font-bold text-gray-400">{prediction.draw.toFixed(1)}%</p>
-                    <p className="text-sm text-muted-foreground mt-1">Draw</p>
-                  </div>
-                  <div className="p-4 bg-gradient-to-br from-red-500/10 to-transparent rounded-xl border border-red-500/20 text-center">
-                    <p className="text-3xl font-bold text-red-500">{prediction.awayWin.toFixed(1)}%</p>
-                    <p className="text-sm text-muted-foreground mt-1">Away Win</p>
-                  </div>
-                </div>
-
-                {prediction.btts && (
-                  <div className="p-4 bg-muted/50 rounded-xl">
-                    <h4 className="font-semibold mb-3">Both Teams to Score</h4>
-                    <div className="flex gap-4">
-                      <div className="flex-1 p-3 bg-green-500/10 rounded-lg text-center">
-                        <span className="text-xl font-bold text-green-500">{prediction.btts.yes.toFixed(1)}%</span>
-                        <p className="text-xs text-muted-foreground mt-1">Yes</p>
-                      </div>
-                      <div className="flex-1 p-3 bg-red-500/10 rounded-lg text-center">
-                        <span className="text-xl font-bold text-red-500">{prediction.btts.no.toFixed(1)}%</span>
-                        <p className="text-xs text-muted-foreground mt-1">No</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="p-4 bg-gradient-to-br from-primary/10 to-transparent rounded-xl border border-primary/20">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    <h4 className="font-semibold">AI Recommendation</h4>
-                  </div>
-                  <Badge variant={getAdviceBadgeVariant(prediction.advice)} className="text-sm mb-3">
-                    {prediction.advice}
-                  </Badge>
-                  <Progress value={prediction.confidence} className="h-2" />
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {prediction.confidence.toFixed(0)}% confidence level
-                  </p>
-                  {prediction.explanation && (
-                    <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                      {prediction.explanation}
-                    </p>
-                  )}
-                </div>
-
-                {prediction.modelComponents && (
-                  <div className="p-4 bg-muted/50 rounded-xl">
-                    <h4 className="font-semibold mb-3">Model Breakdown</h4>
-                    <div className="space-y-2">
-                      {prediction.modelComponents.elo && (
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Elo Ratings (30%)</span>
-                          <div className="flex gap-3 font-mono text-xs">
-                            <span className="text-blue-500">H {(prediction.modelComponents.elo.H * 100).toFixed(0)}%</span>
-                            <span className="text-gray-400">D {(prediction.modelComponents.elo.D * 100).toFixed(0)}%</span>
-                            <span className="text-red-500">A {(prediction.modelComponents.elo.A * 100).toFixed(0)}%</span>
-                          </div>
-                        </div>
-                      )}
-                      {prediction.modelComponents.poisson && (
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Poisson Model (30%)</span>
-                          <div className="flex gap-3 font-mono text-xs">
-                            <span className="text-blue-500">H {(prediction.modelComponents.poisson.H * 100).toFixed(0)}%</span>
-                            <span className="text-gray-400">D {(prediction.modelComponents.poisson.D * 100).toFixed(0)}%</span>
-                            <span className="text-red-500">A {(prediction.modelComponents.poisson.A * 100).toFixed(0)}%</span>
-                          </div>
-                        </div>
-                      )}
-                      {prediction.modelComponents.odds && (
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Bookmaker Odds (40%)</span>
-                          <div className="flex gap-3 font-mono text-xs">
-                            <span className="text-blue-500">H {(prediction.modelComponents.odds.H * 100).toFixed(0)}%</span>
-                            <span className="text-gray-400">D {(prediction.modelComponents.odds.D * 100).toFixed(0)}%</span>
-                            <span className="text-red-500">A {(prediction.modelComponents.odds.A * 100).toFixed(0)}%</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
-            </DialogContent>
-          </Dialog>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
