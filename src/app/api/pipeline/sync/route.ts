@@ -3,7 +3,7 @@ import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 import { db } from '@/lib/db';
 import { gameweeks, matchPredictions, weeklyMetrics } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
 /**
  * POST /api/pipeline/sync
@@ -73,37 +73,48 @@ export async function POST(request: Request) {
 
     const predictions = JSON.parse(readFileSync(predictionsPath, 'utf-8'));
 
-    // Upsert gameweek entries (one per league)
-    const leagueIds = [...new Set(predictions.map((p: { league?: string; leagueId?: number }) => p.leagueId || 8))];
+    // Build gameweek rows (one per league) — batch upsert
+    const leagueIds = [...new Set(predictions.map((p: { leagueId?: number }) => p.leagueId || 8))] as number[];
 
-    for (const leagueId of leagueIds) {
-      const gwId = `${targetSeason}-${targetGw}-${leagueId}`;
+    const gwRows = leagueIds.map((leagueId) => ({
+      id: `${targetSeason}-${targetGw}-${leagueId}`,
+      leagueId,
+      number: gwNumber,
+      name: targetGw!,
+      status: 'predicted' as const,
+    }));
 
-      // Check if exists
-      const existing = await db.select().from(gameweeks).where(eq(gameweeks.id, gwId));
-
-      if (existing.length === 0) {
-        await db.insert(gameweeks).values({
-          id: gwId,
-          leagueId: leagueId as number,
-          number: gwNumber,
-          name: targetGw,
-          status: 'predicted',
+    if (gwRows.length > 0) {
+      await db
+        .insert(gameweeks)
+        .values(gwRows)
+        .onConflictDoUpdate({
+          target: gameweeks.id,
+          set: {
+            status: sql`excluded.status`,
+            updatedAt: new Date(),
+          },
         });
-      }
     }
 
-    // Upsert predictions
-    let syncedCount = 0;
-    for (const pred of predictions) {
+    // Build prediction rows — batch upsert
+    const predRows = predictions.map((pred: {
+      fixtureId: number;
+      leagueId?: number;
+      homeTeam: string;
+      awayTeam: string;
+      homeWinProb: number;
+      drawProb: number;
+      awayWinProb: number;
+      predictedScore: string;
+      prediction: string;
+      confidence: number;
+      explanation?: string;
+    }) => {
       const leagueId = pred.leagueId || 8;
       const gwId = `${targetSeason}-${targetGw}-${leagueId}`;
-      const predId = `${gwId}-${pred.fixtureId}`;
-
-      const existing = await db.select().from(matchPredictions).where(eq(matchPredictions.id, predId));
-
-      const values = {
-        id: predId,
+      return {
+        id: `${gwId}-${pred.fixtureId}`,
         gameweekId: gwId,
         fixtureId: pred.fixtureId,
         homeTeam: pred.homeTeam,
@@ -116,43 +127,60 @@ export async function POST(request: Request) {
         confidence: String(pred.confidence),
         explanation: pred.explanation || null,
       };
+    });
 
-      if (existing.length === 0) {
-        await db.insert(matchPredictions).values(values);
-      } else {
-        await db.update(matchPredictions).set(values).where(eq(matchPredictions.id, predId));
-      }
-      syncedCount++;
+    if (predRows.length > 0) {
+      await db
+        .insert(matchPredictions)
+        .values(predRows)
+        .onConflictDoUpdate({
+          target: matchPredictions.id,
+          set: {
+            homeWinProb: sql`excluded.home_win_prob`,
+            drawProb: sql`excluded.draw_prob`,
+            awayWinProb: sql`excluded.away_win_prob`,
+            predictedScore: sql`excluded.predicted_score`,
+            prediction: sql`excluded.prediction`,
+            confidence: sql`excluded.confidence`,
+            explanation: sql`excluded.explanation`,
+          },
+        });
     }
 
-    // Sync evaluation if exists
+    // Sync evaluation if exists — batch upsert
     const evalPath = resolve(gwDir, 'evaluation.json');
     if (existsSync(evalPath)) {
       const evaluation = JSON.parse(readFileSync(evalPath, 'utf-8'));
 
       if (evaluation.summary) {
-        for (const leagueId of leagueIds) {
+        const metricRows = leagueIds.map((leagueId) => {
           const gwId = `${targetSeason}-${targetGw}-${leagueId}`;
-          const metricId = `${gwId}-metric`;
-
-          const existing = await db.select().from(weeklyMetrics).where(eq(weeklyMetrics.id, metricId));
-
-          const metricValues = {
-            id: metricId,
+          return {
+            id: `${gwId}-metric`,
             gameweekId: gwId,
-            leagueId: leagueId as number,
+            leagueId,
             accuracy: String(evaluation.summary.outcomeAccuracy),
             avgLogLoss: String(evaluation.summary.avgLogLoss),
             brierScore: String(evaluation.summary.avgBrierScore),
             predictions: evaluation.summary.totalPredictions,
             correct: evaluation.summary.correctOutcomes,
           };
+        });
 
-          if (existing.length === 0) {
-            await db.insert(weeklyMetrics).values(metricValues);
-          } else {
-            await db.update(weeklyMetrics).set(metricValues).where(eq(weeklyMetrics.id, metricId));
-          }
+        if (metricRows.length > 0) {
+          await db
+            .insert(weeklyMetrics)
+            .values(metricRows)
+            .onConflictDoUpdate({
+              target: weeklyMetrics.id,
+              set: {
+                accuracy: sql`excluded.accuracy`,
+                avgLogLoss: sql`excluded.avg_log_loss`,
+                brierScore: sql`excluded.brier_score`,
+                predictions: sql`excluded.predictions`,
+                correct: sql`excluded.correct`,
+              },
+            });
         }
       }
     }
@@ -161,7 +189,7 @@ export async function POST(request: Request) {
       success: true,
       season: targetSeason,
       gameweek: targetGw,
-      syncedPredictions: syncedCount,
+      syncedPredictions: predRows.length,
     });
   } catch (error) {
     console.error('Pipeline sync error:', error);

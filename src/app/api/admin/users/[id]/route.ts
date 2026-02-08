@@ -32,13 +32,30 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const allowedFields = ['tier', 'credits', 'hasApiAccess'];
   const updates: Record<string, unknown> = {};
 
-  for (const field of allowedFields) {
-    if (body[field] !== undefined) {
-      updates[field] = body[field];
+  // Validate tier
+  if (body.tier !== undefined) {
+    if (!['free', 'pro', 'gold'].includes(body.tier)) {
+      return NextResponse.json({ error: 'Invalid tier. Must be free, pro, or gold' }, { status: 400 });
     }
+    updates.tier = body.tier;
+  }
+
+  // Validate credits
+  if (body.credits !== undefined) {
+    if (typeof body.credits !== 'number' || !Number.isInteger(body.credits) || body.credits < 0) {
+      return NextResponse.json({ error: 'Credits must be a non-negative integer' }, { status: 400 });
+    }
+    updates.credits = body.credits;
+  }
+
+  // Validate hasApiAccess
+  if (body.hasApiAccess !== undefined) {
+    if (typeof body.hasApiAccess !== 'boolean') {
+      return NextResponse.json({ error: 'hasApiAccess must be a boolean' }, { status: 400 });
+    }
+    updates.hasApiAccess = body.hasApiAccess;
   }
 
   if (Object.keys(updates).length === 0) {
