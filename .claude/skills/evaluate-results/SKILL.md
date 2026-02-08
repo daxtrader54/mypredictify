@@ -15,26 +15,26 @@ Defaults: latest gameweek that has `predictions.json` but no `evaluation.json`.
 
 ## Steps
 
-### 1. Fetch Results
-For each league in the gameweek:
-- Run `npx tsx scripts/fetch-sportmonks.ts results --league <id> --round <n> --season <id>`
-- Parse response to extract: fixtureId, homeGoals, awayGoals, outcome (H/D/A)
-
-Write `data/gameweeks/{season}/GW{n}/results.json`:
+### 1. Sync Results
+Run `npm run sync-results` to fetch match results from SportMonks for all fixtures in the latest gameweek.
+This writes/updates `data/gameweeks/{season}/GW{n}/results.json` with format:
 ```json
 [{
   "fixtureId": 12345,
-  "homeTeam": "Arsenal",
-  "awayTeam": "Chelsea",
   "homeGoals": 2,
   "awayGoals": 1,
-  "outcome": "H",
-  "status": "FT"
+  "status": "finished"
 }]
 ```
 
+The script:
+- Reads `matches.json` to find fixture IDs
+- Only fetches fixtures where kickoff has passed and no "finished" result exists
+- Preserves existing results (incremental sync)
+- Handles finished, live, and postponed statuses
+
 If some matches haven't finished yet:
-- Write results for completed matches only
+- Only finished/live results are written
 - Log which matches are still pending
 - Mark the evaluation as "partial" — can be re-run later
 

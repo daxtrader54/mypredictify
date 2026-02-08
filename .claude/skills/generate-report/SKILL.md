@@ -11,7 +11,7 @@ Defaults: latest gameweek that has `predictions.json`.
 
 ## Prerequisites
 - `predictions.json` must exist (from `/predict-matches`)
-- Optionally: `results.json` and `evaluation.json` (for post-match reporting)
+- Optionally: `results.json` (synced via `npm run sync-results`) and `evaluation.json` (for post-match reporting)
 
 ## Steps
 

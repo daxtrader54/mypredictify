@@ -18,6 +18,7 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
 - Schema migrations: `npx drizzle-kit push` (but note: custom pg schema requires `CREATE SCHEMA predictify` first — drizzle-kit won't auto-create it)
 - Sign-in callback is non-blocking on DB errors — user record created on first dashboard visit via `getOrCreateUser`
 - `leagueStandings` table synced via `npm run sync-standings` (fetches from SportMonks → DB)
+- Admin emails: configured in `src/config/site.ts` via `ADMIN_EMAILS` array + `isAdmin()` helper
 
 ## Tech Stack
 
@@ -27,8 +28,9 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
 - **Database**: Neon PostgreSQL (Drizzle ORM)
 - **Auth**: NextAuth.js with Google OAuth
 - **Payments**: Stripe (GBP pricing, live keys configured)
-  - Tiers: Free (100 credits) → Pro £19/mo (unlimited PL, 100 credits for others) → Gold £49/mo (unlimited all leagues)
+  - Tiers: Free (100 credits, +10 daily) → Pro £19/mo (unlimited PL, 100 credits +10 daily for others) → Gold £49/mo (unlimited all leagues, no credit limits)
   - Annual: Pro £159/yr, Gold £410/yr
+  - `isFreeForTier(tier, leagueId)` in `src/config/pricing.ts` is the central tier-check function
   - Stripe price IDs hardcoded in `src/config/pricing.ts`
   - Webhook: `/api/stripe/webhook` handles checkout, subscription updates/cancellation
   - Requires `STRIPE_WEBHOOK_SECRET` env var
@@ -58,21 +60,25 @@ npm run sync-results    # Fetch match results for past fixtures
 │   ├── app/                    # Next.js App Router
 │   │   ├── (auth)/            # Auth pages (login)
 │   │   ├── (dashboard)/       # Protected pages
+│   │   │   ├── admin/         # Admin panel (user management, credits)
 │   │   │   ├── dashboard/     # Main dashboard
-│   │   │   ├── predictions/   # Predictions list
+│   │   │   ├── predictions/   # Predictions list (with GW navigation)
 │   │   │   ├── acca-builder/  # ACCA accumulator
 │   │   │   ├── pipeline/      # Pipeline status dashboard
 │   │   │   └── reports/       # Weekly reports (+ [...gameweek] detail)
 │   │   ├── (marketing)/       # Public pages (landing, pricing)
 │   │   └── api/               # API routes
-│   │       └── pipeline/sync/ # Data file → Postgres sync
+│   │       ├── admin/users/   # Admin user management API
+│   │       ├── pipeline/sync/ # Data file → Postgres sync
+│   │       └── standings/     # League standings from DB
 │   ├── components/
 │   │   ├── ui/                # shadcn/ui components
 │   │   ├── layout/            # Header, Sidebar, Footer
-│   │   ├── predictions/       # Prediction-specific components
+│   │   ├── dashboard/         # Dashboard widgets (standings, fixtures)
+│   │   ├── predictions/       # Prediction card (result shading)
 │   │   ├── pipeline/          # Pipeline status display
 │   │   ├── reports/           # Report renderer + prediction rows
-│   │   └── providers/         # Context providers
+│   │   └── providers/         # CreditsProvider context
 │   ├── lib/
 │   │   ├── sportmonks/        # SportMonks API client + types
 │   │   ├── db/                # Drizzle schema + Neon PostgreSQL
@@ -83,7 +89,9 @@ npm run sync-results    # Fetch match results for past fixtures
 │   ├── fetch-sportmonks.ts    # SportMonks API wrapper
 │   ├── elo.ts                 # Elo rating engine
 │   ├── poisson.ts             # Poisson goal distribution
-│   └── metrics.ts             # Log-loss, Brier score, calibration
+│   ├── metrics.ts             # Log-loss, Brier score, calibration
+│   ├── sync-standings.ts      # Sync league standings from SportMonks → DB
+│   └── sync-results.ts        # Fetch match results → data/gameweeks/GW{n}/results.json
 ├── data/
 │   ├── gameweeks/             # Versioned per-week prediction data
 │   │   └── {season}/GW{n}/   # matches, research, predictions, results, report
@@ -155,6 +163,25 @@ npm run sync-results    # Fetch match results for past fixtures
 - Free: everything costs credits.
 - `isFreeForTier(tier, leagueId)` in `src/config/pricing.ts` is the central check.
 
+**Credits System**:
+- `CreditsProvider` in `src/components/providers/credits-provider.tsx` wraps dashboard layout
+- `useCredits()` hook reads from shared context (not per-component API calls)
+- Credit unlock state persisted in localStorage (`mypredictify:unlocked`)
+
+**Predictions Page** (`/predictions`):
+- URL params: `?league={id}&gw={number}` — league filter + gameweek navigation
+- Gameweek data loaded from `data/gameweeks/2025-26/GW{n}/` (matches.json, predictions.json, results.json)
+- `getAvailableGameweeks()` scans GW directories, exported from `predictions-list.tsx`
+- Prediction cards show both final score AND predicted score for finished matches
+- Result-aware card shading: gold = exact score correct, green = correct result, red = incorrect
+- Prev/next GW navigation in `predictions-filter.tsx`
+
+**Admin Panel** (`/admin`):
+- Protected by `isAdmin()` check — only listed admin emails can access
+- User list with search, tier display, credit balances
+- Credit adjustment (add/remove) via `/api/admin/users/[id]/credits`
+- Tier update via `/api/admin/users/[id]`
+
 ## TODO / Planned Features
 
 - **ACCA Builder bookmaker integrations** — Add ability to place bets directly with bookmakers (Bet365, William Hill, etc.) from the ACCA builder
@@ -192,8 +219,8 @@ Required:
 
 | League | ID | Country | Tier |
 |--------|-----|---------|------|
-| Premier League | 8 | England | Free |
-| La Liga | 564 | Spain | Pro |
-| Bundesliga | 82 | Germany | Pro |
-| Serie A | 384 | Italy | Pro |
-| Ligue 1 | 301 | France | Pro |
+| Premier League | 8 | England | Free (Pro+: no credits) |
+| La Liga | 564 | Spain | Gold |
+| Bundesliga | 82 | Germany | Gold |
+| Serie A | 384 | Italy | Gold |
+| Ligue 1 | 301 | France | Gold |

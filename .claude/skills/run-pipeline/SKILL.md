@@ -29,6 +29,7 @@ Step 5: Git push
 
 ### Evaluate Mode (Sunday/Monday)
 ```
+Step 0: npm run sync-results (fetch match scores from SportMonks)
 Step 1: /evaluate-results
   ↓ (commit results.json, evaluation.json, updated memory/)
 Step 2: /generate-report (re-run with results)
@@ -88,6 +89,8 @@ Before running the pipeline, verify:
 - [ ] `data/config/leagues.json` exists and has leagues
 - [ ] `data/memory/` directory exists with required files
 - [ ] Previous gameweek pipeline is complete (no stuck "running" state older than 24h)
+- [ ] For evaluate mode: `npm run sync-results` runs successfully before evaluation
+- [ ] Optionally: `npm run sync-standings` to refresh league table data in DB
 
 If health check fails:
 - Log the specific failure
