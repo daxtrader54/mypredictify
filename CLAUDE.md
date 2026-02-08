@@ -30,6 +30,8 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
   - Tiers: Free (100 credits, PL) → Pro £19/mo (500 credits, PL) → Gold £49/mo (2000 credits, all leagues)
   - Annual: Pro £159/yr, Gold £410/yr
   - Stripe price IDs hardcoded in `src/config/pricing.ts`
+  - Webhook: `/api/stripe/webhook` handles checkout, subscription updates/cancellation
+  - Requires `STRIPE_WEBHOOK_SECRET` env var
 - **AI**: OpenAI GPT-4o-mini
 - **Data**: SportMonks Football API v3
 - **Pipeline**: Claude CLI skills + TypeScript scripts
