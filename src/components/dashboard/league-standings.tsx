@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy } from 'lucide-react';
-import { LEAGUES } from '@/config/leagues';
+import { Trophy, RefreshCw } from 'lucide-react';
+import { LEAGUES, LEAGUE_BY_ID } from '@/config/leagues';
 import Image from 'next/image';
 
 interface StandingRow {
@@ -47,7 +47,9 @@ export function LeagueStandings() {
     setLoading(true);
     setError(null);
 
-    fetch(`/api/standings?leagueId=${activeLeague}`)
+    const league = LEAGUE_BY_ID[activeLeague];
+    const seasonParam = league ? `&seasonId=${league.seasonId}` : '';
+    fetch(`/api/standings?leagueId=${activeLeague}${seasonParam}`)
       .then(async (res) => {
         if (cancelled) return;
         if (!res.ok) {
@@ -102,7 +104,23 @@ export function LeagueStandings() {
             ))}
           </div>
         ) : error ? (
-          <p className="text-sm text-destructive text-center py-8">{error}</p>
+          <div className="flex flex-col items-center gap-3 py-8">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setCache((prev) => {
+                  const next = { ...prev };
+                  delete next[activeLeague];
+                  return next;
+                });
+              }}
+            >
+              <RefreshCw className="h-3 w-3 mr-1.5" />
+              Retry
+            </Button>
+          </div>
         ) : rows.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">
             No standings data available.

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Menu, LogOut, User, CreditCard, Coins, TrendingUp, Layers, Crown, Target } from 'lucide-react';
+import { Menu, LogOut, User, CreditCard, Coins, TrendingUp, Layers, Crown, Target, LayoutDashboard } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,7 +23,14 @@ import { useCredits } from '@/hooks/use-credits';
 import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/utils';
 
-const navItems = [
+const authenticatedNavItems = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/predictions', label: 'Predictions', icon: Target },
+  { href: '/value-bets', label: 'Value Bets', icon: TrendingUp },
+  { href: '/acca-builder', label: 'ACCA Builder', icon: Layers },
+];
+
+const unauthenticatedNavItems = [
   { href: '/predictions', label: 'Predictions', icon: Target },
   { href: '/value-bets', label: 'Value Bets', icon: TrendingUp },
   { href: '/acca-builder', label: 'ACCA Builder', icon: Layers },
@@ -60,7 +67,7 @@ export function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center space-x-1 ml-8">
-          {navItems.map((item) => {
+          {(session ? authenticatedNavItems : unauthenticatedNavItems).map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,8 +15,14 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { PricingCards } from './pricing/pricing-cards';
+import { getSession } from '@/lib/auth/get-session';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await getSession();
+  if (session?.user) {
+    redirect('/dashboard');
+  }
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}

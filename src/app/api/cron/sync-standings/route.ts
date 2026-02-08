@@ -1,0 +1,92 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { leagueStandings } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { LEAGUES } from '@/config/leagues';
+
+const SPORTMONKS_BASE = 'https://api.sportmonks.com/v3/football';
+
+interface StandingEntry {
+  position: number;
+  points: number;
+  participant?: { id: number; name: string; image_path?: string };
+  details?: Array<{ type?: { code?: string }; value: number }>;
+}
+
+function getDetail(details: Array<{ type?: { code?: string }; value: number }>, code: string): number {
+  return details?.find((d) => d.type?.code === code)?.value ?? 0;
+}
+
+export async function GET(request: NextRequest) {
+  // Verify Vercel cron secret
+  const authHeader = request.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const token = process.env.SPORTMONKS_API_TOKEN;
+  if (!token) {
+    return NextResponse.json({ error: 'SPORTMONKS_API_TOKEN not configured' }, { status: 500 });
+  }
+
+  const results: Array<{ league: string; status: string; count?: number; error?: string }> = [];
+
+  for (const league of LEAGUES) {
+    try {
+      const url = `${SPORTMONKS_BASE}/standings/seasons/${league.seasonId}?api_token=${token}&include=participant;details.type`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        results.push({ league: league.name, status: 'error', error: `HTTP ${response.status}` });
+        continue;
+      }
+
+      const json = await response.json();
+      const standings: StandingEntry[] = json.data ?? [];
+
+      if (standings.length === 0) {
+        results.push({ league: league.name, status: 'skipped', error: 'No data' });
+        continue;
+      }
+
+      // Delete old rows
+      await db.delete(leagueStandings).where(eq(leagueStandings.leagueId, league.id));
+
+      // Insert fresh rows
+      const rows = standings.map((s) => {
+        const details = (s.details ?? []) as Array<{ type?: { code?: string }; value: number }>;
+        const gf = getDetail(details, 'goals-for');
+        const ga = getDetail(details, 'goals-against');
+        return {
+          leagueId: league.id,
+          seasonId: league.seasonId,
+          position: s.position,
+          teamId: s.participant?.id ?? 0,
+          teamName: s.participant?.name ?? 'Unknown',
+          teamLogo: s.participant?.image_path ?? null,
+          played: getDetail(details, 'matches-played') || getDetail(details, 'overall-matches-played'),
+          won: getDetail(details, 'won') || getDetail(details, 'overall-won'),
+          drawn: getDetail(details, 'draw') || getDetail(details, 'overall-draw'),
+          lost: getDetail(details, 'lost') || getDetail(details, 'overall-lost'),
+          goalsFor: gf,
+          goalsAgainst: ga,
+          goalDifference: gf - ga,
+          points: s.points,
+        };
+      });
+
+      await db.insert(leagueStandings).values(rows);
+      results.push({ league: league.name, status: 'ok', count: rows.length });
+    } catch (error) {
+      results.push({
+        league: league.name,
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  return NextResponse.json({ synced: results, timestamp: new Date().toISOString() });
+}

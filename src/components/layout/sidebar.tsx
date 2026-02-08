@@ -8,6 +8,7 @@ import {
   Target,
   TrendingUp,
   Layers,
+  CheckCircle,
   CalendarDays,
   Crown,
   Coins,
@@ -40,6 +41,13 @@ const navItems = [
     icon: Target,
     color: 'text-primary',
     bgColor: 'bg-primary/10',
+  },
+  {
+    title: 'Results',
+    href: '/results',
+    icon: CheckCircle,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10',
   },
   {
     title: 'Value Bets',

@@ -29,8 +29,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <DashboardContent user={user} />
-
       <div className="grid gap-6 lg:grid-cols-2">
         <Suspense fallback={<Skeleton className="h-64 w-full rounded-lg" />}>
           <UpcomingFixtures />
@@ -39,6 +37,8 @@ export default async function DashboardPage() {
       </div>
 
       <AccuracyTracker />
+
+      <DashboardContent user={user} />
     </div>
   );
 }
