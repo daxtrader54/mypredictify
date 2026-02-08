@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, and, gte, sql, lt } from 'drizzle-orm';
 import { db, users, creditTransactions, type User, type NewUser } from './index';
 
 export async function getUser(id: string): Promise<User | null> {
@@ -93,25 +93,26 @@ export async function deductCredits(
   amount: number,
   reason: string
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
-  const user = await getUser(userId);
+  // Atomic: only deducts if credits >= amount, prevents race conditions
+  const result = await db
+    .update(users)
+    .set({
+      credits: sql`${users.credits} - ${amount}`,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(users.id, userId), gte(users.credits, amount)))
+    .returning({ credits: users.credits });
 
-  if (!user) {
-    return { success: false, newBalance: 0, error: 'User not found' };
-  }
-
-  if (user.credits < amount) {
+  if (result.length === 0) {
+    // Either user not found or insufficient credits
+    const user = await getUser(userId);
+    if (!user) return { success: false, newBalance: 0, error: 'User not found' };
     return { success: false, newBalance: user.credits, error: 'Insufficient credits' };
   }
 
-  const newBalance = user.credits - amount;
+  const newBalance = result[0].credits;
 
-  // Update user credits
-  await db
-    .update(users)
-    .set({ credits: newBalance, updatedAt: new Date() })
-    .where(eq(users.id, userId));
-
-  // Log transaction
+  // Log transaction (non-critical — credit already deducted atomically)
   await db.insert(creditTransactions).values({
     userId,
     amount: -amount,
@@ -129,21 +130,23 @@ export async function addCredits(
   type: 'redeem' | 'purchase' | 'subscription' | 'refund',
   reason?: string
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
-  const user = await getUser(userId);
+  // Atomic: increment credits in a single statement, prevents race conditions
+  const result = await db
+    .update(users)
+    .set({
+      credits: sql`${users.credits} + ${amount}`,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
+    .returning({ credits: users.credits });
 
-  if (!user) {
+  if (result.length === 0) {
     return { success: false, newBalance: 0, error: 'User not found' };
   }
 
-  const newBalance = user.credits + amount;
+  const newBalance = result[0].credits;
 
-  // Update user credits
-  await db
-    .update(users)
-    .set({ credits: newBalance, updatedAt: new Date() })
-    .where(eq(users.id, userId));
-
-  // Log transaction
+  // Log transaction (non-critical — credit already added atomically)
   await db.insert(creditTransactions).values({
     userId,
     amount,
@@ -162,27 +165,35 @@ export async function redeemDailyCredits(userId: string): Promise<{
   error?: string;
 }> {
   const DAILY_CREDITS = 10;
-  const user = await getUser(userId);
-
-  if (!user) {
-    return { success: false, creditsAdded: 0, newBalance: 0, error: 'User not found' };
-  }
-
-  // Gold has unlimited — no daily redemption needed
-  if (user.tier === 'gold') {
-    return {
-      success: false,
-      creditsAdded: 0,
-      newBalance: user.credits,
-      error: 'Gold tier has unlimited credits',
-    };
-  }
-
   const now = new Date();
-  const lastReset = user.dailyCreditsLastReset;
-  const hoursSinceReset = (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60);
+  const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-  if (hoursSinceReset < 24) {
+  // Atomic: only redeems if 24h have passed AND not gold tier
+  // The WHERE clause acts as the guard — concurrent requests can't both succeed
+  const result = await db
+    .update(users)
+    .set({
+      credits: sql`${users.credits} + ${DAILY_CREDITS}`,
+      dailyCreditsLastReset: now,
+      updatedAt: now,
+    })
+    .where(
+      and(
+        eq(users.id, userId),
+        lt(users.dailyCreditsLastReset, cutoff),
+        sql`${users.tier} != 'gold'`
+      )
+    )
+    .returning({ credits: users.credits });
+
+  if (result.length === 0) {
+    // Determine why it failed for a helpful error message
+    const user = await getUser(userId);
+    if (!user) return { success: false, creditsAdded: 0, newBalance: 0, error: 'User not found' };
+    if (user.tier === 'gold') {
+      return { success: false, creditsAdded: 0, newBalance: user.credits, error: 'Gold tier has unlimited credits' };
+    }
+    const hoursSinceReset = (now.getTime() - user.dailyCreditsLastReset.getTime()) / (1000 * 60 * 60);
     const hoursRemaining = Math.ceil(24 - hoursSinceReset);
     return {
       success: false,
@@ -192,19 +203,9 @@ export async function redeemDailyCredits(userId: string): Promise<{
     };
   }
 
-  const newBalance = user.credits + DAILY_CREDITS;
+  const newBalance = result[0].credits;
 
-  // Update user
-  await db
-    .update(users)
-    .set({
-      credits: newBalance,
-      dailyCreditsLastReset: now,
-      updatedAt: now,
-    })
-    .where(eq(users.id, userId));
-
-  // Log transaction
+  // Log transaction (non-critical — credit already added atomically)
   await db.insert(creditTransactions).values({
     userId,
     amount: DAILY_CREDITS,
