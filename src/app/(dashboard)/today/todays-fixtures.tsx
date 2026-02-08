@@ -6,6 +6,7 @@ import { Calendar } from 'lucide-react';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
 import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
 import { LEAGUE_BY_ID } from '@/config/leagues';
+import { loadResults } from '@/lib/results';
 
 interface MatchData {
   fixtureId: number;
@@ -35,13 +36,6 @@ interface PredictionFileEntry {
     odds?: { H: number; D: number; A: number } | null;
     btts?: { yes: number; no: number };
   };
-}
-
-interface ResultData {
-  fixtureId: number;
-  homeGoals: number;
-  awayGoals: number;
-  status: 'finished' | 'live' | 'postponed';
 }
 
 function isSameDay(dateStr: string, today: string): boolean {
@@ -83,15 +77,9 @@ async function getTodaysFixtures(): Promise<LeagueGroup[]> {
     const todayMatches = matches.filter((m) => isSameDay(m.kickoff, today));
     if (todayMatches.length === 0) continue;
 
-    // Load results
-    const resultsMap = new Map<number, ResultData>();
-    try {
-      const resultsRaw = await fs.readFile(path.join(gwDir, 'results.json'), 'utf-8');
-      const results: ResultData[] = JSON.parse(resultsRaw);
-      results.forEach((r) => resultsMap.set(r.fixtureId, r));
-    } catch {
-      // No results yet
-    }
+    // Load results from DB + file fallback
+    const fixtureIds = todayMatches.map((m) => m.fixtureId);
+    const resultsMap = await loadResults(fixtureIds, gwDir);
 
     // Load predictions
     const predictionsMap = new Map<number, PredictionFileEntry>();

@@ -5,6 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Calendar } from 'lucide-react';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
 import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
+import { loadResults } from '@/lib/results';
 
 interface PredictionsListProps {
   leagueId: number;
@@ -70,13 +71,6 @@ function oddsToProb(odds: { home: number; draw: number; away: number }): {
   };
 }
 
-interface ResultData {
-  fixtureId: number;
-  homeGoals: number;
-  awayGoals: number;
-  status: 'finished' | 'live' | 'postponed';
-}
-
 function deriveAdvice(homeWin: number, draw: number, awayWin: number): string {
   if (homeWin >= awayWin && homeWin >= draw) return 'Home Win';
   if (awayWin >= homeWin && awayWin >= draw) return 'Away Win';
@@ -103,15 +97,9 @@ async function getFixturesWithPredictions(leagueId: number, gwNumber?: number): 
 
   const leagueMatches = matches.filter((m) => m.league.id === leagueId);
 
-  // Load results if available
-  let resultsMap = new Map<number, ResultData>();
-  try {
-    const resultsRaw = await fs.readFile(path.join(gwDir, 'results.json'), 'utf-8');
-    const results: ResultData[] = JSON.parse(resultsRaw);
-    resultsMap = new Map(results.map((r) => [r.fixtureId, r]));
-  } catch {
-    // No results file yet
-  }
+  // Load results from DB + file fallback
+  const fixtureIds = leagueMatches.map((m) => m.fixtureId);
+  const resultsMap = await loadResults(fixtureIds, gwDir);
 
   const now = new Date();
 

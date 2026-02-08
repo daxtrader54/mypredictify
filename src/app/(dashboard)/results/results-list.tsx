@@ -3,9 +3,10 @@ import path from 'path';
 import { PredictionCard } from '@/components/predictions/prediction-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Trophy, Check, X } from 'lucide-react';
+import { AlertCircle, Trophy, Check } from 'lucide-react';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
 import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
+import { loadResults } from '@/lib/results';
 
 interface MatchData {
   fixtureId: number;
@@ -37,13 +38,6 @@ interface PredictionFileEntry {
   };
 }
 
-interface ResultData {
-  fixtureId: number;
-  homeGoals: number;
-  awayGoals: number;
-  status: 'finished' | 'live' | 'postponed';
-}
-
 interface GameweekResults {
   gameweek: number;
   fixtures: ProcessedFixture[];
@@ -65,19 +59,6 @@ function getActualResult(home: number, away: number): string {
 async function loadGameweekResults(gw: number): Promise<GameweekResults | null> {
   const gwDir = path.join(GW_BASE_DIR, `GW${gw}`);
 
-  // Check if results.json exists
-  let results: ResultData[];
-  try {
-    const raw = await fs.readFile(path.join(gwDir, 'results.json'), 'utf-8');
-    results = JSON.parse(raw);
-  } catch {
-    return null;
-  }
-
-  // Only include if there are finished matches
-  const finishedResults = results.filter((r) => r.status === 'finished');
-  if (finishedResults.length === 0) return null;
-
   // Load matches
   let matches: MatchData[];
   try {
@@ -86,6 +67,14 @@ async function loadGameweekResults(gw: number): Promise<GameweekResults | null> 
   } catch {
     return null;
   }
+
+  // Load results from DB + file fallback
+  const fixtureIds = matches.map((m) => m.fixtureId);
+  const resultsMap = await loadResults(fixtureIds, gwDir);
+
+  // Only include if there are finished matches
+  const finishedResults = Array.from(resultsMap.values()).filter((r) => r.status === 'finished');
+  if (finishedResults.length === 0) return null;
 
   // Load predictions
   let predictionEntries: PredictionFileEntry[] = [];
@@ -96,7 +85,6 @@ async function loadGameweekResults(gw: number): Promise<GameweekResults | null> 
     // No predictions — still show results
   }
 
-  const resultsMap = new Map(finishedResults.map((r) => [r.fixtureId, r]));
   const predictionMap = new Map<number, ProcessedPrediction>();
 
   // Build predictions map
@@ -281,7 +269,7 @@ export async function ResultsList() {
               )}
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {gw.fixtures.map((fixture) => (
                 <PredictionCard
                   key={fixture.id}

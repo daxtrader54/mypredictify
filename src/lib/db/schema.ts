@@ -118,6 +118,15 @@ export const leagueStandings = predictifySchema.table('league_standings', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Match results (synced from SportMonks via cron)
+export const matchResults = predictifySchema.table('match_results', {
+  fixtureId: integer('fixture_id').primaryKey(),
+  homeGoals: integer('home_goals').notNull(),
+  awayGoals: integer('away_goals').notNull(),
+  status: text('status').notNull(), // 'finished', 'live', 'postponed'
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Pipeline enums
 export const gameweekStatusEnum = predictifySchema.enum('gameweek_status', ['pending', 'ingested', 'researched', 'predicted', 'evaluated']);
 export const pipelineStepEnum = predictifySchema.enum('pipeline_step', ['ingest', 'research', 'predict', 'evaluate', 'report']);
@@ -225,6 +234,7 @@ export interface AccaSelection {
 
 // Standings types
 export type LeagueStanding = typeof leagueStandings.$inferSelect;
+export type MatchResult = typeof matchResults.$inferSelect;
 
 // Pipeline types
 export type Gameweek = typeof gameweeks.$inferSelect;
