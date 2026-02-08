@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { CURRENT_SEASON } from '@/config/site';
 
 export interface LeagueAccuracy {
   name: string;
@@ -72,7 +73,7 @@ const EMPTY_DATA: AccuracyData = {
 };
 
 export async function getAccuracyData(): Promise<AccuracyData> {
-  const baseDir = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
+  const baseDir = path.join(process.cwd(), 'data', 'gameweeks', CURRENT_SEASON);
 
   // Find all GW directories
   let gwDirs: string[];

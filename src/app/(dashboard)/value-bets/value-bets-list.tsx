@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { CURRENT_SEASON } from '@/config/site';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { TrendingUp, AlertCircle } from 'lucide-react';
 import { ValueBetCard, type ValueBetData } from './value-bet-card';
@@ -27,7 +28,7 @@ interface PredictionEntry {
 }
 
 async function getLatestGameweekDir(): Promise<string | null> {
-  const baseDir = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
+  const baseDir = path.join(process.cwd(), 'data', 'gameweeks', CURRENT_SEASON);
   try {
     const entries = await fs.readdir(baseDir);
     const gameweeks = entries

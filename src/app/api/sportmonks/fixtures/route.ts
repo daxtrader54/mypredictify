@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSportMonksClient, processFixture } from '@/lib/sportmonks/client';
 import { LEAGUES } from '@/config/leagues';
+import { getSession } from '@/lib/auth/get-session';
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const searchParams = request.nextUrl.searchParams;
     const date = searchParams.get('date');
     const leagueId = searchParams.get('league');

@@ -83,7 +83,8 @@ async function fetchFixture(fixtureId: number): Promise<ResultData | null> {
 }
 
 async function main() {
-  const baseDir = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
+  const season = process.env.SEASON || '2025-26';
+  const baseDir = path.join(process.cwd(), 'data', 'gameweeks', season);
   const entries = await fs.readdir(baseDir);
   const gameweeks = entries
     .filter((e) => e.startsWith('GW'))

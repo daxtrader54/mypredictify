@@ -1,7 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { CURRENT_SEASON } from '@/config/site';
 
-export const GW_BASE_DIR = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
+export const GW_BASE_DIR = path.join(process.cwd(), 'data', 'gameweeks', CURRENT_SEASON);
 
 export async function getAvailableGameweeks(): Promise<number[]> {
   try {

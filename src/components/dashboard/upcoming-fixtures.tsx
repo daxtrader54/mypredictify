@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import Link from 'next/link';
+import { CURRENT_SEASON } from '@/config/site';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
@@ -24,7 +25,7 @@ interface PredictionEntry {
 
 async function getUpcomingFixtures(): Promise<(MatchData & { pred?: PredictionEntry })[]> {
   try {
-    const baseDir = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
+    const baseDir = path.join(process.cwd(), 'data', 'gameweeks', CURRENT_SEASON);
     const entries = await fs.readdir(baseDir);
     const gameweeks = entries
       .filter((e) => e.startsWith('GW'))

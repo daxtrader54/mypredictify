@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { CURRENT_SEASON } from '@/config/site';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -40,7 +41,7 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 async function getLatestGameweekDir(): Promise<string | null> {
-  const seasonDir = path.join(process.cwd(), 'data/gameweeks/2025-26');
+  const seasonDir = path.join(process.cwd(), 'data', 'gameweeks', CURRENT_SEASON);
   try {
     const dirs = await fs.readdir(seasonDir);
     const gwDirs = dirs.filter(d => d.startsWith('GW')).sort((a, b) => {

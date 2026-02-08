@@ -12,15 +12,23 @@ import { eq } from 'drizzle-orm';
  */
 export async function POST(request: Request) {
   try {
-    // Verify API key or auth
+    // Verify API key (required — fail closed)
     const authHeader = request.headers.get('authorization');
     const expectedKey = process.env.PIPELINE_SYNC_KEY;
-    if (expectedKey && authHeader !== `Bearer ${expectedKey}`) {
+    if (!expectedKey || authHeader !== `Bearer ${expectedKey}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json().catch(() => ({}));
     const { season, gameweek: gwName } = body as { season?: string; gameweek?: string };
+
+    // Validate input formats to prevent path traversal
+    if (season && !/^\d{4}-\d{2}$/.test(season)) {
+      return NextResponse.json({ error: 'Invalid season format' }, { status: 400 });
+    }
+    if (gwName && !/^GW\d+$/.test(gwName)) {
+      return NextResponse.json({ error: 'Invalid gameweek format' }, { status: 400 });
+    }
 
     // Find the latest gameweek if not specified
     const dataDir = resolve(process.cwd(), 'data', 'gameweeks');
@@ -158,7 +166,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Pipeline sync error:', error);
     return NextResponse.json(
-      { error: 'Sync failed', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Sync failed' },
       { status: 500 }
     );
   }

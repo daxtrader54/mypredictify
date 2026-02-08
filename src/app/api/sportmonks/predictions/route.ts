@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSportMonksClient, processProbability } from '@/lib/sportmonks/client';
+import { getSession } from '@/lib/auth/get-session';
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const searchParams = request.nextUrl.searchParams;
     const fixtureIds = searchParams.get('fixture_ids');
 

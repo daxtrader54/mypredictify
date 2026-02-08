@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSportMonksClient } from '@/lib/sportmonks/client';
+import { getSession } from '@/lib/auth/get-session';
 
 // Market IDs for common bet types
 const MARKET_IDS = {
@@ -20,6 +21,11 @@ interface ProcessedOdds {
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const fixtureId = searchParams.get('fixture_id');
 
