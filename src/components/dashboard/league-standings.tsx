@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -38,27 +38,34 @@ export function LeagueStandings() {
   const [activeLeague, setActiveLeague] = useState(LEAGUES[0].id);
   const [cache, setCache] = useState<Record<number, StandingRow[]>>({});
   const [loading, setLoading] = useState(false);
-
-  const fetchStandings = useCallback(async (leagueId: number) => {
-    if (cache[leagueId]) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/standings?leagueId=${leagueId}`);
-      if (res.ok) {
-        const data: StandingRow[] = await res.json();
-        setCache((prev) => ({ ...prev, [leagueId]: data }));
-      }
-    } catch {
-      // Silently fail — empty state handled in render
-    } finally {
-      setLoading(false);
-    }
-  }, [cache]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchStandings(activeLeague);
-  }, [activeLeague, fetchStandings]);
+    if (cache[activeLeague]) return;
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    fetch(`/api/standings?leagueId=${activeLeague}`)
+      .then(async (res) => {
+        if (cancelled) return;
+        if (!res.ok) {
+          setError('Failed to load standings');
+          return;
+        }
+        const data: StandingRow[] = await res.json();
+        setCache((prev) => ({ ...prev, [activeLeague]: data }));
+      })
+      .catch(() => {
+        if (!cancelled) setError('Failed to load standings');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [activeLeague, cache]);
 
   const rows = cache[activeLeague] || [];
 
@@ -94,23 +101,25 @@ export function LeagueStandings() {
               <Skeleton key={i} className="h-8 w-full" />
             ))}
           </div>
+        ) : error ? (
+          <p className="text-sm text-destructive text-center py-8">{error}</p>
         ) : rows.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">
-            No standings data available. Run <code>npm run sync-standings</code> to populate.
+            No standings data available.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-10 text-center">#</TableHead>
-                  <TableHead>Team</TableHead>
-                  <TableHead className="text-center w-10">P</TableHead>
-                  <TableHead className="text-center w-10">W</TableHead>
-                  <TableHead className="text-center w-10">D</TableHead>
-                  <TableHead className="text-center w-10">L</TableHead>
-                  <TableHead className="text-center w-12">GD</TableHead>
-                  <TableHead className="text-center w-12 font-bold">Pts</TableHead>
+                  <TableHead className="w-8 text-center px-1">#</TableHead>
+                  <TableHead className="px-1">Team</TableHead>
+                  <TableHead className="text-center w-8 px-1">P</TableHead>
+                  <TableHead className="text-center w-8 px-1 hidden sm:table-cell">W</TableHead>
+                  <TableHead className="text-center w-8 px-1 hidden sm:table-cell">D</TableHead>
+                  <TableHead className="text-center w-8 px-1 hidden sm:table-cell">L</TableHead>
+                  <TableHead className="text-center w-10 px-1">GD</TableHead>
+                  <TableHead className="text-center w-10 px-1 font-bold">Pts</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -125,28 +134,28 @@ export function LeagueStandings() {
                           : ''
                     }
                   >
-                    <TableCell className="text-center text-xs font-medium text-muted-foreground">
+                    <TableCell className="text-center text-xs font-medium text-muted-foreground px-1">
                       {row.position}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
+                    <TableCell className="px-1">
+                      <div className="flex items-center gap-1.5 min-w-0">
                         {row.teamLogo && (
                           <Image
                             src={row.teamLogo}
                             alt={row.teamName}
-                            width={20}
-                            height={20}
-                            className="rounded-sm"
+                            width={18}
+                            height={18}
+                            className="rounded-sm shrink-0"
                           />
                         )}
-                        <span className="text-sm font-medium truncate">{row.teamName}</span>
+                        <span className="text-xs sm:text-sm font-medium truncate">{row.teamName}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center text-sm">{row.played}</TableCell>
-                    <TableCell className="text-center text-sm">{row.won}</TableCell>
-                    <TableCell className="text-center text-sm">{row.drawn}</TableCell>
-                    <TableCell className="text-center text-sm">{row.lost}</TableCell>
-                    <TableCell className="text-center text-sm font-medium">
+                    <TableCell className="text-center text-xs sm:text-sm px-1">{row.played}</TableCell>
+                    <TableCell className="text-center text-xs sm:text-sm px-1 hidden sm:table-cell">{row.won}</TableCell>
+                    <TableCell className="text-center text-xs sm:text-sm px-1 hidden sm:table-cell">{row.drawn}</TableCell>
+                    <TableCell className="text-center text-xs sm:text-sm px-1 hidden sm:table-cell">{row.lost}</TableCell>
+                    <TableCell className="text-center text-xs sm:text-sm font-medium px-1">
                       <span
                         className={
                           row.goalDifference > 0
@@ -159,7 +168,7 @@ export function LeagueStandings() {
                         {row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference}
                       </span>
                     </TableCell>
-                    <TableCell className="text-center text-sm font-bold">{row.points}</TableCell>
+                    <TableCell className="text-center text-xs sm:text-sm font-bold px-1">{row.points}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

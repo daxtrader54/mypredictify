@@ -60,9 +60,14 @@ async function getValueBets(): Promise<ValueBetData[]> {
   const valueBets: ValueBetData[] = [];
   const MIN_EDGE = 0.05; // 5% edge threshold
 
+  const now = new Date();
+
   for (const pred of predictions) {
     const match = matchMap.get(pred.fixtureId);
     if (!match?.odds || !match.odds.home) continue;
+
+    // Skip games that have already kicked off
+    if (new Date(match.kickoff) <= now) continue;
 
     const odds = match.odds;
     const rawH = 1 / odds.home;

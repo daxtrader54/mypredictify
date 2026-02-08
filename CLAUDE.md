@@ -59,17 +59,21 @@ npm run sync-results    # Fetch match results for past fixtures
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── (auth)/            # Auth pages (login)
-│   │   ├── (dashboard)/       # Protected pages
+│   │   ├── (dashboard)/       # Protected pages (layout-level auth)
 │   │   │   ├── admin/         # Admin panel (user management, credits)
 │   │   │   ├── dashboard/     # Main dashboard
 │   │   │   ├── predictions/   # Predictions list (with GW navigation)
+│   │   │   ├── today/         # Today's fixtures with predictions
+│   │   │   ├── value-bets/    # Value bet finder
 │   │   │   ├── acca-builder/  # ACCA accumulator
 │   │   │   ├── pipeline/      # Pipeline status dashboard
-│   │   │   └── reports/       # Weekly reports (+ [...gameweek] detail)
+│   │   │   ├── reports/       # Weekly reports (+ [...gameweek] detail)
+│   │   │   └── error.tsx      # Error boundary for all dashboard routes
 │   │   ├── (marketing)/       # Public pages (landing, pricing)
 │   │   └── api/               # API routes
 │   │       ├── admin/users/   # Admin user management API
-│   │       ├── pipeline/sync/ # Data file → Postgres sync
+│   │       ├── pipeline/sync/ # Data file → Postgres sync (batch upsert)
+│   │       ├── sportmonks/    # Debug/admin proxy (requires auth)
 │   │       └── standings/     # League standings from DB
 │   ├── components/
 │   │   ├── ui/                # shadcn/ui components
@@ -82,9 +86,10 @@ npm run sync-results    # Fetch match results for past fixtures
 │   ├── lib/
 │   │   ├── sportmonks/        # SportMonks API client + types
 │   │   ├── db/                # Drizzle schema + Neon PostgreSQL
-│   │   └── auth/              # NextAuth configuration
+│   │   ├── auth/              # NextAuth configuration
+│   │   └── gameweeks.ts       # Shared GW scanning utility
 │   ├── hooks/                 # Custom React hooks
-│   └── config/                # App configuration
+│   └── config/                # App config (site.ts has CURRENT_SEASON)
 ├── scripts/                   # CLI tools invoked by Claude
 │   ├── fetch-sportmonks.ts    # SportMonks API wrapper
 │   ├── elo.ts                 # Elo rating engine
@@ -149,8 +154,14 @@ npm run sync-results    # Fetch match results for past fixtures
 
 **Route Groups:**
 - `(auth)` - Unauthenticated pages
-- `(dashboard)` - Requires authentication, has sidebar layout
+- `(dashboard)` - Requires authentication (layout-level `getSession()` redirect), has sidebar layout
 - `(marketing)` - Public pages with header/footer
+
+**Authentication:**
+- Auth enforced in `(dashboard)/layout.tsx` via `getSession()` → redirect to `/login`
+- No middleware.ts — Next.js 16 Edge Runtime breaks `getToken()` on Vercel
+- API routes use `getSession()` individually; pipeline sync uses Bearer token
+- SportMonks proxy routes (`/api/sportmonks/*`) also require session auth
 
 **Database Tables** (all in `predictify` schema):
 - users, creditTransactions, accaHistory, predictionViews (app)
@@ -167,14 +178,27 @@ npm run sync-results    # Fetch match results for past fixtures
 - `CreditsProvider` in `src/components/providers/credits-provider.tsx` wraps dashboard layout
 - `useCredits()` hook reads from shared context (not per-component API calls)
 - Credit unlock state persisted in localStorage (`mypredictify:unlocked`)
+- All credit operations (deduct, add, daily redeem) use atomic SQL — no race conditions
+- Gold tier: unlimited credits, no daily redemption needed
+
+**Season Config**:
+- `CURRENT_SEASON` in `src/config/site.ts` is the single source of truth (e.g., `'2025-26'`)
+- All code importing season strings must use this constant — never hardcode
+- Scripts use `process.env.SEASON` fallback (can't use `@/` alias)
 
 **Predictions Page** (`/predictions`):
 - URL params: `?league={id}&gw={number}` — league filter + gameweek navigation
-- Gameweek data loaded from `data/gameweeks/2025-26/GW{n}/` (matches.json, predictions.json, results.json)
-- `getAvailableGameweeks()` scans GW directories, exported from `predictions-list.tsx`
+- Gameweek data loaded from `data/gameweeks/{CURRENT_SEASON}/GW{n}/` (matches.json, predictions.json, results.json)
+- `getAvailableGameweeks()` in `src/lib/gameweeks.ts` — shared utility for GW directory scanning
 - Prediction cards show both final score AND predicted score for finished matches
 - Result-aware card shading: gold = exact score correct, green = correct result, red = incorrect
 - Prev/next GW navigation in `predictions-filter.tsx`
+
+**Today's Games** (`/today`):
+- Shows fixtures for today's date across all leagues and gameweeks
+- Scans all GW directories, filters by kickoff date matching today
+- Groups by league, sorted by kickoff time; reuses `PredictionCard`
+- ISR with 300s revalidation
 
 **Admin Panel** (`/admin`):
 - Protected by `isAdmin()` check — only listed admin emails can access
@@ -212,8 +236,8 @@ Required:
 - `DATABASE_URL` or `POSTGRES_URL` (Neon PostgreSQL — Vercel sets both)
 - `SPORTMONKS_API_TOKEN`
 - `OPENAI_API_KEY`
-- `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (optional, for payments)
-- `PIPELINE_SYNC_KEY` (optional, for sync API auth)
+- `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
+- `PIPELINE_SYNC_KEY` (required — pipeline sync fails closed without it)
 
 ## Supported Leagues
 
