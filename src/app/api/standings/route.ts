@@ -26,8 +26,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(rows);
   } catch (error) {
     console.error('Failed to fetch standings:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to load standings data' },
+      { error: 'Failed to load standings data', detail: message },
       { status: 500 }
     );
   }
