@@ -232,15 +232,44 @@ export async function PredictionsList({ leagueId, gameweek }: PredictionsListPro
     );
   }
 
+  const upcoming = fixtures.filter((f) => f.status === 'upcoming');
+  const completed = fixtures.filter((f) => f.status !== 'upcoming');
+
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {fixtures.map((fixture) => (
-        <PredictionCard
-          key={fixture.id}
-          fixture={fixture}
-          prediction={predictions.get(fixture.id)}
-        />
-      ))}
+    <div className="space-y-6">
+      {upcoming.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Upcoming ({upcoming.length})
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {upcoming.map((fixture) => (
+              <PredictionCard
+                key={fixture.id}
+                fixture={fixture}
+                prediction={predictions.get(fixture.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {completed.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Completed ({completed.length})
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {completed.map((fixture) => (
+              <PredictionCard
+                key={fixture.id}
+                fixture={fixture}
+                prediction={predictions.get(fixture.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

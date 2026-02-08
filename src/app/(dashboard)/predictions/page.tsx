@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   description: 'AI-powered football match predictions',
 };
 
-// ISR: Revalidate every 5 minutes
-export const revalidate = 300;
+// Dynamic rendering — fixture status depends on current time
+export const dynamic = 'force-dynamic';
 
 interface PredictionsPageProps {
   searchParams: Promise<{ league?: string; gw?: string }>;

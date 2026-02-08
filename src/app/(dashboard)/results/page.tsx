@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: 'Match results vs predictions — see how our AI performed',
 };
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export default function ResultsPage() {
   return (

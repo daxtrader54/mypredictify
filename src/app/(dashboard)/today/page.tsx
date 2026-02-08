@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   description: "Today's football fixtures with AI predictions",
 };
 
-export const revalidate = 300;
+// Dynamic rendering — today's fixtures depend on current date/time
+export const dynamic = 'force-dynamic';
 
 export default function TodayPage() {
   const todayStr = format(new Date(), 'EEEE, MMMM d, yyyy');
