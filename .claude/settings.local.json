@@ -17,7 +17,23 @@
       "Bash(node -e \"\nconst { neon } = require\\(''@neondatabase/serverless''\\);\nconst sql = neon\\(''postgresql://neondb_owner:npg_mjGob3wkn8Pg@ep-shy-hat-ah32gmee-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require''\\);\nsql.query\\(''CREATE SCHEMA IF NOT EXISTS predictify''\\).then\\(r => console.log\\(''Schema created''\\)\\).catch\\(e => console.error\\(e.message\\)\\);\n\")",
       "Bash(node -e \"\nconst { neon } = require\\(''@neondatabase/serverless''\\);\nconst sql = neon\\(''postgresql://neondb_owner:npg_mjGob3wkn8Pg@ep-shy-hat-ah32gmee-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require''\\);\nsql.query\\(\"\"SELECT table_name FROM information_schema.tables WHERE table_schema = ''predictify''\"\"\\).then\\(r => console.log\\(JSON.stringify\\(r.rows || r\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\);\n\")",
       "Bash(npx drizzle-kit:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "WebSearch",
+      "WebFetch(domain:the-odds-api.com)",
+      "WebFetch(domain:www.api-football.com)",
+      "WebFetch(domain:developer.betfair.com)",
+      "WebFetch(domain:www.sportmonks.com)",
+      "WebFetch(domain:oddalerts.com)",
+      "WebFetch(domain:odds-api.io)",
+      "WebFetch(domain:betsapi.com)",
+      "Bash(ls:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsx:*)",
+      "Bash(node scripts/tmp-set-gold.mjs:*)",
+      "Bash(del \"C:\\\\Users\\\\Chris\\\\Documents\\\\APPLICATIONS-MORALIS\\\\54a-predictions\\\\mypredictify\\\\scripts\\\\tmp-set-gold.mjs\")",
+      "Bash(node scripts/tmp-check-users.mjs:*)",
+      "Bash(npm run sync-standings:*)",
+      "Bash(npm run sync-results:*)"
     ]
   }
 }

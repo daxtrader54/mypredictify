@@ -1,4 +1,9 @@
-export const ADMIN_EMAIL = 'daxtrader54@gmail.com';
+export const ADMIN_EMAILS = ['daxtrader54@gmail.com', 'daxtrader@gmail.com', 'mypredictify@gmail.com'];
+export const ADMIN_EMAIL = ADMIN_EMAILS[0]; // legacy compat
+
+export function isAdmin(email?: string | null): boolean {
+  return !!email && ADMIN_EMAILS.includes(email);
+}
 
 export const siteConfig = {
   name: 'MyPredictify',

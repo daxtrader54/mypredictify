@@ -1,11 +1,9 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Check, Zap } from 'lucide-react';
-import { ADD_ONS, formatPrice, CREDIT_COSTS } from '@/config/pricing';
+import { Check } from 'lucide-react';
+import { CREDIT_COSTS } from '@/config/pricing';
 import { PricingCards } from './pricing-cards';
 
 export const metadata: Metadata = {
@@ -30,50 +28,6 @@ export default function PricingPage() {
 
         {/* Pricing Cards with billing toggle */}
         <PricingCards />
-
-        {/* API Add-on */}
-        <div className="mt-16 max-w-5xl mx-auto">
-          <div className="text-center mb-8">
-            <Badge variant="outline" className="mb-4">
-              <Zap className="h-3 w-3 mr-1" />
-              Add-on
-            </Badge>
-            <h2 className="text-2xl font-bold">Need API Access?</h2>
-            <p className="text-muted-foreground mt-2">
-              Build custom integrations and automate your workflow
-            </p>
-          </div>
-
-          {ADD_ONS.map((addon) => (
-            <Card key={addon.id} className="bg-muted/30">
-              <CardContent className="py-6">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold">{addon.name}</h3>
-                    <p className="text-muted-foreground text-sm mt-1">
-                      {addon.description}
-                    </p>
-                    <ul className="mt-4 grid gap-2 md:grid-cols-2">
-                      {addon.features.map((feature, index) => (
-                        <li key={index} className="flex items-center gap-2 text-sm">
-                          <Check className="h-4 w-4 text-primary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="text-center md:text-right">
-                    <div className="text-3xl font-bold">{formatPrice(addon.price)}</div>
-                    <div className="text-sm text-muted-foreground">/month</div>
-                    <Button asChild className="mt-4">
-                      <Link href="/login?addon=api">Add to Plan</Link>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
 
         <Separator className="my-16" />
 
@@ -127,7 +81,11 @@ export default function PricingPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span>Daily credit refresh (Free plan)</span>
+                    <span>Daily credit refresh (+10/day)</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-green-500" />
+                    <span>Premier League predictions (Pro+)</span>
                   </li>
                 </ul>
               </CardContent>
@@ -160,7 +118,7 @@ export default function PricingPage() {
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground">
                   Credits reset at the start of each billing cycle. Daily bonus credits
-                  for free users must be claimed within 24 hours.
+                  must be claimed within 24 hours.
                 </p>
               </CardContent>
             </Card>
@@ -171,21 +129,22 @@ export default function PricingPage() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground">
-                  Pro gives you more credits for Premier League predictions. Gold unlocks
-                  all 5 European leagues (La Liga, Bundesliga, Serie A, Ligue 1) plus
-                  2,000 credits per month.
+                  Pro gives you unlimited Premier League predictions at no credit cost, plus
+                  100 credits and +10 daily for other leagues. Gold gives you unlimited
+                  predictions across all 5 European leagues with no credit limits at all.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Can I add API access later?</CardTitle>
+                <CardTitle className="text-base">Can Free users access all leagues?</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground">
-                  Yes! API access is an optional add-on available to any paid subscriber.
-                  You can add or remove it at any time from your dashboard.
+                  Yes! Free users can browse and unlock predictions for any league using credits.
+                  You start with 100 credits and earn +10 daily. Upgrading to Pro or Gold gives
+                  you free access to specific leagues without spending credits.
                 </p>
               </CardContent>
             </Card>

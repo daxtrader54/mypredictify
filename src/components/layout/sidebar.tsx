@@ -15,13 +15,14 @@ import {
   Sparkles,
   Workflow,
   FileText,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useCredits } from '@/hooks/use-credits';
-import { siteConfig, ADMIN_EMAIL } from '@/config/site';
+import { siteConfig, isAdmin } from '@/config/site';
 import { LEAGUES } from '@/config/leagues';
 import { Logo } from './logo';
 
@@ -77,6 +78,14 @@ const navItems = [
     color: 'text-orange-500',
     bgColor: 'bg-orange-500/10',
   },
+  {
+    title: 'Admin',
+    href: '/admin',
+    icon: Shield,
+    color: 'text-red-500',
+    bgColor: 'bg-red-500/10',
+    admin: true,
+  },
 ];
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
@@ -91,7 +100,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   return (
     <div className="flex h-full flex-col bg-gradient-to-b from-card to-card/50 overflow-y-auto">
       {/* Logo - only visible in mobile sheet */}
-      <div className="flex h-16 items-center border-b border-border/50 px-4 md:hidden">
+      <div className="flex h-14 items-center border-b border-border/50 px-4 md:hidden">
         <Link href="/" className="flex items-center space-x-2">
           <Logo className="h-9 w-9" />
           <span className="font-bold text-xl">{siteConfig.name}</span>
@@ -100,57 +109,46 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
 
       {/* Credits section */}
       {session && (
-        <div className="p-4 border-b border-border/50">
-          <div className="rounded-xl bg-gradient-to-br from-yellow-500/10 to-transparent p-4 border border-yellow-500/20">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                  <Coins className="h-4 w-4 text-yellow-500" />
-                </div>
-                <div>
-                  <span className="font-bold text-lg">
-                    {loading ? '...' : credits.toLocaleString()}
-                  </span>
-                  <p className="text-xs text-muted-foreground">Credits</p>
-                </div>
-              </div>
-              <Badge
-                variant={isPro ? 'default' : 'secondary'}
-                className={cn(
-                  isPro && "bg-primary/20 text-primary border-primary/30"
-                )}
-              >
-                {isPro && <Crown className="h-3 w-3 mr-1" />}
-                {tier.toUpperCase()}
-              </Badge>
+        <div className="px-2 py-1.5 border-b border-border/50">
+          <div className="flex items-center justify-between rounded-md bg-yellow-500/5 border border-yellow-500/15 px-2.5 py-1.5">
+            <div className="flex items-center gap-2">
+              <Coins className="h-4 w-4 text-yellow-500 shrink-0" />
+              <span className="font-bold text-sm">
+                {loading ? '...' : credits.toLocaleString()}
+              </span>
+              <span className="text-xs text-muted-foreground">credits</span>
             </div>
-            {canRedeemDaily && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full border-yellow-500/30 hover:bg-yellow-500/10"
-                onClick={handleRedeem}
-              >
-                <Gift className="h-4 w-4 mr-2 text-yellow-500" />
-                Claim +10 Daily Credits
-              </Button>
-            )}
-            {tier === 'free' && !canRedeemDaily && (
-              <p className="text-xs text-muted-foreground text-center">
-                +10 daily bonus available tomorrow
-              </p>
-            )}
+            <Badge
+              variant={isPro ? 'default' : 'secondary'}
+              className={cn(
+                "text-[10px] px-1.5 py-0",
+                isPro && "bg-primary/20 text-primary border-primary/30"
+              )}
+            >
+              {tier.toUpperCase()}
+            </Badge>
           </div>
+          {canRedeemDaily && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full mt-1 h-7 text-xs text-yellow-500 hover:bg-yellow-500/10"
+              onClick={handleRedeem}
+            >
+              <Gift className="h-3 w-3 mr-1.5" />
+              Claim +10 Daily
+            </Button>
+          )}
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-3">
-        <p className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+      <nav className="flex-1 space-y-0.5 p-2">
+        <p className="px-3 py-1.5 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
           Main Menu
         </p>
         {navItems
-          .filter((item) => !item.admin || session?.user?.email === ADMIN_EMAIL)
+          .filter((item) => !item.admin || isAdmin(session?.user?.email))
           .map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
@@ -160,17 +158,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
+                'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
               <div className={cn(
-                'h-8 w-8 rounded-lg flex items-center justify-center transition-colors',
+                'h-7 w-7 rounded-md flex items-center justify-center transition-colors',
                 isActive ? 'bg-primary-foreground/20' : item.bgColor
               )}>
-                <item.icon className={cn('h-4 w-4', isActive ? 'text-primary-foreground' : item.color)} />
+                <item.icon className={cn('h-3.5 w-3.5', isActive ? 'text-primary-foreground' : item.color)} />
               </div>
               {item.title}
             </Link>
@@ -181,34 +179,29 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
       <Separator className="opacity-50" />
 
       {/* Leagues section */}
-      <div className="p-3">
-        <p className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+      <div className="p-2">
+        <p className="px-3 py-1.5 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
           Leagues
         </p>
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {LEAGUES.map((league) => {
-            const isLocked = league.tier === 'gold' && tier !== 'gold';
             const leagueHref = `/predictions?league=${league.id}`;
             const isActive = pathname === leagueHref;
 
             return (
               <Link
                 key={league.id}
-                href={isLocked ? '/pricing' : leagueHref}
+                href={leagueHref}
                 onClick={onNavigate}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                  'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors',
                   isActive
                     ? 'bg-muted text-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                  isLocked && 'opacity-50'
                 )}
               >
                 <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{league.shortName}</span>
                 <span className="truncate">{league.name}</span>
-                {isLocked && (
-                  <Crown className="ml-auto h-3 w-3 text-yellow-500" />
-                )}
               </Link>
             );
           })}

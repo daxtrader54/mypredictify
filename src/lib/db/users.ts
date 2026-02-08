@@ -77,7 +77,8 @@ export async function getUserCredits(userId: string): Promise<{
   const now = new Date();
   const lastReset = user.dailyCreditsLastReset;
   const hoursSinceReset = (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60);
-  const canRedeemDaily = hoursSinceReset >= 24 && user.tier === 'free';
+  // Free and Pro both get daily credits; Gold has unlimited so no need
+  const canRedeemDaily = hoursSinceReset >= 24 && user.tier !== 'gold';
 
   return {
     credits: user.credits,
@@ -167,13 +168,13 @@ export async function redeemDailyCredits(userId: string): Promise<{
     return { success: false, creditsAdded: 0, newBalance: 0, error: 'User not found' };
   }
 
-  // Only free tier can redeem daily
-  if (user.tier !== 'free') {
+  // Gold has unlimited — no daily redemption needed
+  if (user.tier === 'gold') {
     return {
       success: false,
       creditsAdded: 0,
       newBalance: user.credits,
-      error: 'Daily redemption only available for free tier',
+      error: 'Gold tier has unlimited credits',
     };
   }
 
@@ -238,7 +239,7 @@ export async function updateUserSubscription(
 
   // Reset monthly credits for paid users
   if (tier === 'pro') {
-    updates.credits = 500;
+    updates.credits = 100;
     updates.monthlyCreditsLastReset = new Date();
   } else if (tier === 'gold') {
     updates.credits = 2000;

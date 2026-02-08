@@ -38,12 +38,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+      <div className="container flex h-14 items-center">
         {/* Mobile menu */}
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden mr-2">
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
@@ -101,7 +101,7 @@ export function Header() {
                     tier !== 'free' && "bg-primary/20 text-primary border-primary/30"
                   )}
                 >
-                  {tier === 'free' ? 'FREE' : 'PRO'}
+                  {tier.toUpperCase()}
                 </Badge>
               </div>
 
