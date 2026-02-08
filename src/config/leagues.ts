@@ -6,6 +6,7 @@ export interface League {
   countryCode: string;
   logo?: string;
   tier: 'free' | 'gold';
+  seasonId: number;
 }
 
 export const LEAGUES: League[] = [
@@ -16,6 +17,7 @@ export const LEAGUES: League[] = [
     country: 'England',
     countryCode: 'GB-ENG',
     tier: 'free',
+    seasonId: 25583,
   },
   {
     id: 564,
@@ -24,6 +26,7 @@ export const LEAGUES: League[] = [
     country: 'Spain',
     countryCode: 'ES',
     tier: 'gold',
+    seasonId: 25659,
   },
   {
     id: 82,
@@ -32,6 +35,7 @@ export const LEAGUES: League[] = [
     country: 'Germany',
     countryCode: 'DE',
     tier: 'gold',
+    seasonId: 25646,
   },
   {
     id: 384,
@@ -40,6 +44,7 @@ export const LEAGUES: League[] = [
     country: 'Italy',
     countryCode: 'IT',
     tier: 'gold',
+    seasonId: 25533,
   },
   {
     id: 301,
@@ -48,6 +53,7 @@ export const LEAGUES: League[] = [
     country: 'France',
     countryCode: 'FR',
     tier: 'gold',
+    seasonId: 25651,
   },
 ];
 

@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight, Coins, Lock } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useCredits } from '@/hooks/use-credits';
-import { CREDIT_COSTS } from '@/config/pricing';
+import { CREDIT_COSTS, isFreeForTier } from '@/config/pricing';
 
 export interface ValueBetData {
   fixtureId: number;
   league: string;
+  leagueId: number;
   homeTeam: string;
   awayTeam: string;
   kickoff: string;
@@ -24,16 +25,43 @@ export interface ValueBetData {
   confidence: number;
 }
 
-// Track revealed bets across all cards this session
-const revealedBets = new Set<string>();
+const VB_STORAGE_KEY = 'mypredictify:revealed-vb';
+
+function getRevealedSet(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(VB_STORAGE_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function persistRevealed(key: string) {
+  try {
+    const set = getRevealedSet();
+    set.add(key);
+    localStorage.setItem(VB_STORAGE_KEY, JSON.stringify([...set]));
+  } catch { /* quota exceeded — non-critical */ }
+}
 
 export function ValueBetCard({ vb }: { vb: ValueBetData }) {
   const betKey = `${vb.fixtureId}-${vb.bet}`;
-  const [revealed, setRevealed] = useState(revealedBets.has(betKey));
+  const [revealed, setRevealed] = useState(false);
   const [creditError, setCreditError] = useState<string | null>(null);
   const [deducting, setDeducting] = useState(false);
   const { data: session } = useSession();
-  const { deductCredits, hasEnoughCredits } = useCredits();
+  const { tier, deductCredits, hasEnoughCredits } = useCredits();
+
+  // Determine if this value bet is free for the user's tier + league
+  const isFree = isFreeForTier(tier, vb.leagueId);
+
+  // On mount, check localStorage for previously revealed bets or if tier grants free access
+  useEffect(() => {
+    if (isFree || getRevealedSet().has(betKey)) {
+      setRevealed(true);
+    }
+  }, [isFree, betKey]);
 
   const handleReveal = useCallback(async () => {
     setCreditError(null);
@@ -43,7 +71,8 @@ export function ValueBetCard({ vb }: { vb: ValueBetData }) {
       return;
     }
 
-    if (revealedBets.has(betKey)) {
+    // Already free or revealed
+    if (isFree || revealed) {
       setRevealed(true);
       return;
     }
@@ -61,12 +90,12 @@ export function ValueBetCard({ vb }: { vb: ValueBetData }) {
     setDeducting(false);
 
     if (result.success) {
-      revealedBets.add(betKey);
+      persistRevealed(betKey);
       setRevealed(true);
     } else {
       setCreditError(result.error || 'Failed to deduct credits');
     }
-  }, [session, betKey, vb, deductCredits, hasEnoughCredits]);
+  }, [session, betKey, vb, revealed, isFree, deductCredits, hasEnoughCredits]);
 
   return (
     <Card className="overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all">
@@ -177,10 +206,12 @@ export function ValueBetCard({ vb }: { vb: ValueBetData }) {
                 {deducting ? 'Revealing...' : (
                   <>
                     Reveal Value Bet
-                    <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-muted-foreground">
-                      <Coins className="h-3 w-3" />
-                      {CREDIT_COSTS.VIEW_VALUE_BET}
-                    </span>
+                    {!isFree && (
+                      <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-muted-foreground">
+                        <Coins className="h-3 w-3" />
+                        {CREDIT_COSTS.VIEW_VALUE_BET}
+                      </span>
+                    )}
                   </>
                 )}
               </Button>

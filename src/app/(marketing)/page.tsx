@@ -13,6 +13,7 @@ import {
   Trophy,
   Sparkles,
 } from 'lucide-react';
+import { PricingCards } from './pricing/pricing-cards';
 
 export default function HomePage() {
   return (
@@ -284,68 +285,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
-            <Card className="border-border/50">
-              <CardContent className="pt-6">
-                <div className="text-center mb-6">
-                  <h3 className="font-semibold text-lg">Free</h3>
-                  <div className="text-4xl font-bold mt-2">£0</div>
-                  <p className="text-muted-foreground text-sm mt-1">Forever free</p>
-                </div>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" />
-                    100 credits/month + 10/day
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" />
-                    Premier League predictions
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" />
-                    3 ACCA generations/day
-                  </li>
-                </ul>
-                <Button asChild variant="outline" className="w-full mt-6">
-                  <Link href="/login">Get Started</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-primary text-primary-foreground">Popular</Badge>
-              </div>
-              <CardContent className="pt-6">
-                <div className="text-center mb-6">
-                  <h3 className="font-semibold text-lg">Pro</h3>
-                  <div className="text-4xl font-bold mt-2">£19</div>
-                  <p className="text-muted-foreground text-sm mt-1">per month</p>
-                </div>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" />
-                    1,000 credits/month
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" />
-                    All 5 leagues
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" />
-                    Unlimited ACCA generations
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" />
-                    Value bet alerts
-                  </li>
-                </ul>
-                <Button asChild className="w-full mt-6">
-                  <Link href="/pricing">View Plans</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          <PricingCards />
         </div>
       </section>
 

@@ -85,6 +85,7 @@ async function getValueBets(): Promise<ValueBetData[]> {
         valueBets.push({
           fixtureId: pred.fixtureId,
           league: pred.league,
+          leagueId: match.league.id,
           homeTeam: pred.homeTeam,
           awayTeam: pred.awayTeam,
           kickoff: match.kickoff,

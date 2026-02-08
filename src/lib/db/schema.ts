@@ -98,6 +98,26 @@ export const predictionViewsRelations = relations(predictionViews, ({ one }) => 
   }),
 }));
 
+// League standings (synced from SportMonks)
+export const leagueStandings = predictifySchema.table('league_standings', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  leagueId: integer('league_id').notNull(),
+  seasonId: integer('season_id').notNull(),
+  position: integer('position').notNull(),
+  teamId: integer('team_id').notNull(),
+  teamName: text('team_name').notNull(),
+  teamLogo: text('team_logo'),
+  played: integer('played').default(0).notNull(),
+  won: integer('won').default(0).notNull(),
+  drawn: integer('drawn').default(0).notNull(),
+  lost: integer('lost').default(0).notNull(),
+  goalsFor: integer('goals_for').default(0).notNull(),
+  goalsAgainst: integer('goals_against').default(0).notNull(),
+  goalDifference: integer('goal_difference').default(0).notNull(),
+  points: integer('points').default(0).notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Pipeline enums
 export const gameweekStatusEnum = predictifySchema.enum('gameweek_status', ['pending', 'ingested', 'researched', 'predicted', 'evaluated']);
 export const pipelineStepEnum = predictifySchema.enum('pipeline_step', ['ingest', 'research', 'predict', 'evaluate', 'report']);
@@ -202,6 +222,9 @@ export interface AccaSelection {
   odds: number;
   leagueId: number;
 }
+
+// Standings types
+export type LeagueStanding = typeof leagueStandings.$inferSelect;
 
 // Pipeline types
 export type Gameweek = typeof gameweeks.$inferSelect;

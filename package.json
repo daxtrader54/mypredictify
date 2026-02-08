@@ -14,7 +14,8 @@
     "fetch": "tsx scripts/fetch-sportmonks.ts",
     "elo": "tsx scripts/elo.ts",
     "poisson": "tsx scripts/poisson.ts",
-    "metrics": "tsx scripts/metrics.ts"
+    "metrics": "tsx scripts/metrics.ts",
+    "sync-standings": "tsx scripts/sync-standings.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -16,8 +16,8 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
 - **Auth**: Google OAuth (project: "My Predictify" in Google Cloud Console)
 - DB connection: code checks both `DATABASE_URL` and `POSTGRES_URL` (Vercel sets both via Neon integration)
 - Schema migrations: `npx drizzle-kit push` (but note: custom pg schema requires `CREATE SCHEMA predictify` first — drizzle-kit won't auto-create it)
-- PENDING: `gold` value added to tier enum in schema — run `npx drizzle-kit push` or `ALTER TYPE predictify.tier ADD VALUE 'gold'` on Neon
 - Sign-in callback is non-blocking on DB errors — user record created on first dashboard visit via `getOrCreateUser`
+- `leagueStandings` table synced via `npm run sync-standings` (fetches from SportMonks → DB)
 
 ## Tech Stack
 
@@ -27,7 +27,7 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
 - **Database**: Neon PostgreSQL (Drizzle ORM)
 - **Auth**: NextAuth.js with Google OAuth
 - **Payments**: Stripe (GBP pricing, live keys configured)
-  - Tiers: Free (100 credits, PL) → Pro £19/mo (500 credits, PL) → Gold £49/mo (2000 credits, all leagues)
+  - Tiers: Free (100 credits) → Pro £19/mo (unlimited PL, 100 credits for others) → Gold £49/mo (unlimited all leagues)
   - Annual: Pro £159/yr, Gold £410/yr
   - Stripe price IDs hardcoded in `src/config/pricing.ts`
   - Webhook: `/api/stripe/webhook` handles checkout, subscription updates/cancellation
@@ -47,6 +47,7 @@ npm run fetch    # Run SportMonks CLI tool
 npm run elo      # Run Elo rating engine
 npm run poisson  # Run Poisson goal model
 npm run metrics  # Run evaluation metrics
+npm run sync-standings  # Sync league standings from SportMonks to DB
 ```
 
 ## Key Directories
@@ -144,7 +145,14 @@ npm run metrics  # Run evaluation metrics
 
 **Database Tables** (all in `predictify` schema):
 - users, creditTransactions, accaHistory, predictionViews (app)
+- leagueStandings (synced from SportMonks via `npm run sync-standings`)
 - gameweeks, matchPredictions, weeklyMetrics, pipelineRuns (pipeline)
+
+**Tier Access Control**:
+- Gold: unlimited access to all value bets, predictions, fixtures. No credit spend.
+- Pro: free PL value bets/predictions. Other leagues require credits.
+- Free: everything costs credits.
+- `isFreeForTier(tier, leagueId)` in `src/config/pricing.ts` is the central check.
 
 ## SportMonks Integration
 
