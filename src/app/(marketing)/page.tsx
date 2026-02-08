@@ -63,29 +63,6 @@ export default function HomePage() {
                 +10 daily bonus
               </span>
             </div>
-
-            {/* Credits explanation */}
-            <div className="mt-12 max-w-2xl mx-auto">
-              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-semibold">How credits work</p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
-                  <p className="text-lg font-bold text-primary">1</p>
-                  <p className="text-xs text-muted-foreground">View prediction</p>
-                </div>
-                <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
-                  <p className="text-lg font-bold text-primary">3</p>
-                  <p className="text-xs text-muted-foreground">Detailed stats</p>
-                </div>
-                <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
-                  <p className="text-lg font-bold text-primary">5</p>
-                  <p className="text-xs text-muted-foreground">Generate ACCA</p>
-                </div>
-                <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
-                  <p className="text-lg font-bold text-primary">2</p>
-                  <p className="text-xs text-muted-foreground">Value bet</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -268,6 +245,45 @@ export default function HomePage() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Credits Explanation */}
+      <section className="relative py-16 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+        <div className="container relative">
+          <div className="text-center mb-10">
+            <Badge variant="secondary" className="mb-4">Credits</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold">
+              How Credits Work
+            </h2>
+            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+              Start with 100 free credits and earn 10 more every day. Use them to unlock predictions, stats, and value bets.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto text-center">
+            <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
+              <p className="text-2xl font-bold text-primary">1</p>
+              <p className="text-sm text-muted-foreground mt-1">View prediction</p>
+            </div>
+            <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
+              <p className="text-2xl font-bold text-primary">2</p>
+              <p className="text-sm text-muted-foreground mt-1">Value bet</p>
+            </div>
+            <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
+              <p className="text-2xl font-bold text-primary">3</p>
+              <p className="text-sm text-muted-foreground mt-1">Detailed stats</p>
+            </div>
+            <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
+              <p className="text-2xl font-bold text-primary">5</p>
+              <p className="text-sm text-muted-foreground mt-1">Generate ACCA</p>
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            Pro and Gold plans include unlimited predictions for their included leagues — no credits needed.
+          </p>
         </div>
       </section>
 

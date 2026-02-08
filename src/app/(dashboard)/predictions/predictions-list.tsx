@@ -72,6 +72,13 @@ function oddsToProb(odds: { home: number; draw: number; away: number }): {
   };
 }
 
+interface ResultData {
+  fixtureId: number;
+  homeGoals: number;
+  awayGoals: number;
+  status: 'finished' | 'live' | 'postponed';
+}
+
 function deriveAdvice(homeWin: number, draw: number, awayWin: number): string {
   if (homeWin >= awayWin && homeWin >= draw) return 'Home Win';
   if (awayWin >= homeWin && awayWin >= draw) return 'Away Win';
@@ -98,26 +105,56 @@ async function getFixturesWithPredictions(leagueId: number): Promise<{
 
   const leagueMatches = matches.filter((m) => m.league.id === leagueId);
 
-  const fixtures: ProcessedFixture[] = leagueMatches.map((m) => ({
-    id: m.fixtureId,
-    leagueId: m.league.id,
-    leagueName: m.league.name,
-    homeTeam: {
-      id: m.homeTeam.id,
-      name: m.homeTeam.name,
-      shortCode: m.homeTeam.shortCode,
-      logo: m.homeTeam.logo,
-    },
-    awayTeam: {
-      id: m.awayTeam.id,
-      name: m.awayTeam.name,
-      shortCode: m.awayTeam.shortCode,
-      logo: m.awayTeam.logo,
-    },
-    startTime: new Date(m.kickoff),
-    status: 'upcoming' as const,
-    venue: m.venue,
-  }));
+  // Load results if available
+  let resultsMap = new Map<number, ResultData>();
+  try {
+    const resultsRaw = await fs.readFile(path.join(gwDir, 'results.json'), 'utf-8');
+    const results: ResultData[] = JSON.parse(resultsRaw);
+    resultsMap = new Map(results.map((r) => [r.fixtureId, r]));
+  } catch {
+    // No results file yet
+  }
+
+  const now = new Date();
+
+  const fixtures: ProcessedFixture[] = leagueMatches.map((m) => {
+    const result = resultsMap.get(m.fixtureId);
+    const kickoff = new Date(m.kickoff);
+    let status: ProcessedFixture['status'] = 'upcoming';
+    let score: ProcessedFixture['score'] = undefined;
+
+    if (result) {
+      status = result.status;
+      if (result.status === 'finished' || result.status === 'live') {
+        score = { home: result.homeGoals, away: result.awayGoals };
+      }
+    } else if (kickoff < now) {
+      // Kickoff has passed but no result yet — mark as finished (pending result sync)
+      status = 'finished';
+    }
+
+    return {
+      id: m.fixtureId,
+      leagueId: m.league.id,
+      leagueName: m.league.name,
+      homeTeam: {
+        id: m.homeTeam.id,
+        name: m.homeTeam.name,
+        shortCode: m.homeTeam.shortCode,
+        logo: m.homeTeam.logo,
+      },
+      awayTeam: {
+        id: m.awayTeam.id,
+        name: m.awayTeam.name,
+        shortCode: m.awayTeam.shortCode,
+        logo: m.awayTeam.logo,
+      },
+      startTime: kickoff,
+      status,
+      score,
+      venue: m.venue,
+    };
+  });
 
   fixtures.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 

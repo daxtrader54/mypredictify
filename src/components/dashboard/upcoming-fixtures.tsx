@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
@@ -14,7 +15,14 @@ interface MatchData {
   venue: string;
 }
 
-async function getUpcomingFixtures(): Promise<MatchData[]> {
+interface PredictionEntry {
+  fixtureId: number;
+  prediction: string; // "H", "D", "A"
+  predictedScore: string;
+  confidence: number;
+}
+
+async function getUpcomingFixtures(): Promise<(MatchData & { pred?: PredictionEntry })[]> {
   try {
     const baseDir = path.join(process.cwd(), 'data', 'gameweeks', '2025-26');
     const entries = await fs.readdir(baseDir);
@@ -24,15 +32,32 @@ async function getUpcomingFixtures(): Promise<MatchData[]> {
 
     if (gameweeks.length === 0) return [];
 
-    const raw = await fs.readFile(path.join(baseDir, gameweeks[0], 'matches.json'), 'utf-8');
+    const gwDir = path.join(baseDir, gameweeks[0]);
+    const raw = await fs.readFile(path.join(gwDir, 'matches.json'), 'utf-8');
     const matches: MatchData[] = JSON.parse(raw);
 
+    // Load predictions if available
+    let predMap = new Map<number, PredictionEntry>();
+    try {
+      const predRaw = await fs.readFile(path.join(gwDir, 'predictions.json'), 'utf-8');
+      const preds: PredictionEntry[] = JSON.parse(predRaw);
+      predMap = new Map(preds.map((p) => [p.fixtureId, p]));
+    } catch {
+      // No predictions file
+    }
+
     const now = new Date();
-    // Filter to future matches, sort by kickoff, take first 8
+    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    // Show fixtures within the next 7 days, sorted by kickoff, take first 10
     return matches
-      .filter((m) => new Date(m.kickoff) > now)
+      .filter((m) => {
+        const d = new Date(m.kickoff);
+        return d > now && d <= weekFromNow;
+      })
       .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
-      .slice(0, 8);
+      .slice(0, 10)
+      .map((m) => ({ ...m, pred: predMap.get(m.fixtureId) }));
   } catch {
     return [];
   }
@@ -60,6 +85,12 @@ function leagueShort(name: string): string {
   return map[name] || name.slice(0, 3).toUpperCase();
 }
 
+function predLabel(pred: string): string {
+  if (pred === 'H') return 'H';
+  if (pred === 'A') return 'A';
+  return 'D';
+}
+
 export async function UpcomingFixtures() {
   const fixtures = await getUpcomingFixtures();
 
@@ -74,7 +105,7 @@ export async function UpcomingFixtures() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-8">
-            No upcoming fixtures. New matches will appear after the next pipeline run.
+            No upcoming fixtures this week. New matches will appear after the next pipeline run.
           </p>
         </CardContent>
       </Card>
@@ -89,11 +120,12 @@ export async function UpcomingFixtures() {
           Upcoming Fixtures
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-1">
+      <CardContent className="space-y-0.5">
         {fixtures.map((m) => (
-          <div
+          <Link
             key={m.fixtureId}
-            className="flex items-center gap-3 py-2 px-2 rounded-md hover:bg-muted/50 transition-colors"
+            href={`/predictions?league=${m.league.id}`}
+            className="flex items-center gap-3 py-2 px-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer group"
           >
             <Badge variant="outline" className="text-[10px] font-mono w-7 justify-center shrink-0 px-0">
               {leagueShort(m.league.name)}
@@ -106,7 +138,13 @@ export async function UpcomingFixtures() {
               )}
             </div>
 
-            <span className="text-xs text-muted-foreground font-medium shrink-0">vs</span>
+            {m.pred ? (
+              <span className="text-xs font-bold text-primary shrink-0 w-8 text-center">
+                {m.pred.predictedScore}
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground font-medium shrink-0 w-8 text-center">vs</span>
+            )}
 
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               {m.awayTeam.logo && (
@@ -115,10 +153,16 @@ export async function UpcomingFixtures() {
               <span className="text-sm font-medium truncate">{m.awayTeam.name}</span>
             </div>
 
-            <span className="text-xs text-muted-foreground shrink-0 w-32 text-right">
+            {m.pred && (
+              <Badge variant="secondary" className="text-[10px] shrink-0 px-1.5">
+                {predLabel(m.pred.prediction)}
+              </Badge>
+            )}
+
+            <span className="text-xs text-muted-foreground shrink-0 w-32 text-right group-hover:text-primary transition-colors">
               {formatKickoff(m.kickoff)}
             </span>
-          </div>
+          </Link>
         ))}
       </CardContent>
     </Card>

@@ -15,7 +15,8 @@
     "elo": "tsx scripts/elo.ts",
     "poisson": "tsx scripts/poisson.ts",
     "metrics": "tsx scripts/metrics.ts",
-    "sync-standings": "tsx scripts/sync-standings.ts"
+    "sync-standings": "tsx scripts/sync-standings.ts",
+    "sync-results": "tsx scripts/sync-results.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

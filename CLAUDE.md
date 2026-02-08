@@ -48,6 +48,7 @@ npm run elo      # Run Elo rating engine
 npm run poisson  # Run Poisson goal model
 npm run metrics  # Run evaluation metrics
 npm run sync-standings  # Sync league standings from SportMonks to DB
+npm run sync-results    # Fetch match results for past fixtures
 ```
 
 ## Key Directories
@@ -153,6 +154,10 @@ npm run sync-standings  # Sync league standings from SportMonks to DB
 - Pro: free PL value bets/predictions. Other leagues require credits.
 - Free: everything costs credits.
 - `isFreeForTier(tier, leagueId)` in `src/config/pricing.ts` is the central check.
+
+## TODO / Planned Features
+
+- **ACCA Builder bookmaker integrations** — Add ability to place bets directly with bookmakers (Bet365, William Hill, etc.) from the ACCA builder
 
 ## SportMonks Integration
 
