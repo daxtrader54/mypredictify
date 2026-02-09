@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,6 +70,20 @@ export default async function HomePage() {
                 <Check className="h-4 w-4 text-primary" />
                 +10 daily bonus
               </span>
+            </div>
+          </div>
+
+          {/* Product Screenshot */}
+          <div className="mt-16 mx-auto max-w-5xl">
+            <div className="relative rounded-xl border border-border/50 shadow-2xl shadow-primary/10 overflow-hidden">
+              <Image
+                src="/mypredictify.jpg"
+                alt="MyPredictify predictions dashboard showing match predictions with win probabilities and results"
+                width={1920}
+                height={1080}
+                className="w-full h-auto"
+                priority
+              />
             </div>
           </div>
         </div>
