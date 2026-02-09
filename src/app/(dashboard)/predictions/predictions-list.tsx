@@ -10,6 +10,7 @@ import { loadResults } from '@/lib/results';
 interface PredictionsListProps {
   leagueId: number;
   gameweek?: number;
+  hideCompleted?: boolean;
 }
 
 interface MatchData {
@@ -45,11 +46,14 @@ interface PredictionFileEntry {
 export { getAvailableGameweeks } from '@/lib/gameweeks';
 
 async function getGameweekDir(gwNumber?: number): Promise<string | null> {
+  if (gwNumber) {
+    // Return the path for the requested GW directly — even if no data exists yet
+    return path.join(GW_BASE_DIR, `GW${gwNumber}`);
+  }
   try {
     const available = await getAvailableGameweeks();
     if (available.length === 0) return null;
-    const target = gwNumber && available.includes(gwNumber) ? gwNumber : available[0];
-    return path.join(GW_BASE_DIR, `GW${target}`);
+    return path.join(GW_BASE_DIR, `GW${available[0]}`);
   } catch {
     return null;
   }
@@ -92,7 +96,8 @@ async function getFixturesWithPredictions(leagueId: number, gwNumber?: number): 
     const raw = await fs.readFile(path.join(gwDir, 'matches.json'), 'utf-8');
     matches = JSON.parse(raw);
   } catch {
-    return { fixtures: [], predictions: new Map(), error: 'Failed to load match data' };
+    // No data for this gameweek yet — show empty state (not an error)
+    return { fixtures: [], predictions: new Map() };
   }
 
   const leagueMatches = matches.filter((m) => m.league.id === leagueId);
@@ -194,7 +199,7 @@ async function getFixturesWithPredictions(leagueId: number, gwNumber?: number): 
   return { fixtures, predictions };
 }
 
-export async function PredictionsList({ leagueId, gameweek }: PredictionsListProps) {
+export async function PredictionsList({ leagueId, gameweek, hideCompleted }: PredictionsListProps) {
   const { fixtures, predictions, error } = await getFixturesWithPredictions(leagueId, gameweek);
 
   if (error) {
@@ -211,10 +216,10 @@ export async function PredictionsList({ leagueId, gameweek }: PredictionsListPro
     return (
       <Alert>
         <Calendar className="h-4 w-4" />
-        <AlertTitle>No fixtures for this gameweek</AlertTitle>
+        <AlertTitle>No predictions yet for this gameweek</AlertTitle>
         <AlertDescription>
-          There are no fixtures for this league in this gameweek. Try a different league or
-          gameweek.
+          Predictions for this gameweek haven&apos;t been generated yet. Check back soon or try a
+          different gameweek.
         </AlertDescription>
       </Alert>
     );
@@ -222,6 +227,21 @@ export async function PredictionsList({ leagueId, gameweek }: PredictionsListPro
 
   const upcoming = fixtures.filter((f) => f.status === 'upcoming');
   const completed = fixtures.filter((f) => f.status !== 'upcoming');
+
+  // When hideCompleted is on and there are no upcoming fixtures
+  if (hideCompleted && upcoming.length === 0) {
+    return (
+      <Alert>
+        <Calendar className="h-4 w-4" />
+        <AlertTitle>All matches completed</AlertTitle>
+        <AlertDescription>
+          All {completed.length} match{completed.length !== 1 ? 'es' : ''} in this gameweek have
+          been completed. Turn off &quot;Hide Completed&quot; to see results, or navigate to the
+          next gameweek.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -242,7 +262,7 @@ export async function PredictionsList({ leagueId, gameweek }: PredictionsListPro
         </div>
       )}
 
-      {completed.length > 0 && (
+      {!hideCompleted && completed.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Completed ({completed.length})

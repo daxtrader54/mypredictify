@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 interface PredictionsPageProps {
-  searchParams: Promise<{ league?: string; gw?: string }>;
+  searchParams: Promise<{ league?: string; gw?: string; hideCompleted?: string }>;
 }
 
 export default async function PredictionsPage({ searchParams }: PredictionsPageProps) {
@@ -26,7 +26,10 @@ export default async function PredictionsPage({ searchParams }: PredictionsPageP
   const availableGameweeks = await getAvailableGameweeks();
   const latestGW = availableGameweeks[0] || 1;
   const requestedGW = params.gw ? parseInt(params.gw) : latestGW;
-  const currentGW = availableGameweeks.includes(requestedGW) ? requestedGW : latestGW;
+  // Allow navigating up to one GW beyond the latest available
+  const maxAllowedGW = latestGW + 1;
+  const currentGW = requestedGW >= 1 && requestedGW <= maxAllowedGW ? requestedGW : latestGW;
+  const hideCompleted = params.hideCompleted === '1';
 
   return (
     <div className="space-y-4">
@@ -46,10 +49,11 @@ export default async function PredictionsPage({ searchParams }: PredictionsPageP
         leagues={LEAGUES}
         currentGameweek={currentGW}
         availableGameweeks={availableGameweeks}
+        hideCompleted={hideCompleted}
       />
 
       <Suspense fallback={<PredictionsLoading />}>
-        <PredictionsList leagueId={selectedLeague.id} gameweek={currentGW} />
+        <PredictionsList leagueId={selectedLeague.id} gameweek={currentGW} hideCompleted={hideCompleted} />
       </Suspense>
     </div>
   );
