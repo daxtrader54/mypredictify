@@ -240,6 +240,19 @@ npm run sync-results    # Fetch match results for past fixtures
 - Credit adjustment (add/remove) via `/api/admin/users/[id]/credits`
 - Tier update via `/api/admin/users/[id]`
 
+**Homepage** (`/` — marketing):
+- Hero section with product screenshot (`public/mypredictify.jpg`) showing predictions dashboard
+- Stats bar: 5 leagues, 98 teams, 68% accuracy, 24/7 updates
+- Feature cards, "How It Works" steps, credits explanation, pricing section (PricingCards component)
+- Authenticated users redirected to `/dashboard`
+
+## Pipeline Progress
+
+- **Current Season**: 2025-26
+- **Latest Gameweek**: GW25 (Feb 7-8, 2026)
+  - matches.json, predictions.json, report.md, results.json all present
+- **Pipeline Status**: Operational — ingest → research → predict → report → evaluate
+
 ## TODO / Planned Features
 
 - **ACCA Builder bookmaker integrations** — Add ability to place bets directly with bookmakers (Bet365, William Hill, etc.) from the ACCA builder
