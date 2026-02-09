@@ -77,7 +77,7 @@ export default async function HomePage() {
           <div className="mt-16 mx-auto max-w-5xl">
             <div className="relative rounded-xl border border-border/50 shadow-2xl shadow-primary/10 overflow-hidden">
               <Image
-                src="/mypredictify.jpg"
+                src="/mypredictify1.jpg"
                 alt="MyPredictify predictions dashboard showing match predictions with win probabilities and results"
                 width={1920}
                 height={1080}
