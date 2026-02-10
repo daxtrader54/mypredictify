@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-02-10T11:24:24.660Z",
+  "season": "2025-26",
+  "round": 26,
+  "leaguesProcessed": [
+    "Premier League",
+    "La Liga",
+    "Bundesliga",
+    "Serie A",
+    "Ligue 1"
+  ],
+  "totalMatches": 48,
+  "results": {
+    "Premier League": {
+      "round": 26,
+      "matches": 10
+    },
+    "La Liga": {
+      "round": 24,
+      "matches": 10
+    },
+    "Bundesliga": {
+      "round": 22,
+      "matches": 9
+    },
+    "Serie A": {
+      "round": 25,
+      "matches": 10
+    },
+    "Ligue 1": {
+      "round": 22,
+      "matches": 9
+    }
+  }
+}

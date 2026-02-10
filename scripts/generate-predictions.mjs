@@ -10,7 +10,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
 // Load data
-const matches = JSON.parse(readFileSync(join(root, 'data/gameweeks/2025-26/GW25/matches.json'), 'utf-8'));
+const gw = process.argv[2] || 'GW26';
+const matches = JSON.parse(readFileSync(join(root, `data/gameweeks/2025-26/${gw}/matches.json`), 'utf-8'));
 const eloData = JSON.parse(readFileSync(join(root, 'data/memory/elo-ratings.json'), 'utf-8'));
 
 const HOME_ADVANTAGE = 65; // Elo home bonus
@@ -277,7 +278,7 @@ for (const match of matches) {
 }
 
 // Write predictions
-const outPath = join(root, 'data/gameweeks/2025-26/GW25/predictions.json');
+const outPath = join(root, `data/gameweeks/2025-26/${gw}/predictions.json`);
 writeFileSync(outPath, JSON.stringify(predictions, null, 2));
 console.log(`Generated ${predictions.length} predictions → ${outPath}`);
 
