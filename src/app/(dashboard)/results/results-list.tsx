@@ -1,12 +1,14 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { PredictionCard } from '@/components/predictions/prediction-card';
+import Image from 'next/image';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Trophy, Check } from 'lucide-react';
+import { AlertCircle, Trophy, Check, X, Sparkles } from 'lucide-react';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
 import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
 import { loadResults } from '@/lib/results';
+import { cn } from '@/lib/utils';
+import { ResultsPagination } from './results-pagination';
 
 interface MatchData {
   fixtureId: number;
@@ -38,10 +40,15 @@ interface PredictionFileEntry {
   };
 }
 
+interface ResultRow {
+  fixture: ProcessedFixture;
+  prediction?: ProcessedPrediction;
+  accuracy: 'correct-score' | 'correct-result' | 'incorrect' | null;
+}
+
 interface GameweekResults {
   gameweek: number;
-  fixtures: ProcessedFixture[];
-  predictions: Map<number, ProcessedPrediction>;
+  rows: ResultRow[];
   stats: {
     total: number;
     correctResult: number;
@@ -56,10 +63,15 @@ function getActualResult(home: number, away: number): string {
   return 'Draw';
 }
 
+function getPredictionLabel(p: string): string {
+  if (p === 'H' || p === 'Home Win') return 'H';
+  if (p === 'A' || p === 'Away Win') return 'A';
+  return 'D';
+}
+
 async function loadGameweekResults(gw: number): Promise<GameweekResults | null> {
   const gwDir = path.join(GW_BASE_DIR, `GW${gw}`);
 
-  // Load matches
   let matches: MatchData[];
   try {
     const raw = await fs.readFile(path.join(gwDir, 'matches.json'), 'utf-8');
@@ -68,15 +80,12 @@ async function loadGameweekResults(gw: number): Promise<GameweekResults | null> 
     return null;
   }
 
-  // Load results from DB + file fallback
   const fixtureIds = matches.map((m) => m.fixtureId);
   const resultsMap = await loadResults(fixtureIds, gwDir);
 
-  // Only include if there are finished matches
   const finishedResults = Array.from(resultsMap.values()).filter((r) => r.status === 'finished');
   if (finishedResults.length === 0) return null;
 
-  // Load predictions
   let predictionEntries: PredictionFileEntry[] = [];
   try {
     const raw = await fs.readFile(path.join(gwDir, 'predictions.json'), 'utf-8');
@@ -86,8 +95,6 @@ async function loadGameweekResults(gw: number): Promise<GameweekResults | null> 
   }
 
   const predictionMap = new Map<number, ProcessedPrediction>();
-
-  // Build predictions map
   for (const p of predictionEntries) {
     const advice =
       p.prediction === 'H' ? 'Home Win' : p.prediction === 'A' ? 'Away Win' : 'Draw';
@@ -112,8 +119,7 @@ async function loadGameweekResults(gw: number): Promise<GameweekResults | null> 
     });
   }
 
-  // Build fixtures for finished matches only
-  const fixtures: ProcessedFixture[] = [];
+  const rows: ResultRow[] = [];
   let correctResult = 0;
   let correctScore = 0;
   let incorrect = 0;
@@ -134,52 +140,54 @@ async function loadGameweekResults(gw: number): Promise<GameweekResults | null> 
       venue: match.venue,
     };
 
-    fixtures.push(fixture);
-
-    // Compute accuracy
     const prediction = predictionMap.get(match.fixtureId);
+    let accuracy: ResultRow['accuracy'] = null;
+
     if (prediction?.advice) {
       const actualResult = getActualResult(result.homeGoals, result.awayGoals);
 
-      // Check exact score
       if (prediction.predictedScore) {
         const [predHome, predAway] = prediction.predictedScore.split('-').map((s) => parseInt(s.trim()));
         if (predHome === result.homeGoals && predAway === result.awayGoals) {
+          accuracy = 'correct-score';
           correctScore++;
-          continue;
+        } else if (actualResult === prediction.advice) {
+          accuracy = 'correct-result';
+          correctResult++;
+        } else {
+          accuracy = 'incorrect';
+          incorrect++;
         }
-      }
-
-      if (actualResult === prediction.advice) {
+      } else if (actualResult === prediction.advice) {
+        accuracy = 'correct-result';
         correctResult++;
       } else {
+        accuracy = 'incorrect';
         incorrect++;
       }
     }
+
+    rows.push({ fixture, prediction, accuracy });
   }
 
-  fixtures.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+  rows.sort((a, b) => a.fixture.startTime.getTime() - b.fixture.startTime.getTime());
 
   return {
     gameweek: gw,
-    fixtures,
-    predictions: predictionMap,
-    stats: {
-      total: fixtures.length,
-      correctResult,
-      correctScore,
-      incorrect,
-    },
+    rows,
+    stats: { total: rows.length, correctResult, correctScore, incorrect },
   };
 }
 
-export async function ResultsList() {
-  const gameweeks = await getAvailableGameweeks(); // already sorted newest first
+const GAMEWEEKS_PER_PAGE = 5;
+
+export async function ResultsList({ page }: { page?: number }) {
+  const gameweeks = await getAvailableGameweeks();
 
   const allResults: GameweekResults[] = [];
   for (const gw of gameweeks) {
     const result = await loadGameweekResults(gw);
-    if (result && result.fixtures.length > 0) {
+    if (result && result.rows.length > 0) {
       allResults.push(result);
     }
   }
@@ -196,7 +204,13 @@ export async function ResultsList() {
     );
   }
 
-  // Overall stats
+  // Pagination
+  const currentPage = Math.max(1, page || 1);
+  const totalPages = Math.ceil(allResults.length / GAMEWEEKS_PER_PAGE);
+  const startIdx = (currentPage - 1) * GAMEWEEKS_PER_PAGE;
+  const pageResults = allResults.slice(startIdx, startIdx + GAMEWEEKS_PER_PAGE);
+
+  // Overall stats (all GWs, not just current page)
   const totals = allResults.reduce(
     (acc, gw) => ({
       total: acc.total + gw.stats.total,
@@ -211,7 +225,7 @@ export async function ResultsList() {
   const accuracyPct = predicted > 0 ? ((correct / predicted) * 100).toFixed(1) : '—';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Overall summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="rounded-xl bg-muted/50 border border-border/50 p-4 text-center">
@@ -232,14 +246,14 @@ export async function ResultsList() {
         </div>
       </div>
 
-      {/* Per-gameweek results */}
-      {allResults.map((gw) => {
+      {/* Per-gameweek tables */}
+      {pageResults.map((gw) => {
         const gwPredicted = gw.stats.correctResult + gw.stats.correctScore + gw.stats.incorrect;
         const gwCorrect = gw.stats.correctResult + gw.stats.correctScore;
         const gwPct = gwPredicted > 0 ? ((gwCorrect / gwPredicted) * 100).toFixed(0) : '—';
 
         return (
-          <div key={gw.gameweek} className="space-y-3">
+          <div key={gw.gameweek} className="space-y-2">
             <div className="flex items-center gap-3">
               <h2 className="text-lg font-bold">Gameweek {gw.gameweek}</h2>
               <Badge
@@ -269,18 +283,123 @@ export async function ResultsList() {
               )}
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {gw.fixtures.map((fixture) => (
-                <PredictionCard
-                  key={fixture.id}
-                  fixture={fixture}
-                  prediction={gw.predictions.get(fixture.id)}
-                />
-              ))}
+            <div className="rounded-lg border border-border/50 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/50 bg-muted/30">
+                    <th className="text-left py-2 px-3 font-medium text-muted-foreground">Match</th>
+                    <th className="text-center py-2 px-2 font-medium text-muted-foreground w-[70px]">Score</th>
+                    <th className="text-center py-2 px-2 font-medium text-muted-foreground w-[70px] hidden sm:table-cell">Predicted</th>
+                    <th className="text-center py-2 px-2 font-medium text-muted-foreground w-[50px] hidden md:table-cell">Tip</th>
+                    <th className="text-center py-2 px-3 font-medium text-muted-foreground w-[40px]"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gw.rows.map((row) => (
+                    <tr
+                      key={row.fixture.id}
+                      className={cn(
+                        'border-b border-border/30 last:border-0',
+                        row.accuracy === 'correct-score' && 'bg-amber-500/10',
+                        row.accuracy === 'correct-result' && 'bg-green-500/5',
+                        row.accuracy === 'incorrect' && 'bg-red-500/5',
+                      )}
+                    >
+                      {/* Match */}
+                      <td className="py-2 px-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            {row.fixture.homeTeam.logo ? (
+                              <Image
+                                src={row.fixture.homeTeam.logo}
+                                alt=""
+                                width={18}
+                                height={18}
+                                className="rounded shrink-0"
+                              />
+                            ) : (
+                              <span className="text-[10px] font-bold text-muted-foreground w-[18px] text-center shrink-0">
+                                {row.fixture.homeTeam.shortCode}
+                              </span>
+                            )}
+                            <span className="font-medium truncate">{row.fixture.homeTeam.name}</span>
+                          </div>
+                          <span className="text-muted-foreground text-xs shrink-0">vs</span>
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            {row.fixture.awayTeam.logo ? (
+                              <Image
+                                src={row.fixture.awayTeam.logo}
+                                alt=""
+                                width={18}
+                                height={18}
+                                className="rounded shrink-0"
+                              />
+                            ) : (
+                              <span className="text-[10px] font-bold text-muted-foreground w-[18px] text-center shrink-0">
+                                {row.fixture.awayTeam.shortCode}
+                              </span>
+                            )}
+                            <span className="font-medium truncate">{row.fixture.awayTeam.name}</span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground block mt-0.5">{row.fixture.leagueName}</span>
+                      </td>
+
+                      {/* Score */}
+                      <td className="text-center py-2 px-2">
+                        {row.fixture.score && (
+                          <span className="font-bold text-base">
+                            {row.fixture.score.home} - {row.fixture.score.away}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Predicted score */}
+                      <td className="text-center py-2 px-2 hidden sm:table-cell">
+                        {row.prediction?.predictedScore && (
+                          <span className="text-muted-foreground font-mono">
+                            {row.prediction.predictedScore}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Tip */}
+                      <td className="text-center py-2 px-2 hidden md:table-cell">
+                        {row.prediction?.advice && (
+                          <span className={cn(
+                            'text-xs font-semibold',
+                            getPredictionLabel(row.prediction.advice) === 'H' && 'text-blue-500',
+                            getPredictionLabel(row.prediction.advice) === 'A' && 'text-red-500',
+                            getPredictionLabel(row.prediction.advice) === 'D' && 'text-muted-foreground',
+                          )}>
+                            {getPredictionLabel(row.prediction.advice)}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Result indicator */}
+                      <td className="text-center py-2 px-3">
+                        {row.accuracy === 'correct-score' ? (
+                          <Sparkles className="h-4 w-4 text-amber-500 mx-auto" />
+                        ) : row.accuracy === 'correct-result' ? (
+                          <Check className="h-4 w-4 text-green-500 mx-auto" />
+                        ) : row.accuracy === 'incorrect' ? (
+                          <X className="h-4 w-4 text-red-400 mx-auto" />
+                        ) : null}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         );
       })}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <ResultsPagination currentPage={currentPage} totalPages={totalPages} />
+      )}
     </div>
   );
 }

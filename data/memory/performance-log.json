@@ -1,10 +1,40 @@
 {
-  "gameweeks": [],
+  "gameweeks": [
+    {
+      "gameweek": "GW25",
+      "season": "2025-26",
+      "evaluatedAt": "2026-02-14T00:44:47.529Z",
+      "matchesEvaluated": 25,
+      "outcomeAccuracy": 0.56,
+      "scoreAccuracy": 0.08,
+      "avgLogLoss": 0.923,
+      "avgBrierScore": 0.5398,
+      "modelComponentAccuracy": {
+        "elo": 0.52,
+        "poisson": 0.56,
+        "odds": 0.6
+      },
+      "leagueAccuracy": {
+        "Premier League": 0.625,
+        "La Liga": 0.667,
+        "Bundesliga": 0.429,
+        "Serie A": 0.333,
+        "Ligue 1": 0.75
+      }
+    }
+  ],
   "cumulative": {
-    "totalPredictions": 0,
-    "correctOutcomes": 0,
-    "correctScores": 0,
-    "avgLogLoss": null,
-    "avgBrierScore": null
+    "totalPredictions": 25,
+    "correctOutcomes": 14,
+    "correctScores": 2,
+    "avgLogLoss": 0.923,
+    "avgBrierScore": 0.5398,
+    "outcomeAccuracy": 0.56,
+    "scoreAccuracy": 0.08,
+    "modelComponentAccuracy": {
+      "elo": 0.52,
+      "poisson": 0.56,
+      "odds": 0.6
+    }
   }
 }

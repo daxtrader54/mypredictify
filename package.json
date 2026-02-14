@@ -16,7 +16,14 @@
     "poisson": "tsx scripts/poisson.ts",
     "metrics": "tsx scripts/metrics.ts",
     "sync-standings": "tsx scripts/sync-standings.ts",
-    "sync-results": "tsx scripts/sync-results.ts"
+    "sync-results": "tsx scripts/sync-results.ts",
+    "evaluate": "tsx scripts/evaluate-gameweek.ts",
+    "update-elo": "tsx scripts/update-elo-batch.ts",
+    "adjust-weights": "tsx scripts/adjust-weights.ts",
+    "update-perf-log": "tsx scripts/update-performance-log.ts",
+    "update-poisson-cal": "tsx scripts/update-poisson-calibration.ts",
+    "version-skill": "tsx scripts/version-skill.ts",
+    "track-skill-perf": "tsx scripts/track-skill-performance.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

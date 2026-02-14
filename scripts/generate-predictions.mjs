@@ -1,8 +1,12 @@
 /**
  * Generate predictions for all matches using Elo + Poisson + Odds
- * Usage: node scripts/generate-predictions.mjs
+ * Usage: node scripts/generate-predictions.mjs [GW] [season]
+ *
+ * Reads learned weights from data/memory/signal-weights.json (modelWeights)
+ * and Poisson calibration bias from data/memory/poisson-calibration.json.
+ * Falls back to hardcoded defaults if files are missing/empty.
  */
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,8 +15,39 @@ const root = join(__dirname, '..');
 
 // Load data
 const gw = process.argv[2] || 'GW26';
-const matches = JSON.parse(readFileSync(join(root, `data/gameweeks/2025-26/${gw}/matches.json`), 'utf-8'));
+const season = process.argv[3] || '2025-26';
+const matches = JSON.parse(readFileSync(join(root, `data/gameweeks/${season}/${gw}/matches.json`), 'utf-8'));
 const eloData = JSON.parse(readFileSync(join(root, 'data/memory/elo-ratings.json'), 'utf-8'));
+
+// Load learned model weights (fallback: 30/30/40)
+let MODEL_WEIGHTS = { elo: 0.3, poisson: 0.3, odds: 0.4 };
+const weightsPath = join(root, 'data/memory/signal-weights.json');
+if (existsSync(weightsPath)) {
+  try {
+    const weightsData = JSON.parse(readFileSync(weightsPath, 'utf-8'));
+    if (weightsData.modelWeights && weightsData.modelWeights.elo) {
+      MODEL_WEIGHTS = {
+        elo: weightsData.modelWeights.elo,
+        poisson: weightsData.modelWeights.poisson,
+        odds: weightsData.modelWeights.odds,
+      };
+      console.log(`Loaded learned weights: Elo=${MODEL_WEIGHTS.elo}, Poisson=${MODEL_WEIGHTS.poisson}, Odds=${MODEL_WEIGHTS.odds}`);
+    }
+  } catch { /* use defaults */ }
+}
+
+// Load Poisson calibration biases (per-league goal correction)
+let POISSON_CALIBRATION = {};
+const calibrationPath = join(root, 'data/memory/poisson-calibration.json');
+if (existsSync(calibrationPath)) {
+  try {
+    const calData = JSON.parse(readFileSync(calibrationPath, 'utf-8'));
+    if (calData.leagues) {
+      POISSON_CALIBRATION = calData.leagues;
+      console.log(`Loaded Poisson calibration for ${Object.keys(POISSON_CALIBRATION).length} leagues`);
+    }
+  } catch { /* use defaults */ }
+}
 
 const HOME_ADVANTAGE = 65; // Elo home bonus
 
@@ -193,6 +228,14 @@ function estimateXG(match, homeElo, awayElo, oddsProbs, leagueAvg) {
     awayXG = awayXG * 0.8 + oddsAwayXG * 0.2;
   }
 
+  // Apply Poisson calibration bias correction (subtract the over-prediction bias)
+  const leagueName = match.league?.name;
+  const cal = POISSON_CALIBRATION[leagueName];
+  if (cal && cal.homeBias !== undefined) {
+    homeXG -= cal.homeBias * 0.5; // apply half the bias as correction (conservative)
+    awayXG -= cal.awayBias * 0.5;
+  }
+
   // Clamp to reasonable range
   homeXG = Math.max(0.4, Math.min(3.5, homeXG));
   awayXG = Math.max(0.3, Math.min(3.0, awayXG));
@@ -223,16 +266,23 @@ for (const match of matches) {
   const { homeXG, awayXG } = estimateXG(match, homeElo, awayElo, oddsProbs, leagueAvg);
   const poisson = poissonPrediction(homeXG, awayXG);
 
-  // Blend: 30% Elo + 30% Poisson + 40% Odds (if available)
+  // Blend using learned weights (default: 30% Elo + 30% Poisson + 40% Odds)
+  const wElo = MODEL_WEIGHTS.elo;
+  const wPoisson = MODEL_WEIGHTS.poisson;
+  const wOdds = MODEL_WEIGHTS.odds;
   let finalH, finalD, finalA;
   if (oddsProbs) {
-    finalH = elo.homeWin * 0.3 + poisson.homeWin * 0.3 + oddsProbs.homeWin * 0.4;
-    finalD = elo.draw * 0.3 + poisson.draw * 0.3 + oddsProbs.draw * 0.4;
-    finalA = elo.awayWin * 0.3 + poisson.awayWin * 0.3 + oddsProbs.awayWin * 0.4;
+    finalH = elo.homeWin * wElo + poisson.homeWin * wPoisson + oddsProbs.homeWin * wOdds;
+    finalD = elo.draw * wElo + poisson.draw * wPoisson + oddsProbs.draw * wOdds;
+    finalA = elo.awayWin * wElo + poisson.awayWin * wPoisson + oddsProbs.awayWin * wOdds;
   } else {
-    finalH = elo.homeWin * 0.5 + poisson.homeWin * 0.5;
-    finalD = elo.draw * 0.5 + poisson.draw * 0.5;
-    finalA = elo.awayWin * 0.5 + poisson.awayWin * 0.5;
+    // No odds: redistribute odds weight proportionally to elo/poisson
+    const noOddsTotal = wElo + wPoisson;
+    const adjElo = wElo / noOddsTotal;
+    const adjPoisson = wPoisson / noOddsTotal;
+    finalH = elo.homeWin * adjElo + poisson.homeWin * adjPoisson;
+    finalD = elo.draw * adjElo + poisson.draw * adjPoisson;
+    finalA = elo.awayWin * adjElo + poisson.awayWin * adjPoisson;
   }
 
   // Normalize to sum to 1.0
@@ -278,7 +328,7 @@ for (const match of matches) {
 }
 
 // Write predictions
-const outPath = join(root, `data/gameweeks/2025-26/${gw}/predictions.json`);
+const outPath = join(root, `data/gameweeks/${season}/${gw}/predictions.json`);
 writeFileSync(outPath, JSON.stringify(predictions, null, 2));
 console.log(`Generated ${predictions.length} predictions → ${outPath}`);
 

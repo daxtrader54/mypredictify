@@ -11,7 +11,14 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default function ResultsPage() {
+export default async function ResultsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = params.page ? parseInt(params.page, 10) : 1;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -25,7 +32,7 @@ export default function ResultsPage() {
       </div>
 
       <Suspense fallback={<ResultsLoading />}>
-        <ResultsList />
+        <ResultsList page={page} />
       </Suspense>
     </div>
   );
@@ -34,14 +41,15 @@ export default function ResultsPage() {
 function ResultsLoading() {
   return (
     <div className="space-y-6">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="space-y-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-20 w-full rounded-xl" />
+        ))}
+      </div>
+      {Array.from({ length: 2 }).map((_, i) => (
+        <div key={i} className="space-y-2">
           <Skeleton className="h-8 w-48" />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, j) => (
-              <Skeleton key={j} className="h-48 w-full rounded-lg" />
-            ))}
-          </div>
+          <Skeleton className="h-64 w-full rounded-lg" />
         </div>
       ))}
     </div>

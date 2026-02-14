@@ -1,0 +1,706 @@
+{
+  "gameweek": "GW25",
+  "season": "2025-26",
+  "evaluatedAt": "2026-02-14T00:44:47.529Z",
+  "summary": {
+    "totalPredictions": 58,
+    "matchedWithResults": 25,
+    "outcomeAccuracy": 0.56,
+    "scoreAccuracy": 0.08,
+    "avgLogLoss": 0.923,
+    "avgBrierScore": 0.5398,
+    "correctOutcomes": 14,
+    "correctScores": 2
+  },
+  "modelComponentAccuracy": {
+    "elo": 0.52,
+    "poisson": 0.56,
+    "odds": 0.6
+  },
+  "leagueSummaries": {
+    "Premier League": {
+      "accuracy": 0.625,
+      "avgLogLoss": 0.8523,
+      "avgBrier": 0.4891,
+      "total": 8
+    },
+    "La Liga": {
+      "accuracy": 0.667,
+      "avgLogLoss": 0.7071,
+      "avgBrier": 0.3918,
+      "total": 3
+    },
+    "Bundesliga": {
+      "accuracy": 0.429,
+      "avgLogLoss": 1.0766,
+      "avgBrier": 0.6425,
+      "total": 7
+    },
+    "Serie A": {
+      "accuracy": 0.333,
+      "avgLogLoss": 1.0935,
+      "avgBrier": 0.6583,
+      "total": 3
+    },
+    "Ligue 1": {
+      "accuracy": 0.75,
+      "avgLogLoss": 0.8297,
+      "avgBrier": 0.4836,
+      "total": 4
+    }
+  },
+  "calibration": {
+    "0.0-0.2": {
+      "avgPredicted": 0,
+      "avgActual": 0,
+      "count": 0
+    },
+    "0.2-0.4": {
+      "avgPredicted": 0.373,
+      "avgActual": 0.333,
+      "count": 3
+    },
+    "0.4-0.6": {
+      "avgPredicted": 0.481,
+      "avgActual": 0.5,
+      "count": 14
+    },
+    "0.6-0.8": {
+      "avgPredicted": 0.648,
+      "avgActual": 0.714,
+      "count": 7
+    },
+    "0.8-1.0": {
+      "avgPredicted": 0.818,
+      "avgActual": 1,
+      "count": 1
+    }
+  },
+  "matches": [
+    {
+      "fixtureId": 19427701,
+      "league": "Premier League",
+      "homeTeam": "Leeds United",
+      "awayTeam": "Nottingham Forest",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "1-0",
+      "actualScore": "3-1",
+      "scoreCorrect": false,
+      "logLoss": 0.7529,
+      "brierScore": 0.4198,
+      "confidence": 0.471,
+      "probs": {
+        "H": 0.471,
+        "D": 0.263,
+        "A": 0.266
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19427703,
+      "league": "Premier League",
+      "homeTeam": "Manchester United",
+      "awayTeam": "Tottenham Hotspur",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "2-1",
+      "actualScore": "2-0",
+      "scoreCorrect": false,
+      "logLoss": 0.5621,
+      "brierScore": 0.2775,
+      "confidence": 0.57,
+      "probs": {
+        "H": 0.57,
+        "D": 0.207,
+        "A": 0.223
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19427696,
+      "league": "Premier League",
+      "homeTeam": "Arsenal",
+      "awayTeam": "Sunderland",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "2-0",
+      "actualScore": "3-0",
+      "scoreCorrect": false,
+      "logLoss": 0.3243,
+      "brierScore": 0.1172,
+      "confidence": 0.723,
+      "probs": {
+        "H": 0.723,
+        "D": 0.171,
+        "A": 0.106
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19427697,
+      "league": "Premier League",
+      "homeTeam": "AFC Bournemouth",
+      "awayTeam": "Aston Villa",
+      "predicted": "A",
+      "actual": "D",
+      "correct": false,
+      "predictedScore": "0-1",
+      "actualScore": "1-1",
+      "scoreCorrect": false,
+      "logLoss": 1.3509,
+      "brierScore": 0.8276,
+      "confidence": 0.415,
+      "probs": {
+        "H": 0.326,
+        "D": 0.259,
+        "A": 0.415
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19427699,
+      "league": "Premier League",
+      "homeTeam": "Burnley",
+      "awayTeam": "West Ham United",
+      "predicted": "A",
+      "actual": "A",
+      "correct": true,
+      "predictedScore": "0-1",
+      "actualScore": "0-2",
+      "scoreCorrect": false,
+      "logLoss": 0.9493,
+      "brierScore": 0.5659,
+      "confidence": 0.387,
+      "probs": {
+        "H": 0.34,
+        "D": 0.273,
+        "A": 0.387
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19427700,
+      "league": "Premier League",
+      "homeTeam": "Fulham",
+      "awayTeam": "Everton",
+      "predicted": "H",
+      "actual": "A",
+      "correct": false,
+      "predictedScore": "1-0",
+      "actualScore": "1-2",
+      "scoreCorrect": false,
+      "logLoss": 1.273,
+      "brierScore": 0.7889,
+      "confidence": 0.437,
+      "probs": {
+        "H": 0.437,
+        "D": 0.282,
+        "A": 0.28
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19427705,
+      "league": "Premier League",
+      "homeTeam": "Wolverhampton Wanderers",
+      "awayTeam": "Chelsea",
+      "predicted": "A",
+      "actual": "A",
+      "correct": true,
+      "predictedScore": "0-2",
+      "actualScore": "1-3",
+      "scoreCorrect": false,
+      "logLoss": 0.3783,
+      "brierScore": 0.1498,
+      "confidence": 0.685,
+      "probs": {
+        "H": 0.136,
+        "D": 0.179,
+        "A": 0.685
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19427704,
+      "league": "Premier League",
+      "homeTeam": "Newcastle United",
+      "awayTeam": "Brentford",
+      "predicted": "H",
+      "actual": "A",
+      "correct": false,
+      "predictedScore": "2-1",
+      "actualScore": "2-3",
+      "scoreCorrect": false,
+      "logLoss": 1.2276,
+      "brierScore": 0.7663,
+      "confidence": 0.443,
+      "probs": {
+        "H": 0.443,
+        "D": 0.265,
+        "A": 0.293
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19439473,
+      "league": "La Liga",
+      "homeTeam": "Celta de Vigo",
+      "awayTeam": "Osasuna",
+      "predicted": "H",
+      "actual": "A",
+      "correct": false,
+      "predictedScore": "1-0",
+      "actualScore": "1-2",
+      "scoreCorrect": false,
+      "logLoss": 1.3243,
+      "brierScore": 0.8226,
+      "confidence": 0.452,
+      "probs": {
+        "H": 0.452,
+        "D": 0.282,
+        "A": 0.266
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19439472,
+      "league": "La Liga",
+      "homeTeam": "FC Barcelona",
+      "awayTeam": "Mallorca",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "3-0",
+      "actualScore": "3-0",
+      "scoreCorrect": true,
+      "logLoss": 0.2009,
+      "brierScore": 0.0507,
+      "confidence": 0.818,
+      "probs": {
+        "H": 0.818,
+        "D": 0.114,
+        "A": 0.068
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19439476,
+      "league": "La Liga",
+      "homeTeam": "Real Sociedad",
+      "awayTeam": "Elche",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "2-1",
+      "actualScore": "3-1",
+      "scoreCorrect": false,
+      "logLoss": 0.596,
+      "brierScore": 0.302,
+      "confidence": 0.551,
+      "probs": {
+        "H": 0.551,
+        "D": 0.23,
+        "A": 0.218
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19433657,
+      "league": "Bundesliga",
+      "homeTeam": "FC Union Berlin",
+      "awayTeam": "Eintracht Frankfurt",
+      "predicted": "H",
+      "actual": "D",
+      "correct": false,
+      "predictedScore": "2-1",
+      "actualScore": "1-1",
+      "scoreCorrect": false,
+      "logLoss": 1.3587,
+      "brierScore": 0.8328,
+      "confidence": 0.42,
+      "probs": {
+        "H": 0.42,
+        "D": 0.257,
+        "A": 0.323
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19433655,
+      "league": "Bundesliga",
+      "homeTeam": "Heidenheim",
+      "awayTeam": "Hamburger SV",
+      "predicted": "H",
+      "actual": "A",
+      "correct": false,
+      "predictedScore": "1-0",
+      "actualScore": "0-2",
+      "scoreCorrect": false,
+      "logLoss": 1.0244,
+      "brierScore": 0.6192,
+      "confidence": 0.362,
+      "probs": {
+        "H": 0.362,
+        "D": 0.278,
+        "A": 0.359
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": false,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19433658,
+      "league": "Bundesliga",
+      "homeTeam": "FSV Mainz 05",
+      "awayTeam": "FC Augsburg",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "1-0",
+      "actualScore": "2-0",
+      "scoreCorrect": false,
+      "logLoss": 0.8675,
+      "brierScore": 0.5052,
+      "confidence": 0.42,
+      "probs": {
+        "H": 0.42,
+        "D": 0.272,
+        "A": 0.308
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19433661,
+      "league": "Bundesliga",
+      "homeTeam": "St. Pauli",
+      "awayTeam": "VfB Stuttgart",
+      "predicted": "A",
+      "actual": "H",
+      "correct": false,
+      "predictedScore": "0-2",
+      "actualScore": "2-1",
+      "scoreCorrect": false,
+      "logLoss": 1.8079,
+      "brierScore": 1.1399,
+      "confidence": 0.632,
+      "probs": {
+        "H": 0.164,
+        "D": 0.204,
+        "A": 0.632
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19433662,
+      "league": "Bundesliga",
+      "homeTeam": "SC Freiburg",
+      "awayTeam": "Werder Bremen",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "2-0",
+      "actualScore": "1-0",
+      "scoreCorrect": false,
+      "logLoss": 0.5413,
+      "brierScore": 0.2622,
+      "confidence": 0.582,
+      "probs": {
+        "H": 0.582,
+        "D": 0.216,
+        "A": 0.202
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19433663,
+      "league": "Bundesliga",
+      "homeTeam": "VfL Wolfsburg",
+      "awayTeam": "Borussia Dortmund",
+      "predicted": "A",
+      "actual": "A",
+      "correct": true,
+      "predictedScore": "1-2",
+      "actualScore": "1-2",
+      "scoreCorrect": true,
+      "logLoss": 0.4927,
+      "brierScore": 0.2271,
+      "confidence": 0.611,
+      "probs": {
+        "H": 0.188,
+        "D": 0.201,
+        "A": 0.611
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19433659,
+      "league": "Bundesliga",
+      "homeTeam": "Borussia Mönchengladbach",
+      "awayTeam": "Bayer 04 Leverkusen",
+      "predicted": "A",
+      "actual": "D",
+      "correct": false,
+      "predictedScore": "1-2",
+      "actualScore": "1-1",
+      "scoreCorrect": false,
+      "logLoss": 1.4439,
+      "brierScore": 0.9109,
+      "confidence": 0.515,
+      "probs": {
+        "H": 0.249,
+        "D": 0.236,
+        "A": 0.515
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19425115,
+      "league": "Serie A",
+      "homeTeam": "Hellas Verona",
+      "awayTeam": "Pisa",
+      "predicted": "H",
+      "actual": "D",
+      "correct": false,
+      "predictedScore": "2-1",
+      "actualScore": "0-0",
+      "scoreCorrect": false,
+      "logLoss": 1.2553,
+      "brierScore": 0.7679,
+      "confidence": 0.371,
+      "probs": {
+        "H": 0.371,
+        "D": 0.285,
+        "A": 0.345
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19425114,
+      "league": "Serie A",
+      "homeTeam": "Genoa",
+      "awayTeam": "Napoli",
+      "predicted": "A",
+      "actual": "A",
+      "correct": true,
+      "predictedScore": "0-1",
+      "actualScore": "2-3",
+      "scoreCorrect": false,
+      "logLoss": 0.6349,
+      "brierScore": 0.3334,
+      "confidence": 0.53,
+      "probs": {
+        "H": 0.203,
+        "D": 0.267,
+        "A": 0.53
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19425113,
+      "league": "Serie A",
+      "homeTeam": "Fiorentina",
+      "awayTeam": "Torino",
+      "predicted": "H",
+      "actual": "D",
+      "correct": false,
+      "predictedScore": "2-1",
+      "actualScore": "2-2",
+      "scoreCorrect": false,
+      "logLoss": 1.3903,
+      "brierScore": 0.8736,
+      "confidence": 0.493,
+      "probs": {
+        "H": 0.493,
+        "D": 0.249,
+        "A": 0.258
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19433916,
+      "league": "Ligue 1",
+      "homeTeam": "Metz",
+      "awayTeam": "LOSC Lille",
+      "predicted": "A",
+      "actual": "D",
+      "correct": false,
+      "predictedScore": "0-1",
+      "actualScore": "0-0",
+      "scoreCorrect": false,
+      "logLoss": 1.5559,
+      "brierScore": 1.0373,
+      "confidence": 0.622,
+      "probs": {
+        "H": 0.167,
+        "D": 0.211,
+        "A": 0.622
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": false,
+        "odds": false
+      }
+    },
+    {
+      "fixtureId": 19433920,
+      "league": "Ligue 1",
+      "homeTeam": "Lens",
+      "awayTeam": "Rennes",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "2-0",
+      "actualScore": "3-1",
+      "scoreCorrect": false,
+      "logLoss": 0.4339,
+      "brierScore": 0.1867,
+      "confidence": 0.648,
+      "probs": {
+        "H": 0.648,
+        "D": 0.197,
+        "A": 0.155
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19433921,
+      "league": "Ligue 1",
+      "homeTeam": "Brest",
+      "awayTeam": "Lorient",
+      "predicted": "H",
+      "actual": "H",
+      "correct": true,
+      "predictedScore": "1-0",
+      "actualScore": "2-0",
+      "scoreCorrect": false,
+      "logLoss": 0.8463,
+      "brierScore": 0.4892,
+      "confidence": 0.429,
+      "probs": {
+        "H": 0.429,
+        "D": 0.293,
+        "A": 0.278
+      },
+      "modelComponentAccuracy": {
+        "elo": false,
+        "poisson": true,
+        "odds": true
+      }
+    },
+    {
+      "fixtureId": 19433917,
+      "league": "Ligue 1",
+      "homeTeam": "Nantes",
+      "awayTeam": "Olympique Lyonnais",
+      "predicted": "A",
+      "actual": "A",
+      "correct": true,
+      "predictedScore": "0-2",
+      "actualScore": "0-1",
+      "scoreCorrect": false,
+      "logLoss": 0.4829,
+      "brierScore": 0.2212,
+      "confidence": 0.617,
+      "probs": {
+        "H": 0.172,
+        "D": 0.212,
+        "A": 0.617
+      },
+      "modelComponentAccuracy": {
+        "elo": true,
+        "poisson": true,
+        "odds": true
+      }
+    }
+  ]
+}

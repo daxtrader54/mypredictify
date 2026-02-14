@@ -1,0 +1,80 @@
+{
+  "lastUpdated": "2026-02-14T00:44:54.426Z",
+  "lastGameweek": "GW25",
+  "leagues": {
+    "Premier League": {
+      "homeBias": -0.007,
+      "awayBias": -0.322,
+      "homeAvgPredicted": 1.618,
+      "homeAvgActual": 1.625,
+      "awayAvgPredicted": 1.178,
+      "awayAvgActual": 1.5,
+      "matchesAnalyzed": 8
+    },
+    "La Liga": {
+      "homeBias": -0.282,
+      "awayBias": -0.141,
+      "homeAvgPredicted": 2.051,
+      "homeAvgActual": 2.333,
+      "awayAvgPredicted": 0.859,
+      "awayAvgActual": 1,
+      "matchesAnalyzed": 3
+    },
+    "Bundesliga": {
+      "homeBias": 0.179,
+      "awayBias": 0.562,
+      "homeAvgPredicted": 1.322,
+      "homeAvgActual": 1.143,
+      "awayAvgPredicted": 1.562,
+      "awayAvgActual": 1,
+      "matchesAnalyzed": 7
+    },
+    "Serie A": {
+      "homeBias": -0.24,
+      "awayBias": -0.53,
+      "homeAvgPredicted": 1.093,
+      "homeAvgActual": 1.333,
+      "awayAvgPredicted": 1.136,
+      "awayAvgActual": 1.667,
+      "matchesAnalyzed": 3
+    },
+    "Ligue 1": {
+      "homeBias": 0.025,
+      "awayBias": 0.736,
+      "homeAvgPredicted": 1.275,
+      "homeAvgActual": 1.25,
+      "awayAvgPredicted": 1.236,
+      "awayAvgActual": 0.5,
+      "matchesAnalyzed": 4
+    }
+  },
+  "history": [
+    {
+      "timestamp": "2026-02-14T00:44:54.425Z",
+      "gameweek": "GW25",
+      "season": "2025-26",
+      "biases": {
+        "Premier League": {
+          "homeBias": -0.007,
+          "awayBias": -0.322
+        },
+        "La Liga": {
+          "homeBias": -0.282,
+          "awayBias": -0.141
+        },
+        "Bundesliga": {
+          "homeBias": 0.179,
+          "awayBias": 0.562
+        },
+        "Serie A": {
+          "homeBias": -0.24,
+          "awayBias": -0.53
+        },
+        "Ligue 1": {
+          "homeBias": 0.025,
+          "awayBias": 0.736
+        }
+      }
+    }
+  ]
+}

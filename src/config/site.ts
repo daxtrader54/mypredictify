@@ -1,7 +1,7 @@
 /** Current football season — change this when a new season starts. */
 export const CURRENT_SEASON = '2025-26';
 
-export const ADMIN_EMAILS = ['daxtrader54@gmail.com', 'daxtrader@gmail.com', 'mypredictify@gmail.com'];
+export const ADMIN_EMAILS = ['daxtrader54@gmail.com'];
 export const ADMIN_EMAIL = ADMIN_EMAILS[0]; // legacy compat
 
 export function isAdmin(email?: string | null): boolean {

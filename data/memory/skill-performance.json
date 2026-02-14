@@ -1,0 +1,28 @@
+{
+  "entries": [
+    {
+      "gameweek": "GW25",
+      "season": "2025-26",
+      "timestamp": "2026-02-14T00:45:02.963Z",
+      "outcomeAccuracy": 0.56,
+      "scoreAccuracy": 0.08,
+      "avgLogLoss": 0.923,
+      "avgBrierScore": 0.5398,
+      "matchesEvaluated": 25,
+      "skillVersions": {
+        "evaluate-results": 1,
+        "generate-report": 1,
+        "ingest-gameweek": 1,
+        "predict-matches": 1,
+        "research-matches": 1,
+        "run-pipeline": 1
+      },
+      "fragmentVersions": {
+        "form-analysis": 1,
+        "synthesis": 1,
+        "tactical-analysis": 1
+      }
+    }
+  ],
+  "lastUpdated": "2026-02-14T00:45:02.964Z"
+}
