@@ -1,12 +1,18 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResultsList } from './results-list';
+import { siteConfig } from '@/config/site';
 
 export const metadata: Metadata = {
   title: 'Results',
   description: 'Match results vs predictions — see how our AI performed',
+  openGraph: {
+    title: 'Results | MyPredictify',
+    description: 'Match results vs predictions — track our AI accuracy across every gameweek.',
+    images: [{ url: `${siteConfig.url}/api/og/results?gw=latest`, width: 1200, height: 630 }],
+  },
 };
 
 export const dynamic = 'force-dynamic';

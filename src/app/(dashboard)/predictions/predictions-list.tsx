@@ -225,7 +225,14 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
     );
   }
 
-  const upcoming = fixtures.filter((f) => f.status === 'upcoming');
+  const upcoming = fixtures
+    .filter((f) => f.status === 'upcoming')
+    .sort((a, b) => {
+      const confA = predictions.get(a.id)?.confidence ?? 0;
+      const confB = predictions.get(b.id)?.confidence ?? 0;
+      if (confB !== confA) return confB - confA;
+      return a.startTime.getTime() - b.startTime.getTime();
+    });
   const completed = fixtures.filter((f) => f.status !== 'upcoming');
 
   // When hideCompleted is on and there are no upcoming fixtures
@@ -256,6 +263,7 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
                 key={fixture.id}
                 fixture={fixture}
                 prediction={predictions.get(fixture.id)}
+                gameweek={gameweek}
               />
             ))}
           </div>
@@ -273,6 +281,7 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
                 key={fixture.id}
                 fixture={fixture}
                 prediction={predictions.get(fixture.id)}
+                gameweek={gameweek}
               />
             ))}
           </div>

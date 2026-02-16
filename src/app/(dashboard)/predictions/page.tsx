@@ -1,15 +1,31 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { PredictionsList, getAvailableGameweeks } from './predictions-list';
 import { PredictionsFilter } from './predictions-filter';
 import { PredictionCardSkeleton } from '@/components/predictions/prediction-card';
 import { LEAGUES } from '@/config/leagues';
+import { siteConfig } from '@/config/site';
 import { Target } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Predictions',
-  description: 'AI-powered football match predictions',
-};
+export async function generateMetadata({ searchParams }: PredictionsPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const gw = params.gw || '';
+  const leagueId = params.league || '';
+  const league = LEAGUES.find((l) => l.id === parseInt(leagueId));
+  const title = gw ? `GW ${gw} Predictions${league ? ` - ${league.name}` : ''}` : 'Predictions';
+
+  return {
+    title,
+    description: 'AI-powered football match predictions',
+    openGraph: {
+      title: `${title} | MyPredictify`,
+      description: 'AI-powered football match predictions with win probabilities and predicted scores.',
+      images: gw
+        ? [{ url: `${siteConfig.url}/api/og/prediction?gw=${gw}${leagueId ? `&league=${leagueId}` : ''}`, width: 1200, height: 630 }]
+        : undefined,
+    },
+  };
+}
 
 // Dynamic rendering — fixture status depends on current time
 export const dynamic = 'force-dynamic';

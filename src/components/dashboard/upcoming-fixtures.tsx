@@ -152,11 +152,14 @@ export async function UpcomingFixtures() {
               </div>
 
               {m.pred ? (
-                <span className="text-xs font-bold text-primary shrink-0 w-8 text-center">
-                  {m.pred.predictedScore}
-                </span>
+                <div className="shrink-0 w-12 text-center">
+                  <span className="text-xs font-bold text-primary">
+                    {m.pred.predictedScore}
+                  </span>
+                  <span className="block text-[8px] uppercase text-muted-foreground tracking-wide">Pred</span>
+                </div>
               ) : (
-                <span className="text-xs text-muted-foreground font-medium shrink-0 w-8 text-center">vs</span>
+                <span className="text-xs text-muted-foreground font-medium shrink-0 w-12 text-center">vs</span>
               )}
 
               <div className="flex items-center gap-1 flex-1 min-w-0">

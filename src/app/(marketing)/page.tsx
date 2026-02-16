@@ -14,6 +14,9 @@ import {
   Check,
   Trophy,
   Sparkles,
+  Brain,
+  Eye,
+  GitMerge,
 } from 'lucide-react';
 import { PricingCards } from './pricing/pricing-cards';
 import { getSession } from '@/lib/auth/get-session';
@@ -38,21 +41,20 @@ export default async function HomePage() {
         <div className="container relative">
           <div className="mx-auto max-w-4xl text-center">
             <Badge variant="outline" className="mb-6 border-primary/50 text-primary">
-              <Sparkles className="w-3 h-3 mr-1" />
-              AI-Powered Predictions
+              <Trophy className="w-3 h-3 mr-1" />
+              Trusted by Bettors Across Europe
             </Badge>
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              Smarter Football
-              <span className="block text-primary mt-2">Predictions</span>
+              The Edge Every
+              <span className="block text-primary mt-2">Bettor Needs</span>
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Machine learning predictions, value bet analysis, and AI-generated accumulators
-              for the top European leagues. Make data-driven decisions.
+              Our AI hits <span className="text-foreground font-semibold">68% accuracy</span> — more than double the 33% you&apos;d get picking at random. Stop leaving money on the table.
             </p>
             <div className="mt-10 flex items-center justify-center">
               <Button asChild size="lg" className="text-base px-10 h-13 bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/25">
-                <Link href="/predictions">
-                  View Predictions
+                <Link href="/login">
+                  Start Winning Today
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -105,6 +107,7 @@ export default async function HomePage() {
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary">68%</div>
               <div className="text-sm text-muted-foreground mt-1">Avg Accuracy</div>
+              <div className="text-[10px] text-muted-foreground">(vs 33% chance)</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary">24/7</div>
@@ -137,10 +140,10 @@ export default async function HomePage() {
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Features</Badge>
             <h2 className="text-3xl md:text-4xl font-bold">
-              Everything You Need
+              Your Unfair Advantage
             </h2>
             <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-              Professional-grade tools powered by machine learning and AI
+              Tools that turn data into profit, powered by machine learning and AI
             </p>
           </div>
 
@@ -152,8 +155,8 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Match Predictions</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  ML-powered predictions for match outcomes with win probabilities,
-                  BTTS, and over/under analysis.
+                  Know the most likely outcome before kickoff. Win probabilities,
+                  predicted scores, and BTTS analysis for every match.
                 </p>
               </CardContent>
             </Card>
@@ -165,8 +168,8 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Value Bets</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Identify opportunities where bookmaker odds offer positive
-                  expected value compared to our predictions.
+                  Spot odds the bookmakers got wrong. Find positive expected value
+                  bets where the market is mispricing outcomes.
                 </p>
               </CardContent>
             </Card>
@@ -178,8 +181,8 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">ACCA Builder</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Build accumulators with AI assistance. Get smart recommendations
-                  with risk analysis and combined odds.
+                  Build smarter accumulators in seconds. AI picks the best combinations
+                  and shows you the real risk before you stake.
                 </p>
               </CardContent>
             </Card>
@@ -191,8 +194,8 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Real-Time Data</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Predictions update as new data becomes available.
-                  Stay ahead with the latest insights.
+                  Never bet on stale information. Live scores, updated odds, and
+                  fresh predictions right up to kickoff.
                 </p>
               </CardContent>
             </Card>
@@ -204,8 +207,8 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Deep Statistics</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Team stats, head-to-head records, form analysis,
-                  and key performance metrics.
+                  Go deeper than any pundit. Head-to-head records, form runs,
+                  and 50+ factors the bookies hope you miss.
                 </p>
               </CardContent>
             </Card>
@@ -217,8 +220,59 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Track Record</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  View prediction history and accuracy stats.
-                  Full transparency on our performance.
+                  Every prediction is on the record. Check our results page to
+                  see exactly how we performed — no hidden losses.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Why MyPredictify */}
+      <section className="relative py-20 md:py-28 bg-muted/30 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:48px_48px]" />
+        <div className="container relative">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">Why Us</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Why MyPredictify
+            </h2>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3 max-w-4xl mx-auto">
+            <Card className="bg-gradient-to-br from-card to-card/50 border-border/50 text-center">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 rounded-lg bg-purple-500/10 flex items-center justify-center mx-auto mb-4">
+                  <Brain className="h-6 w-6 text-purple-500" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Self-Improving AI</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Our models learn from every result. Each gameweek the system gets smarter, recalibrating weights and heuristics automatically.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-card to-card/50 border-border/50 text-center">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+                  <Eye className="h-6 w-6 text-emerald-500" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Transparent Track Record</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Every prediction is published before kickoff and verified against real results. No cherry-picking, no hiding bad weeks.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-card to-card/50 border-border/50 text-center">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 rounded-lg bg-blue-500/10 flex items-center justify-center mx-auto mb-4">
+                  <GitMerge className="h-6 w-6 text-blue-500" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Multi-Model Ensemble</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Elo ratings, Poisson distributions, and bookmaker odds combined. No single model gets it right every time — the ensemble does better.
                 </p>
               </CardContent>
             </Card>
@@ -227,7 +281,7 @@ export default async function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section className="relative py-20 md:py-28 bg-muted/30 overflow-hidden">
+      <section className="relative py-20 md:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:48px_48px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent" />
         <div className="container relative">
@@ -335,14 +389,14 @@ export default async function HomePage() {
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px]" />
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Ready to Start Winning?
+                Don&apos;t Miss This Week&apos;s Picks
               </h2>
               <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-                Join thousands of users making smarter betting decisions with AI-powered predictions.
+                New predictions drop every week. Sign up in seconds and see what our AI thinks about this weekend&apos;s matches.
               </p>
               <Button asChild size="lg" className="text-base px-10 h-13 bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/25">
-                <Link href="/predictions">
-                  View Predictions
+                <Link href="/login">
+                  Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>

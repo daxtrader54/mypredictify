@@ -84,62 +84,58 @@ export function PredictionsFilter({
   };
 
   return (
-    <div className="space-y-3">
-      {/* League selector */}
-      <div className="flex flex-wrap gap-2">
-        {leagues.map((league) => (
-          <Button
-            key={league.id}
-            variant={league.id === selectedLeagueId ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleLeagueChange(league.id)}
-          >
-            <span className="md:hidden">{league.flag} {league.shortName}</span>
-            <span className="hidden md:inline">{league.name}</span>
-          </Button>
-        ))}
-      </div>
-
-      {/* Gameweek navigator + hide completed toggle */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handlePrevGW}
-            disabled={!hasPrev}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm font-semibold min-w-[80px] text-center">
-            Gameweek {currentGameweek}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleNextGW}
-            disabled={!hasNext}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-
+    <div className="flex flex-wrap items-center gap-2">
+      {leagues.map((league) => (
         <Button
-          variant={hideCompleted ? 'default' : 'outline'}
+          key={league.id}
+          variant={league.id === selectedLeagueId ? 'default' : 'outline'}
           size="sm"
-          className="ml-2 h-8"
-          onClick={handleToggleCompleted}
+          onClick={() => handleLeagueChange(league.id)}
         >
-          {hideCompleted ? (
-            <EyeOff className="h-3.5 w-3.5 mr-1.5" />
-          ) : (
-            <Eye className="h-3.5 w-3.5 mr-1.5" />
-          )}
-          {hideCompleted ? 'Show Completed' : 'Hide Completed'}
+          <span className="md:hidden">{league.flag} {league.shortName}</span>
+          <span className="hidden md:inline">{league.name}</span>
+        </Button>
+      ))}
+
+      <div className="hidden lg:block w-px h-6 bg-border/50" />
+
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={handlePrevGW}
+          disabled={!hasPrev}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="text-sm font-semibold min-w-[60px] text-center">
+          GW {currentGameweek}
+        </span>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={handleNextGW}
+          disabled={!hasNext}
+        >
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
+
+      <Button
+        variant={hideCompleted ? 'default' : 'outline'}
+        size="sm"
+        className="h-8"
+        onClick={handleToggleCompleted}
+      >
+        {hideCompleted ? (
+          <EyeOff className="h-3.5 w-3.5 mr-1.5" />
+        ) : (
+          <Eye className="h-3.5 w-3.5 mr-1.5" />
+        )}
+        {hideCompleted ? 'Show Completed' : 'Hide Completed'}
+      </Button>
     </div>
   );
 }

@@ -286,23 +286,24 @@ export async function ResultsList({ page }: { page?: number }) {
             <div className="rounded-lg border border-border/50 overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border/50 bg-muted/30">
-                    <th className="text-left py-2 px-3 font-medium text-muted-foreground">Match</th>
-                    <th className="text-center py-2 px-2 font-medium text-muted-foreground w-[70px]">Score</th>
-                    <th className="text-center py-2 px-2 font-medium text-muted-foreground w-[70px] hidden sm:table-cell">Predicted</th>
-                    <th className="text-center py-2 px-2 font-medium text-muted-foreground w-[50px] hidden md:table-cell">Tip</th>
-                    <th className="text-center py-2 px-3 font-medium text-muted-foreground w-[40px]"></th>
+                  <tr className="border-b-2 border-border bg-muted/40">
+                    <th className="text-left py-2.5 px-3 text-[11px] uppercase tracking-wide font-semibold text-muted-foreground">Match</th>
+                    <th className="text-center py-2.5 px-2 text-[11px] uppercase tracking-wide font-semibold text-muted-foreground w-[70px]">Score</th>
+                    <th className="text-center py-2.5 px-2 text-[11px] uppercase tracking-wide font-semibold text-muted-foreground w-[70px] hidden sm:table-cell">Predicted</th>
+                    <th className="text-center py-2.5 px-2 text-[11px] uppercase tracking-wide font-semibold text-muted-foreground w-[50px] hidden md:table-cell">Tip</th>
+                    <th className="text-center py-2.5 px-3 text-[11px] uppercase tracking-wide font-semibold text-muted-foreground w-[80px]">Result</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {gw.rows.map((row) => (
+                  {gw.rows.map((row, idx) => (
                     <tr
                       key={row.fixture.id}
                       className={cn(
                         'border-b border-border/30 last:border-0',
-                        row.accuracy === 'correct-score' && 'bg-amber-500/10',
-                        row.accuracy === 'correct-result' && 'bg-green-500/5',
-                        row.accuracy === 'incorrect' && 'bg-red-500/5',
+                        idx % 2 === 1 && 'bg-muted/20',
+                        row.accuracy === 'correct-score' && 'border-l-4 border-l-amber-500',
+                        row.accuracy === 'correct-result' && 'border-l-4 border-l-green-500',
+                        row.accuracy === 'incorrect' && 'border-l-4 border-l-red-500',
                       )}
                     >
                       {/* Match */}
@@ -380,11 +381,20 @@ export async function ResultsList({ page }: { page?: number }) {
                       {/* Result indicator */}
                       <td className="text-center py-2 px-3">
                         {row.accuracy === 'correct-score' ? (
-                          <Sparkles className="h-4 w-4 text-amber-500 mx-auto" />
+                          <span className="inline-flex items-center gap-1 text-amber-500">
+                            <Sparkles className="h-4 w-4" />
+                            <span className="hidden sm:inline text-xs font-semibold">Exact</span>
+                          </span>
                         ) : row.accuracy === 'correct-result' ? (
-                          <Check className="h-4 w-4 text-green-500 mx-auto" />
+                          <span className="inline-flex items-center gap-1 text-green-500">
+                            <Check className="h-4 w-4" />
+                            <span className="hidden sm:inline text-xs font-semibold">Correct</span>
+                          </span>
                         ) : row.accuracy === 'incorrect' ? (
-                          <X className="h-4 w-4 text-red-400 mx-auto" />
+                          <span className="inline-flex items-center gap-1 text-red-400">
+                            <X className="h-4 w-4" />
+                            <span className="hidden sm:inline text-xs font-semibold">Wrong</span>
+                          </span>
                         ) : null}
                       </td>
                     </tr>

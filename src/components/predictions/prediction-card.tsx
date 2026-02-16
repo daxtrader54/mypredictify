@@ -16,6 +16,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { ShareButton } from '@/components/predictions/share-button';
 import { Calendar, MapPin, Lock, TrendingUp, ArrowRight, Sparkles, Coins, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
@@ -77,9 +79,10 @@ function persistUnlocked(id: number) {
 interface PredictionCardProps {
   fixture: ProcessedFixture;
   prediction?: ProcessedPrediction;
+  gameweek?: number;
 }
 
-export function PredictionCard({ fixture, prediction }: PredictionCardProps) {
+export function PredictionCard({ fixture, prediction, gameweek }: PredictionCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [creditError, setCreditError] = useState<string | null>(null);
   const [deducting, setDeducting] = useState(false);
@@ -178,9 +181,20 @@ export function PredictionCard({ fixture, prediction }: PredictionCardProps) {
             </div>
             <span>{format(fixture.startTime, 'EEE, MMM d · HH:mm')}</span>
           </div>
-          <Badge variant="outline" className="text-xs font-medium border-border/50">
-            {fixture.leagueName}
-          </Badge>
+          <div className="flex items-center gap-1.5">
+            <Badge variant="outline" className="text-xs font-medium border-border/50">
+              {fixture.leagueName}
+            </Badge>
+            {gameweek && (
+              <ShareButton
+                fixtureId={fixture.id}
+                gameweek={gameweek}
+                leagueId={fixture.leagueId}
+                homeTeam={fixture.homeTeam.name}
+                awayTeam={fixture.awayTeam.name}
+              />
+            )}
+          </div>
         </div>
       </CardHeader>
 
@@ -299,14 +313,21 @@ export function PredictionCard({ fixture, prediction }: PredictionCardProps) {
                 <TrendingUp className="h-3 w-3" />
                 {prediction.advice}
               </Badge>
-              <div className={cn(
-                "flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium",
-                getConfidenceBg(prediction.confidence),
-                getConfidenceColor(prediction.confidence)
-              )}>
-                <Sparkles className="h-3 w-3" />
-                {prediction.confidence.toFixed(0)}% confident
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className={cn(
+                    "flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium cursor-help",
+                    getConfidenceBg(prediction.confidence),
+                    getConfidenceColor(prediction.confidence)
+                  )}>
+                    <Sparkles className="h-3 w-3" />
+                    {prediction.confidence.toFixed(0)}% confident
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[220px]">
+                  Based on the probability spread between outcomes. Higher confidence means one result is much more likely than others.
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
         ) : prediction && !unlocked ? (
