@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# pipeline temp files
+pipeline-status.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

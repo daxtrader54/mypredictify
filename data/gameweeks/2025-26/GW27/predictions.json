@@ -1,0 +1,1634 @@
+[
+  {
+    "fixtureId": 19427146,
+    "league": "Premier League",
+    "homeTeam": "Brentford",
+    "awayTeam": "Brighton & Hove Albion",
+    "homeWinProb": 0.537,
+    "drawProb": 0.232,
+    "awayWinProb": 0.232,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.537,
+    "explanation": "Brentford predicted based on Elo ratings (1583 vs 1447), Poisson model (xG: 1.87 - 1.07), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.609,
+        "D": 0.199,
+        "A": 0.191
+      },
+      "poisson": {
+        "H": 0.558,
+        "D": 0.227,
+        "A": 0.215
+      },
+      "odds": {
+        "H": 0.466,
+        "D": 0.259,
+        "A": 0.274
+      },
+      "btts": {
+        "yes": 55,
+        "no": 45
+      }
+    }
+  },
+  {
+    "fixtureId": 19427147,
+    "league": "Premier League",
+    "homeTeam": "Chelsea",
+    "awayTeam": "Burnley",
+    "homeWinProb": 0.743,
+    "drawProb": 0.155,
+    "awayWinProb": 0.102,
+    "predictedScore": "2-1",
+    "prediction": "H",
+    "confidence": 0.743,
+    "explanation": "Chelsea predicted based on Elo ratings (1622 vs 1304), Poisson model (xG: 2.74 - 1.14), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.766,
+        "D": 0.15,
+        "A": 0.084
+      },
+      "poisson": {
+        "H": 0.691,
+        "D": 0.168,
+        "A": 0.142
+      },
+      "odds": {
+        "H": 0.766,
+        "D": 0.149,
+        "A": 0.085
+      },
+      "btts": {
+        "yes": 60,
+        "no": 40
+      }
+    }
+  },
+  {
+    "fixtureId": 19427716,
+    "league": "Premier League",
+    "homeTeam": "Aston Villa",
+    "awayTeam": "Leeds United",
+    "homeWinProb": 0.619,
+    "drawProb": 0.211,
+    "awayWinProb": 0.169,
+    "predictedScore": "2-0",
+    "prediction": "H",
+    "confidence": 0.619,
+    "explanation": "Aston Villa predicted based on Elo ratings (1655 vs 1395), Poisson model (xG: 2.02 - 0.87), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.737,
+        "D": 0.15,
+        "A": 0.113
+      },
+      "poisson": {
+        "H": 0.636,
+        "D": 0.209,
+        "A": 0.155
+      },
+      "odds": {
+        "H": 0.519,
+        "D": 0.259,
+        "A": 0.222
+      },
+      "btts": {
+        "yes": 49,
+        "no": 51
+      }
+    }
+  },
+  {
+    "fixtureId": 19427154,
+    "league": "Premier League",
+    "homeTeam": "West Ham United",
+    "awayTeam": "AFC Bournemouth",
+    "homeWinProb": 0.326,
+    "drawProb": 0.243,
+    "awayWinProb": 0.431,
+    "predictedScore": "1-2",
+    "prediction": "A",
+    "confidence": 0.431,
+    "explanation": "AFC Bournemouth predicted based on Elo ratings (1359 vs 1471), Poisson model (xG: 1.96 - 2.83), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.313,
+        "D": 0.276,
+        "A": 0.41
+      },
+      "poisson": {
+        "H": 0.269,
+        "D": 0.19,
+        "A": 0.541
+      },
+      "odds": {
+        "H": 0.379,
+        "D": 0.258,
+        "A": 0.364
+      },
+      "btts": {
+        "yes": 74,
+        "no": 26
+      }
+    }
+  },
+  {
+    "fixtureId": 19427150,
+    "league": "Premier League",
+    "homeTeam": "Manchester City",
+    "awayTeam": "Newcastle United",
+    "homeWinProb": 0.679,
+    "drawProb": 0.188,
+    "awayWinProb": 0.133,
+    "predictedScore": "2-0",
+    "prediction": "H",
+    "confidence": 0.679,
+    "explanation": "Manchester City predicted based on Elo ratings (1679 vs 1480), Poisson model (xG: 2.18 - 0.66), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.683,
+        "D": 0.168,
+        "A": 0.149
+      },
+      "poisson": {
+        "H": 0.717,
+        "D": 0.182,
+        "A": 0.101
+      },
+      "odds": {
+        "H": 0.649,
+        "D": 0.208,
+        "A": 0.144
+      },
+      "btts": {
+        "yes": 42,
+        "no": 58
+      }
+    }
+  },
+  {
+    "fixtureId": 19427148,
+    "league": "Premier League",
+    "homeTeam": "Crystal Palace",
+    "awayTeam": "Wolverhampton Wanderers",
+    "homeWinProb": 0.566,
+    "drawProb": 0.251,
+    "awayWinProb": 0.183,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.566,
+    "explanation": "Crystal Palace predicted based on Elo ratings (1405 vs 1294), Poisson model (xG: 1.26 - 0.63), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.578,
+        "D": 0.212,
+        "A": 0.21
+      },
+      "poisson": {
+        "H": 0.517,
+        "D": 0.298,
+        "A": 0.185
+      },
+      "odds": {
+        "H": 0.593,
+        "D": 0.245,
+        "A": 0.162
+      },
+      "btts": {
+        "yes": 33,
+        "no": 67
+      }
+    }
+  },
+  {
+    "fixtureId": 19427151,
+    "league": "Premier League",
+    "homeTeam": "Nottingham Forest",
+    "awayTeam": "Liverpool",
+    "homeWinProb": 0.216,
+    "drawProb": 0.231,
+    "awayWinProb": 0.553,
+    "predictedScore": "1-2",
+    "prediction": "A",
+    "confidence": 0.553,
+    "explanation": "Liverpool predicted based on Elo ratings (1352 vs 1595), Poisson model (xG: 1.04 - 1.93), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.208,
+        "D": 0.211,
+        "A": 0.581
+      },
+      "poisson": {
+        "H": 0.203,
+        "D": 0.223,
+        "A": 0.575
+      },
+      "odds": {
+        "H": 0.232,
+        "D": 0.251,
+        "A": 0.516
+      },
+      "btts": {
+        "yes": 54,
+        "no": 46
+      }
+    }
+  },
+  {
+    "fixtureId": 19427152,
+    "league": "Premier League",
+    "homeTeam": "Sunderland",
+    "awayTeam": "Fulham",
+    "homeWinProb": 0.459,
+    "drawProb": 0.26,
+    "awayWinProb": 0.281,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.459,
+    "explanation": "Sunderland predicted based on Elo ratings (1545 vs 1520), Poisson model (xG: 1.88 - 0.93), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.467,
+        "D": 0.255,
+        "A": 0.278
+      },
+      "poisson": {
+        "H": 0.591,
+        "D": 0.224,
+        "A": 0.185
+      },
+      "odds": {
+        "H": 0.355,
+        "D": 0.29,
+        "A": 0.355
+      },
+      "btts": {
+        "yes": 51,
+        "no": 49
+      }
+    }
+  },
+  {
+    "fixtureId": 19427153,
+    "league": "Premier League",
+    "homeTeam": "Tottenham Hotspur",
+    "awayTeam": "Arsenal",
+    "homeWinProb": 0.15,
+    "drawProb": 0.215,
+    "awayWinProb": 0.635,
+    "predictedScore": "0-1",
+    "prediction": "A",
+    "confidence": 0.635,
+    "explanation": "Arsenal predicted based on Elo ratings (1421 vs 1708), Poisson model (xG: 0.62 - 1.92), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.177,
+        "D": 0.189,
+        "A": 0.634
+      },
+      "poisson": {
+        "H": 0.114,
+        "D": 0.208,
+        "A": 0.677
+      },
+      "odds": {
+        "H": 0.156,
+        "D": 0.24,
+        "A": 0.604
+      },
+      "btts": {
+        "yes": 39,
+        "no": 61
+      }
+    }
+  },
+  {
+    "fixtureId": 19427149,
+    "league": "Premier League",
+    "homeTeam": "Everton",
+    "awayTeam": "Manchester United",
+    "homeWinProb": 0.269,
+    "drawProb": 0.253,
+    "awayWinProb": 0.477,
+    "predictedScore": "1-2",
+    "prediction": "A",
+    "confidence": 0.477,
+    "explanation": "Manchester United predicted based on Elo ratings (1523 vs 1642), Poisson model (xG: 1.32 - 2.04), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.307,
+        "D": 0.273,
+        "A": 0.42
+      },
+      "poisson": {
+        "H": 0.247,
+        "D": 0.218,
+        "A": 0.536
+      },
+      "odds": {
+        "H": 0.258,
+        "D": 0.265,
+        "A": 0.476
+      },
+      "btts": {
+        "yes": 62,
+        "no": 38
+      }
+    }
+  },
+  {
+    "fixtureId": 19439490,
+    "league": "La Liga",
+    "homeTeam": "Athletic Club",
+    "awayTeam": "Elche",
+    "homeWinProb": 0.535,
+    "drawProb": 0.248,
+    "awayWinProb": 0.218,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.535,
+    "explanation": "Athletic Club predicted based on Elo ratings (1489 vs 1438), Poisson model (xG: 1.71 - 1.07), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.501,
+        "D": 0.242,
+        "A": 0.257
+      },
+      "poisson": {
+        "H": 0.521,
+        "D": 0.241,
+        "A": 0.238
+      },
+      "odds": {
+        "H": 0.57,
+        "D": 0.256,
+        "A": 0.173
+      },
+      "btts": {
+        "yes": 53,
+        "no": 47
+      }
+    }
+  },
+  {
+    "fixtureId": 19439498,
+    "league": "La Liga",
+    "homeTeam": "Real Sociedad",
+    "awayTeam": "Real Oviedo",
+    "homeWinProb": 0.66,
+    "drawProb": 0.201,
+    "awayWinProb": 0.139,
+    "predictedScore": "2-0",
+    "prediction": "H",
+    "confidence": 0.66,
+    "explanation": "Real Sociedad predicted based on Elo ratings (1541 vs 1300), Poisson model (xG: 2.26 - 0.94), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.725,
+        "D": 0.15,
+        "A": 0.125
+      },
+      "poisson": {
+        "H": 0.662,
+        "D": 0.191,
+        "A": 0.147
+      },
+      "odds": {
+        "H": 0.61,
+        "D": 0.246,
+        "A": 0.144
+      },
+      "btts": {
+        "yes": 53,
+        "no": 47
+      }
+    }
+  },
+  {
+    "fixtureId": 19439497,
+    "league": "La Liga",
+    "homeTeam": "Real Betis",
+    "awayTeam": "Rayo Vallecano",
+    "homeWinProb": 0.616,
+    "drawProb": 0.218,
+    "awayWinProb": 0.166,
+    "predictedScore": "2-0",
+    "prediction": "H",
+    "confidence": 0.616,
+    "explanation": "Real Betis predicted based on Elo ratings (1616 vs 1342), Poisson model (xG: 2.13 - 0.92), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.744,
+        "D": 0.15,
+        "A": 0.106
+      },
+      "poisson": {
+        "H": 0.643,
+        "D": 0.202,
+        "A": 0.155
+      },
+      "odds": {
+        "H": 0.5,
+        "D": 0.28,
+        "A": 0.22
+      },
+      "btts": {
+        "yes": 52,
+        "no": 48
+      }
+    }
+  },
+  {
+    "fixtureId": 19439496,
+    "league": "La Liga",
+    "homeTeam": "Osasuna",
+    "awayTeam": "Real Madrid",
+    "homeWinProb": 0.227,
+    "drawProb": 0.24,
+    "awayWinProb": 0.533,
+    "predictedScore": "1-2",
+    "prediction": "A",
+    "confidence": 0.533,
+    "explanation": "Real Madrid predicted based on Elo ratings (1565 vs 1679), Poisson model (xG: 1.05 - 2.24), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.311,
+        "D": 0.275,
+        "A": 0.413
+      },
+      "poisson": {
+        "H": 0.17,
+        "D": 0.198,
+        "A": 0.632
+      },
+      "odds": {
+        "H": 0.207,
+        "D": 0.245,
+        "A": 0.548
+      },
+      "btts": {
+        "yes": 56,
+        "no": 44
+      }
+    }
+  },
+  {
+    "fixtureId": 19439491,
+    "league": "La Liga",
+    "homeTeam": "Atlético Madrid",
+    "awayTeam": "Espanyol",
+    "homeWinProb": 0.605,
+    "drawProb": 0.226,
+    "awayWinProb": 0.169,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.605,
+    "explanation": "Atlético Madrid predicted based on Elo ratings (1658 vs 1595), Poisson model (xG: 1.95 - 0.75), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.517,
+        "D": 0.236,
+        "A": 0.247
+      },
+      "poisson": {
+        "H": 0.651,
+        "D": 0.211,
+        "A": 0.138
+      },
+      "odds": {
+        "H": 0.636,
+        "D": 0.23,
+        "A": 0.134
+      },
+      "btts": {
+        "yes": 45,
+        "no": 55
+      }
+    }
+  },
+  {
+    "fixtureId": 19439495,
+    "league": "La Liga",
+    "homeTeam": "Getafe",
+    "awayTeam": "Sevilla",
+    "homeWinProb": 0.393,
+    "drawProb": 0.299,
+    "awayWinProb": 0.308,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.393,
+    "explanation": "Getafe predicted based on Elo ratings (1384 vs 1405), Poisson model (xG: 1.16 - 1.04), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.406,
+        "D": 0.278,
+        "A": 0.316
+      },
+      "poisson": {
+        "H": 0.382,
+        "D": 0.291,
+        "A": 0.326
+      },
+      "odds": {
+        "H": 0.391,
+        "D": 0.32,
+        "A": 0.29
+      },
+      "btts": {
+        "yes": 44,
+        "no": 56
+      }
+    }
+  },
+  {
+    "fixtureId": 19439492,
+    "league": "La Liga",
+    "homeTeam": "FC Barcelona",
+    "awayTeam": "Levante",
+    "homeWinProb": 0.823,
+    "drawProb": 0.119,
+    "awayWinProb": 0.058,
+    "predictedScore": "2-0",
+    "prediction": "H",
+    "confidence": 0.823,
+    "explanation": "FC Barcelona predicted based on Elo ratings (1704 vs 1321), Poisson model (xG: 2.78 - 0.53), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.79,
+        "D": 0.15,
+        "A": 0.06
+      },
+      "poisson": {
+        "H": 0.827,
+        "D": 0.122,
+        "A": 0.051
+      },
+      "odds": {
+        "H": 0.844,
+        "D": 0.094,
+        "A": 0.062
+      },
+      "btts": {
+        "yes": 36,
+        "no": 64
+      }
+    }
+  },
+  {
+    "fixtureId": 19439493,
+    "league": "La Liga",
+    "homeTeam": "Celta de Vigo",
+    "awayTeam": "Mallorca",
+    "homeWinProb": 0.555,
+    "drawProb": 0.242,
+    "awayWinProb": 0.203,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.555,
+    "explanation": "Celta de Vigo predicted based on Elo ratings (1562 vs 1422), Poisson model (xG: 1.78 - 1.01), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.614,
+        "D": 0.198,
+        "A": 0.189
+      },
+      "poisson": {
+        "H": 0.551,
+        "D": 0.235,
+        "A": 0.214
+      },
+      "odds": {
+        "H": 0.514,
+        "D": 0.28,
+        "A": 0.206
+      },
+      "btts": {
+        "yes": 52,
+        "no": 48
+      }
+    }
+  },
+  {
+    "fixtureId": 19439499,
+    "league": "La Liga",
+    "homeTeam": "Villarreal",
+    "awayTeam": "Valencia",
+    "homeWinProb": 0.676,
+    "drawProb": 0.193,
+    "awayWinProb": 0.131,
+    "predictedScore": "2-0",
+    "prediction": "H",
+    "confidence": 0.676,
+    "explanation": "Villarreal predicted based on Elo ratings (1637 vs 1363), Poisson model (xG: 2.61 - 0.73), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.744,
+        "D": 0.15,
+        "A": 0.106
+      },
+      "poisson": {
+        "H": 0.765,
+        "D": 0.15,
+        "A": 0.085
+      },
+      "odds": {
+        "H": 0.558,
+        "D": 0.257,
+        "A": 0.185
+      },
+      "btts": {
+        "yes": 45,
+        "no": 55
+      }
+    }
+  },
+  {
+    "fixtureId": 19439494,
+    "league": "La Liga",
+    "homeTeam": "Deportivo Alavés",
+    "awayTeam": "Girona",
+    "homeWinProb": 0.431,
+    "drawProb": 0.279,
+    "awayWinProb": 0.289,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.431,
+    "explanation": "Deportivo Alavés predicted based on Elo ratings (1511 vs 1468), Poisson model (xG: 1.31 - 1.11), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.491,
+        "D": 0.246,
+        "A": 0.263
+      },
+      "poisson": {
+        "H": 0.41,
+        "D": 0.274,
+        "A": 0.316
+      },
+      "odds": {
+        "H": 0.402,
+        "D": 0.308,
+        "A": 0.289
+      },
+      "btts": {
+        "yes": 49,
+        "no": 51
+      }
+    }
+  },
+  {
+    "fixtureId": 19433676,
+    "league": "Bundesliga",
+    "homeTeam": "FSV Mainz 05",
+    "awayTeam": "Hamburger SV",
+    "homeWinProb": 0.468,
+    "drawProb": 0.292,
+    "awayWinProb": 0.24,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.468,
+    "explanation": "FSV Mainz 05 predicted based on Elo ratings (1364 vs 1431), Poisson model (xG: 1.21 - 0.33), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.348,
+        "D": 0.299,
+        "A": 0.353
+      },
+      "poisson": {
+        "H": 0.59,
+        "D": 0.309,
+        "A": 0.101
+      },
+      "odds": {
+        "H": 0.467,
+        "D": 0.274,
+        "A": 0.259
+      },
+      "btts": {
+        "yes": 20,
+        "no": 80
+      }
+    }
+  },
+  {
+    "fixtureId": 19433674,
+    "league": "Bundesliga",
+    "homeTeam": "FC Köln",
+    "awayTeam": "TSG Hoffenheim",
+    "homeWinProb": 0.292,
+    "drawProb": 0.245,
+    "awayWinProb": 0.463,
+    "predictedScore": "0-1",
+    "prediction": "A",
+    "confidence": 0.463,
+    "explanation": "TSG Hoffenheim predicted based on Elo ratings (1488 vs 1653), Poisson model (xG: 1.23 - 1.61), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.27,
+        "D": 0.25,
+        "A": 0.48
+      },
+      "poisson": {
+        "H": 0.293,
+        "D": 0.248,
+        "A": 0.459
+      },
+      "odds": {
+        "H": 0.308,
+        "D": 0.238,
+        "A": 0.454
+      },
+      "btts": {
+        "yes": 56,
+        "no": 44
+      }
+    }
+  },
+  {
+    "fixtureId": 19433675,
+    "league": "Bundesliga",
+    "homeTeam": "FC Union Berlin",
+    "awayTeam": "Bayer 04 Leverkusen",
+    "homeWinProb": 0.33,
+    "drawProb": 0.278,
+    "awayWinProb": 0.392,
+    "predictedScore": "1-2",
+    "prediction": "A",
+    "confidence": 0.392,
+    "explanation": "Bayer 04 Leverkusen predicted based on Elo ratings (1511 vs 1580), Poisson model (xG: 1.32 - 1.63), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.347,
+        "D": 0.298,
+        "A": 0.355
+      },
+      "poisson": {
+        "H": 0.311,
+        "D": 0.244,
+        "A": 0.445
+      },
+      "odds": {
+        "H": 0.331,
+        "D": 0.288,
+        "A": 0.38
+      },
+      "btts": {
+        "yes": 58,
+        "no": 42
+      }
+    }
+  },
+  {
+    "fixtureId": 19433677,
+    "league": "Bundesliga",
+    "homeTeam": "FC Bayern München",
+    "awayTeam": "Eintracht Frankfurt",
+    "homeWinProb": 0.756,
+    "drawProb": 0.141,
+    "awayWinProb": 0.103,
+    "predictedScore": "3-0",
+    "prediction": "H",
+    "confidence": 0.756,
+    "explanation": "FC Bayern München predicted based on Elo ratings (1700 vs 1560), Poisson model (xG: 3.50 - 0.83), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.614,
+        "D": 0.198,
+        "A": 0.189
+      },
+      "poisson": {
+        "H": 0.837,
+        "D": 0.105,
+        "A": 0.059
+      },
+      "odds": {
+        "H": 0.801,
+        "D": 0.126,
+        "A": 0.073
+      },
+      "btts": {
+        "yes": 47,
+        "no": 53
+      }
+    }
+  },
+  {
+    "fixtureId": 19433681,
+    "league": "Bundesliga",
+    "homeTeam": "VfL Wolfsburg",
+    "awayTeam": "FC Augsburg",
+    "homeWinProb": 0.446,
+    "drawProb": 0.271,
+    "awayWinProb": 0.282,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.446,
+    "explanation": "VfL Wolfsburg predicted based on Elo ratings (1390 vs 1448), Poisson model (xG: 1.71 - 1.07), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.359,
+        "D": 0.297,
+        "A": 0.345
+      },
+      "poisson": {
+        "H": 0.518,
+        "D": 0.242,
+        "A": 0.24
+      },
+      "odds": {
+        "H": 0.458,
+        "D": 0.275,
+        "A": 0.267
+      },
+      "btts": {
+        "yes": 53,
+        "no": 47
+      }
+    }
+  },
+  {
+    "fixtureId": 19433679,
+    "league": "Bundesliga",
+    "homeTeam": "RB Leipzig",
+    "awayTeam": "Borussia Dortmund",
+    "homeWinProb": 0.386,
+    "drawProb": 0.266,
+    "awayWinProb": 0.348,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.386,
+    "explanation": "RB Leipzig predicted based on Elo ratings (1606 vs 1680), Poisson model (xG: 1.39 - 1.39), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.343,
+        "D": 0.296,
+        "A": 0.361
+      },
+      "poisson": {
+        "H": 0.374,
+        "D": 0.255,
+        "A": 0.371
+      },
+      "odds": {
+        "H": 0.427,
+        "D": 0.253,
+        "A": 0.32
+      },
+      "btts": {
+        "yes": 56,
+        "no": 44
+      }
+    }
+  },
+  {
+    "fixtureId": 19433680,
+    "league": "Bundesliga",
+    "homeTeam": "SC Freiburg",
+    "awayTeam": "Borussia Mönchengladbach",
+    "homeWinProb": 0.545,
+    "drawProb": 0.253,
+    "awayWinProb": 0.202,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.545,
+    "explanation": "SC Freiburg predicted based on Elo ratings (1539 vs 1443), Poisson model (xG: 1.58 - 0.58), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.559,
+        "D": 0.219,
+        "A": 0.221
+      },
+      "poisson": {
+        "H": 0.618,
+        "D": 0.249,
+        "A": 0.134
+      },
+      "odds": {
+        "H": 0.479,
+        "D": 0.282,
+        "A": 0.239
+      },
+      "btts": {
+        "yes": 35,
+        "no": 65
+      }
+    }
+  },
+  {
+    "fixtureId": 19433678,
+    "league": "Bundesliga",
+    "homeTeam": "St. Pauli",
+    "awayTeam": "Werder Bremen",
+    "homeWinProb": 0.378,
+    "drawProb": 0.297,
+    "awayWinProb": 0.325,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.378,
+    "explanation": "St. Pauli predicted based on Elo ratings (1340 vs 1367), Poisson model (xG: 1.16 - 0.89), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.399,
+        "D": 0.281,
+        "A": 0.32
+      },
+      "poisson": {
+        "H": 0.421,
+        "D": 0.301,
+        "A": 0.279
+      },
+      "odds": {
+        "H": 0.331,
+        "D": 0.306,
+        "A": 0.363
+      },
+      "btts": {
+        "yes": 40,
+        "no": 60
+      }
+    }
+  },
+  {
+    "fixtureId": 19433673,
+    "league": "Bundesliga",
+    "homeTeam": "Heidenheim",
+    "awayTeam": "VfB Stuttgart",
+    "homeWinProb": 0.148,
+    "drawProb": 0.19,
+    "awayWinProb": 0.662,
+    "predictedScore": "0-2",
+    "prediction": "A",
+    "confidence": 0.662,
+    "explanation": "VfB Stuttgart predicted based on Elo ratings (1287 vs 1613), Poisson model (xG: 0.71 - 2.74), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.151,
+        "D": 0.169,
+        "A": 0.679
+      },
+      "poisson": {
+        "H": 0.076,
+        "D": 0.14,
+        "A": 0.784
+      },
+      "odds": {
+        "H": 0.2,
+        "D": 0.243,
+        "A": 0.557
+      },
+      "btts": {
+        "yes": 45,
+        "no": 55
+      }
+    }
+  },
+  {
+    "fixtureId": 19425140,
+    "league": "Serie A",
+    "homeTeam": "Sassuolo",
+    "awayTeam": "Hellas Verona",
+    "homeWinProb": 0.556,
+    "drawProb": 0.241,
+    "awayWinProb": 0.203,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.556,
+    "explanation": "Sassuolo predicted based on Elo ratings (1489 vs 1299), Poisson model (xG: 1.61 - 1.10), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.673,
+        "D": 0.173,
+        "A": 0.155
+      },
+      "poisson": {
+        "H": 0.49,
+        "D": 0.249,
+        "A": 0.26
+      },
+      "odds": {
+        "H": 0.517,
+        "D": 0.287,
+        "A": 0.196
+      },
+      "btts": {
+        "yes": 53,
+        "no": 47
+      }
+    }
+  },
+  {
+    "fixtureId": 19425136,
+    "league": "Serie A",
+    "homeTeam": "Juventus",
+    "awayTeam": "Como",
+    "homeWinProb": 0.453,
+    "drawProb": 0.253,
+    "awayWinProb": 0.294,
+    "predictedScore": "2-1",
+    "prediction": "H",
+    "confidence": 0.453,
+    "explanation": "Juventus predicted based on Elo ratings (1637 vs 1595), Poisson model (xG: 1.48 - 1.37), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.489,
+        "D": 0.247,
+        "A": 0.264
+      },
+      "poisson": {
+        "H": 0.398,
+        "D": 0.251,
+        "A": 0.351
+      },
+      "odds": {
+        "H": 0.466,
+        "D": 0.259,
+        "A": 0.274
+      },
+      "btts": {
+        "yes": 57,
+        "no": 43
+      }
+    }
+  },
+  {
+    "fixtureId": 19425137,
+    "league": "Serie A",
+    "homeTeam": "Lecce",
+    "awayTeam": "Inter",
+    "homeWinProb": 0.1,
+    "drawProb": 0.183,
+    "awayWinProb": 0.716,
+    "predictedScore": "0-2",
+    "prediction": "A",
+    "confidence": 0.716,
+    "explanation": "Inter predicted based on Elo ratings (1363 vs 1700), Poisson model (xG: 0.50 - 2.46), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.144,
+        "D": 0.164,
+        "A": 0.692
+      },
+      "poisson": {
+        "H": 0.059,
+        "D": 0.144,
+        "A": 0.797
+      },
+      "odds": {
+        "H": 0.098,
+        "D": 0.227,
+        "A": 0.675
+      },
+      "btts": {
+        "yes": 35,
+        "no": 65
+      }
+    }
+  },
+  {
+    "fixtureId": 19425133,
+    "league": "Serie A",
+    "homeTeam": "Cagliari",
+    "awayTeam": "Lazio",
+    "homeWinProb": 0.308,
+    "drawProb": 0.302,
+    "awayWinProb": 0.39,
+    "predictedScore": "0-1",
+    "prediction": "A",
+    "confidence": 0.39,
+    "explanation": "Lazio predicted based on Elo ratings (1468 vs 1553), Poisson model (xG: 0.91 - 1.14), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.335,
+        "D": 0.29,
+        "A": 0.375
+      },
+      "poisson": {
+        "H": 0.291,
+        "D": 0.302,
+        "A": 0.407
+      },
+      "odds": {
+        "H": 0.301,
+        "D": 0.311,
+        "A": 0.388
+      },
+      "btts": {
+        "yes": 41,
+        "no": 59
+      }
+    }
+  },
+  {
+    "fixtureId": 19425135,
+    "league": "Serie A",
+    "homeTeam": "Genoa",
+    "awayTeam": "Torino",
+    "homeWinProb": 0.396,
+    "drawProb": 0.282,
+    "awayWinProb": 0.322,
+    "predictedScore": "2-1",
+    "prediction": "H",
+    "confidence": 0.396,
+    "explanation": "Genoa predicted based on Elo ratings (1379 vs 1446), Poisson model (xG: 1.63 - 1.46), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.348,
+        "D": 0.299,
+        "A": 0.353
+      },
+      "poisson": {
+        "H": 0.416,
+        "D": 0.24,
+        "A": 0.343
+      },
+      "odds": {
+        "H": 0.415,
+        "D": 0.301,
+        "A": 0.283
+      },
+      "btts": {
+        "yes": 61,
+        "no": 39
+      }
+    }
+  },
+  {
+    "fixtureId": 19425131,
+    "league": "Serie A",
+    "homeTeam": "Atalanta",
+    "awayTeam": "Napoli",
+    "homeWinProb": 0.384,
+    "drawProb": 0.282,
+    "awayWinProb": 0.334,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.384,
+    "explanation": "Atalanta predicted based on Elo ratings (1574 vs 1663), Poisson model (xG: 1.42 - 1.20), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.331,
+        "D": 0.288,
+        "A": 0.381
+      },
+      "poisson": {
+        "H": 0.419,
+        "D": 0.262,
+        "A": 0.319
+      },
+      "odds": {
+        "H": 0.397,
+        "D": 0.292,
+        "A": 0.311
+      },
+      "btts": {
+        "yes": 53,
+        "no": 47
+      }
+    }
+  },
+  {
+    "fixtureId": 19425138,
+    "league": "Serie A",
+    "homeTeam": "AC Milan",
+    "awayTeam": "Parma",
+    "homeWinProb": 0.675,
+    "drawProb": 0.203,
+    "awayWinProb": 0.122,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.675,
+    "explanation": "AC Milan predicted based on Elo ratings (1679 vs 1405), Poisson model (xG: 1.58 - 0.72), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.744,
+        "D": 0.15,
+        "A": 0.106
+      },
+      "poisson": {
+        "H": 0.578,
+        "D": 0.253,
+        "A": 0.169
+      },
+      "odds": {
+        "H": 0.697,
+        "D": 0.206,
+        "A": 0.098
+      },
+      "btts": {
+        "yes": 40,
+        "no": 60
+      }
+    }
+  },
+  {
+    "fixtureId": 19425139,
+    "league": "Serie A",
+    "homeTeam": "Roma",
+    "awayTeam": "Cremonese",
+    "homeWinProb": 0.673,
+    "drawProb": 0.205,
+    "awayWinProb": 0.122,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.673,
+    "explanation": "Roma predicted based on Elo ratings (1616 vs 1426), Poisson model (xG: 1.69 - 0.60), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.673,
+        "D": 0.173,
+        "A": 0.155
+      },
+      "poisson": {
+        "H": 0.636,
+        "D": 0.235,
+        "A": 0.129
+      },
+      "odds": {
+        "H": 0.7,
+        "D": 0.207,
+        "A": 0.093
+      },
+      "btts": {
+        "yes": 36,
+        "no": 64
+      }
+    }
+  },
+  {
+    "fixtureId": 19425134,
+    "league": "Serie A",
+    "homeTeam": "Fiorentina",
+    "awayTeam": "Pisa",
+    "homeWinProb": 0.512,
+    "drawProb": 0.235,
+    "awayWinProb": 0.253,
+    "predictedScore": "2-1",
+    "prediction": "H",
+    "confidence": 0.512,
+    "explanation": "Fiorentina predicted based on Elo ratings (1343 vs 1322), Poisson model (xG: 2.39 - 1.91), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.462,
+        "D": 0.257,
+        "A": 0.281
+      },
+      "poisson": {
+        "H": 0.481,
+        "D": 0.204,
+        "A": 0.316
+      },
+      "odds": {
+        "H": 0.573,
+        "D": 0.243,
+        "A": 0.184
+      },
+      "btts": {
+        "yes": 73,
+        "no": 27
+      }
+    }
+  },
+  {
+    "fixtureId": 19425132,
+    "league": "Serie A",
+    "homeTeam": "Bologna",
+    "awayTeam": "Udinese",
+    "homeWinProb": 0.432,
+    "drawProb": 0.27,
+    "awayWinProb": 0.298,
+    "predictedScore": "2-1",
+    "prediction": "H",
+    "confidence": 0.432,
+    "explanation": "Bologna predicted based on Elo ratings (1511 vs 1532), Poisson model (xG: 1.48 - 1.47), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.406,
+        "D": 0.278,
+        "A": 0.316
+      },
+      "poisson": {
+        "H": 0.379,
+        "D": 0.247,
+        "A": 0.374
+      },
+      "odds": {
+        "H": 0.49,
+        "D": 0.282,
+        "A": 0.227
+      },
+      "btts": {
+        "yes": 59,
+        "no": 41
+      }
+    }
+  },
+  {
+    "fixtureId": 19467833,
+    "league": "Ligue 1",
+    "homeTeam": "Brest",
+    "awayTeam": "Olympique Marseille",
+    "homeWinProb": 0.273,
+    "drawProb": 0.252,
+    "awayWinProb": 0.475,
+    "predictedScore": "0-1",
+    "prediction": "A",
+    "confidence": 0.475,
+    "explanation": "Olympique Marseille predicted based on Elo ratings (1456 vs 1653), Poisson model (xG: 1.26 - 1.42), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.244,
+        "D": 0.234,
+        "A": 0.522
+      },
+      "poisson": {
+        "H": 0.335,
+        "D": 0.26,
+        "A": 0.405
+      },
+      "odds": {
+        "H": 0.249,
+        "D": 0.259,
+        "A": 0.492
+      },
+      "btts": {
+        "yes": 54,
+        "no": 46
+      }
+    }
+  },
+  {
+    "fixtureId": 19467832,
+    "league": "Ligue 1",
+    "homeTeam": "Lens",
+    "awayTeam": "Monaco",
+    "homeWinProb": 0.636,
+    "drawProb": 0.205,
+    "awayWinProb": 0.159,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.636,
+    "explanation": "Lens predicted based on Elo ratings (1685 vs 1488), Poisson model (xG: 1.83 - 0.30), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.68,
+        "D": 0.169,
+        "A": 0.151
+      },
+      "poisson": {
+        "H": 0.751,
+        "D": 0.195,
+        "A": 0.054
+      },
+      "odds": {
+        "H": 0.517,
+        "D": 0.238,
+        "A": 0.245
+      },
+      "btts": {
+        "yes": 21,
+        "no": 79
+      }
+    }
+  },
+  {
+    "fixtureId": 19467839,
+    "league": "Ligue 1",
+    "homeTeam": "Toulouse",
+    "awayTeam": "Paris",
+    "homeWinProb": 0.555,
+    "drawProb": 0.24,
+    "awayWinProb": 0.204,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.555,
+    "explanation": "Toulouse predicted based on Elo ratings (1535 vs 1394), Poisson model (xG: 1.73 - 0.85), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.615,
+        "D": 0.197,
+        "A": 0.188
+      },
+      "poisson": {
+        "H": 0.581,
+        "D": 0.237,
+        "A": 0.182
+      },
+      "odds": {
+        "H": 0.492,
+        "D": 0.275,
+        "A": 0.234
+      },
+      "btts": {
+        "yes": 46,
+        "no": 54
+      }
+    }
+  },
+  {
+    "fixtureId": 19467835,
+    "league": "Ligue 1",
+    "homeTeam": "Paris Saint Germain",
+    "awayTeam": "Metz",
+    "homeWinProb": 0.849,
+    "drawProb": 0.11,
+    "awayWinProb": 0.041,
+    "predictedScore": "3-0",
+    "prediction": "H",
+    "confidence": 0.849,
+    "explanation": "Paris Saint Germain predicted based on Elo ratings (1700 vs 1306), Poisson model (xG: 3.50 - 0.30), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.794,
+        "D": 0.15,
+        "A": 0.056
+      },
+      "poisson": {
+        "H": 0.924,
+        "D": 0.062,
+        "A": 0.015
+      },
+      "odds": {
+        "H": 0.835,
+        "D": 0.116,
+        "A": 0.049
+      },
+      "btts": {
+        "yes": 21,
+        "no": 79
+      }
+    }
+  },
+  {
+    "fixtureId": 19467838,
+    "league": "Ligue 1",
+    "homeTeam": "Auxerre",
+    "awayTeam": "Rennes",
+    "homeWinProb": 0.33,
+    "drawProb": 0.262,
+    "awayWinProb": 0.408,
+    "predictedScore": "0-1",
+    "prediction": "A",
+    "confidence": 0.408,
+    "explanation": "Rennes predicted based on Elo ratings (1324 vs 1573), Poisson model (xG: 1.21 - 0.76), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.204,
+        "D": 0.208,
+        "A": 0.588
+      },
+      "poisson": {
+        "H": 0.466,
+        "D": 0.301,
+        "A": 0.233
+      },
+      "odds": {
+        "H": 0.323,
+        "D": 0.273,
+        "A": 0.404
+      },
+      "btts": {
+        "yes": 37,
+        "no": 63
+      }
+    }
+  },
+  {
+    "fixtureId": 19467834,
+    "league": "Ligue 1",
+    "homeTeam": "Angers SCO",
+    "awayTeam": "LOSC Lille",
+    "homeWinProb": 0.288,
+    "drawProb": 0.269,
+    "awayWinProb": 0.444,
+    "predictedScore": "0-1",
+    "prediction": "A",
+    "confidence": 0.444,
+    "explanation": "LOSC Lille predicted based on Elo ratings (1465 vs 1600), Poisson model (xG: 1.36 - 1.20), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.294,
+        "D": 0.265,
+        "A": 0.441
+      },
+      "poisson": {
+        "H": 0.404,
+        "D": 0.266,
+        "A": 0.33
+      },
+      "odds": {
+        "H": 0.196,
+        "D": 0.273,
+        "A": 0.531
+      },
+      "btts": {
+        "yes": 52,
+        "no": 48
+      }
+    }
+  },
+  {
+    "fixtureId": 19467837,
+    "league": "Ligue 1",
+    "homeTeam": "Nantes",
+    "awayTeam": "Le Havre",
+    "homeWinProb": 0.426,
+    "drawProb": 0.3,
+    "awayWinProb": 0.274,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.426,
+    "explanation": "Nantes predicted based on Elo ratings (1343 vs 1371), Poisson model (xG: 1.05 - 0.56), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.397,
+        "D": 0.282,
+        "A": 0.321
+      },
+      "poisson": {
+        "H": 0.471,
+        "D": 0.336,
+        "A": 0.193
+      },
+      "odds": {
+        "H": 0.414,
+        "D": 0.286,
+        "A": 0.3
+      },
+      "btts": {
+        "yes": 28,
+        "no": 72
+      }
+    }
+  },
+  {
+    "fixtureId": 19467840,
+    "league": "Ligue 1",
+    "homeTeam": "Nice",
+    "awayTeam": "Lorient",
+    "homeWinProb": 0.46,
+    "drawProb": 0.28,
+    "awayWinProb": 0.259,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.46,
+    "explanation": "Nice predicted based on Elo ratings (1418 vs 1497), Poisson model (xG: 1.33 - 0.41), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.339,
+        "D": 0.293,
+        "A": 0.368
+      },
+      "poisson": {
+        "H": 0.601,
+        "D": 0.285,
+        "A": 0.114
+      },
+      "odds": {
+        "H": 0.445,
+        "D": 0.267,
+        "A": 0.288
+      },
+      "btts": {
+        "yes": 25,
+        "no": 75
+      }
+    }
+  },
+  {
+    "fixtureId": 19433931,
+    "league": "Ligue 1",
+    "homeTeam": "Strasbourg",
+    "awayTeam": "Olympique Lyonnais",
+    "homeWinProb": 0.426,
+    "drawProb": 0.282,
+    "awayWinProb": 0.292,
+    "predictedScore": "1-0",
+    "prediction": "H",
+    "confidence": 0.426,
+    "explanation": "Strasbourg predicted based on Elo ratings (1559 vs 1633), Poisson model (xG: 1.33 - 0.63), and market odds.",
+    "modelComponents": {
+      "elo": {
+        "H": 0.343,
+        "D": 0.296,
+        "A": 0.361
+      },
+      "poisson": {
+        "H": 0.536,
+        "D": 0.287,
+        "A": 0.177
+      },
+      "odds": {
+        "H": 0.407,
+        "D": 0.267,
+        "A": 0.326
+      },
+      "btts": {
+        "yes": 34,
+        "no": 66
+      }
+    }
+  }
+]

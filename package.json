@@ -23,7 +23,8 @@
     "update-perf-log": "tsx scripts/update-performance-log.ts",
     "update-poisson-cal": "tsx scripts/update-poisson-calibration.ts",
     "version-skill": "tsx scripts/version-skill.ts",
-    "track-skill-perf": "tsx scripts/track-skill-performance.ts"
+    "track-skill-perf": "tsx scripts/track-skill-performance.ts",
+    "pipeline-cron": "tsx scripts/pipeline-cron.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

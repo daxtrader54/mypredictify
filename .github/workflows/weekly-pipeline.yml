@@ -1,38 +1,34 @@
-name: Weekly Prediction Pipeline
+name: Daily Prediction Pipeline
 
 on:
   schedule:
-    # Tuesday 06:00 UTC - Ingest + Research + Predict + Report
-    - cron: '0 6 * * 2'
-    # Sunday 22:00 UTC - Evaluate results
-    - cron: '0 22 * * 0'
+    # Daily at 08:00 UTC
+    - cron: '0 8 * * *'
   workflow_dispatch:
     inputs:
-      mode:
-        description: 'Pipeline mode'
-        required: true
-        default: 'predict'
+      dry_run:
+        description: 'Dry run (detect only, no execution)'
+        required: false
+        default: 'false'
         type: choice
         options:
-          - predict
-          - evaluate
-          - full
+          - 'false'
+          - 'true'
 
 env:
   SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_API_TOKEN }}
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  SEASON: '2025-26'
 
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -45,80 +41,93 @@ jobs:
         working-directory: mypredictify
         run: npm ci
 
-      - name: Determine pipeline mode
-        id: mode
+      - name: Run pipeline orchestrator
+        id: pipeline
+        working-directory: mypredictify
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "mode=${{ inputs.mode }}" >> $GITHUB_OUTPUT
-          elif [ "$(date +%u)" = "2" ]; then
-            echo "mode=predict" >> $GITHUB_OUTPUT
-          else
-            echo "mode=evaluate" >> $GITHUB_OUTPUT
+          DRY_RUN_FLAG=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
           fi
 
-      - name: Setup Claude CLI
-        run: |
-          # Install Claude CLI (adjust based on actual availability)
-          npm install -g @anthropic-ai/claude-code || echo "Claude CLI not available in CI - using direct script execution"
+          npx tsx scripts/pipeline-cron.ts --season "$SEASON" $DRY_RUN_FLAG | tee /tmp/pipeline-output.txt
 
-      - name: Run prediction pipeline
-        if: steps.mode.outputs.mode == 'predict' || steps.mode.outputs.mode == 'full'
-        working-directory: mypredictify
-        run: |
-          # Direct script execution fallback if Claude CLI unavailable
-          echo "Running prediction pipeline..."
+          # Parse status file for downstream steps
+          if [ -f pipeline-status.json ]; then
+            ACTION_COUNT=$(node -e "const s=require('./pipeline-status.json'); console.log(s.actions.length)")
+            HAS_CHANGES=$(node -e "const s=require('./pipeline-status.json'); console.log(s.actions.some(a => a.status === 'success') ? 'true' : 'false')")
+            SUMMARY=$(node -e "const s=require('./pipeline-status.json'); console.log(s.summary)")
+            AFFECTED_GWS=$(node -e "const s=require('./pipeline-status.json'); console.log(s.actions.filter(a=>a.status==='success').map(a=>a.gameweek).join(','))")
 
-          # Step 1: Ingest
-          echo "=== INGEST ==="
-          for league_id in 8 564 82 384 301; do
-            echo "Fetching fixtures for league $league_id..."
-            npx tsx scripts/fetch-sportmonks.ts fixtures --league $league_id > /tmp/fixtures_${league_id}.json 2>&1 || echo "Warning: Failed to fetch league $league_id"
-          done
+            echo "action_count=$ACTION_COUNT" >> $GITHUB_OUTPUT
+            echo "has_changes=$HAS_CHANGES" >> $GITHUB_OUTPUT
+            echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+            echo "affected_gws=$AFFECTED_GWS" >> $GITHUB_OUTPUT
+          else
+            echo "action_count=0" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "summary=No status file produced" >> $GITHUB_OUTPUT
+            echo "affected_gws=" >> $GITHUB_OUTPUT
+          fi
 
-          # Steps 2-4 require Claude CLI for research/prediction/report
-          # If Claude CLI is available:
-          # claude -p "run /run-pipeline --mode predict"
-
-          echo "Pipeline predict mode complete (data ingestion done)"
-
-      - name: Run evaluation pipeline
-        if: steps.mode.outputs.mode == 'evaluate' || steps.mode.outputs.mode == 'full'
-        working-directory: mypredictify
-        run: |
-          echo "Running evaluation pipeline..."
-
-          # Fetch results
-          for league_id in 8 564 82 384 301; do
-            echo "Fetching results for league $league_id..."
-            npx tsx scripts/fetch-sportmonks.ts results --league $league_id > /tmp/results_${league_id}.json 2>&1 || echo "Warning: Failed to fetch results for league $league_id"
-          done
-
-          # If Claude CLI is available:
-          # claude -p "run /run-pipeline --mode evaluate"
-
-          echo "Pipeline evaluate mode complete"
-
-      - name: Commit and push changes
+      - name: Commit data changes
+        if: steps.pipeline.outputs.has_changes == 'true' && inputs.dry_run != 'true'
         working-directory: mypredictify
         run: |
           git config user.name "MyPredictify Pipeline"
           git config user.email "pipeline@mypredictify.com"
 
-          # Stage all data changes
-          git add data/ || true
+          # Stage data and memory files only
+          git add data/gameweeks/ data/memory/ || true
 
-          # Check if there are changes to commit
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "No file changes to commit"
           else
-            MODE="${{ steps.mode.outputs.mode }}"
-            git commit -m "Pipeline: ${MODE} run $(date +%Y-%m-%d)"
+            git commit -m "Pipeline: auto-run $(date -u +%Y-%m-%d) — ${{ steps.pipeline.outputs.summary }}"
             git push
+            echo "Changes committed and pushed"
           fi
 
-      - name: Report status
+      - name: Sync to production database
+        if: steps.pipeline.outputs.has_changes == 'true' && inputs.dry_run != 'true' && env.APP_URL != ''
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          PIPELINE_SYNC_KEY: ${{ secrets.PIPELINE_SYNC_KEY }}
+        working-directory: mypredictify
+        run: |
+          IFS=',' read -ra GWS <<< "${{ steps.pipeline.outputs.affected_gws }}"
+          for gw in "${GWS[@]}"; do
+            if [ -z "$gw" ]; then continue; fi
+            echo "Syncing $gw to production..."
+            HTTP_CODE=$(curl -s -o /tmp/sync-response.txt -w "%{http_code}" \
+              -X POST "${APP_URL}/api/pipeline/sync" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${PIPELINE_SYNC_KEY}" \
+              -d "{\"season\": \"${SEASON}\", \"gameweek\": \"${gw}\"}")
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "  ✓ $gw synced successfully"
+            else
+              echo "  ✗ $gw sync failed (HTTP $HTTP_CODE)"
+              cat /tmp/sync-response.txt
+            fi
+          done
+
+      - name: Write job summary
         if: always()
         run: |
-          echo "Pipeline completed with status: ${{ job.status }}"
-          echo "Mode: ${{ steps.mode.outputs.mode }}"
-          # Could add Slack/email notification here
+          echo "## Pipeline Run Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date:** $(date -u +%Y-%m-%d\ %H:%M\ UTC)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Season:** $SEASON" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dry run:** ${{ inputs.dry_run || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Actions:** ${{ steps.pipeline.outputs.action_count || '0' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Result:** ${{ steps.pipeline.outputs.summary || 'No output' }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f mypredictify/pipeline-status.json ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Details" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            cat mypredictify/pipeline-status.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
