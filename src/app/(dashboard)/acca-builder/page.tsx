@@ -1,7 +1,10 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth/get-session';
+import { loadAccaFixtures } from '@/lib/acca';
 import { AccaBuilderContent } from './acca-builder-content';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'ACCA Builder',
@@ -15,5 +18,7 @@ export default async function AccaBuilderPage() {
     redirect('/login');
   }
 
-  return <AccaBuilderContent />;
+  const fixtures = await loadAccaFixtures();
+
+  return <AccaBuilderContent fixtures={fixtures} />;
 }

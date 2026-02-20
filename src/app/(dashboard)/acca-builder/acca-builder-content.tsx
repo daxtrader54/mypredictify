@@ -13,8 +13,13 @@ import { CREDIT_COSTS } from '@/config/pricing';
 import { FixtureSelector } from './fixture-selector';
 import { BetSlip } from './bet-slip';
 import { AiRecommendations } from './ai-recommendations';
+import type { AccaFixture } from '@/lib/acca';
 
-export function AccaBuilderContent() {
+interface AccaBuilderContentProps {
+  fixtures: AccaFixture[];
+}
+
+export function AccaBuilderContent({ fixtures }: AccaBuilderContentProps) {
   const { selections, clearSelections, getCombinedOdds, getCombinedProbability } = useAccaStore();
   const { credits } = useCredits();
   const [activeTab, setActiveTab] = useState('build');
@@ -75,12 +80,12 @@ export function AccaBuilderContent() {
             </TabsList>
 
             <TabsContent value="build" className="mt-4">
-              <FixtureSelector />
+              <FixtureSelector fixtures={fixtures} />
             </TabsContent>
 
             <TabsContent value="ai" className="mt-4">
               {canUseAi ? (
-                <AiRecommendations />
+                <AiRecommendations fixtures={fixtures} />
               ) : (
                 <Card className="bg-gradient-to-br from-card to-card/50 border-border/50">
                   <CardContent className="py-12">

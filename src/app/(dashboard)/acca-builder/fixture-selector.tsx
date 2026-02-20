@@ -1,166 +1,109 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { format, addDays } from 'date-fns';
+import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check } from 'lucide-react';
-import { useAccaStore, type BetMarket, type AccaSelection } from '@/stores/acca-store';
+import { Check, CalendarOff } from 'lucide-react';
+import { useAccaStore, type AccaSelection } from '@/stores/acca-store';
 import { LEAGUES } from '@/config/leagues';
 import { useCredits } from '@/hooks/use-credits';
+import type { AccaFixture } from '@/lib/acca';
 
-interface Fixture {
-  id: number;
-  homeTeam: string;
-  awayTeam: string;
-  kickoff: string;
-  leagueId: number;
-  predictions: {
-    home: number;
-    draw: number;
-    away: number;
-    btts_yes: number;
-    btts_no: number;
-    over_2_5: number;
-    under_2_5: number;
-  };
-  odds: {
-    home: number;
-    draw: number;
-    away: number;
-    btts_yes: number;
-    btts_no: number;
-    over_2_5: number;
-    under_2_5: number;
-  };
-}
-
-const MARKETS: { key: BetMarket; label: string }[] = [
+const MARKETS: { key: AccaMarket; label: string }[] = [
   { key: 'home', label: 'Home' },
   { key: 'draw', label: 'Draw' },
   { key: 'away', label: 'Away' },
   { key: 'btts_yes', label: 'BTTS Yes' },
   { key: 'btts_no', label: 'BTTS No' },
-  { key: 'over_2_5', label: 'Over 2.5' },
-  { key: 'under_2_5', label: 'Under 2.5' },
 ];
 
-// Mock fixtures data - move outside component to avoid re-creation
-const MOCK_FIXTURES: Fixture[] = [
-  {
-    id: 1,
-    homeTeam: 'Arsenal',
-    awayTeam: 'Chelsea',
-    kickoff: new Date(Date.now() + 86400000).toISOString(),
-    leagueId: 8,
-    predictions: { home: 52, draw: 26, away: 22, btts_yes: 62, btts_no: 38, over_2_5: 58, under_2_5: 42 },
-    odds: { home: 1.75, draw: 3.60, away: 4.50, btts_yes: 1.72, btts_no: 2.05, over_2_5: 1.80, under_2_5: 2.00 },
-  },
-  {
-    id: 2,
-    homeTeam: 'Manchester City',
-    awayTeam: 'Liverpool',
-    kickoff: new Date(Date.now() + 86400000).toISOString(),
-    leagueId: 8,
-    predictions: { home: 45, draw: 28, away: 27, btts_yes: 68, btts_no: 32, over_2_5: 72, under_2_5: 28 },
-    odds: { home: 2.10, draw: 3.40, away: 3.20, btts_yes: 1.55, btts_no: 2.35, over_2_5: 1.50, under_2_5: 2.50 },
-  },
-  {
-    id: 3,
-    homeTeam: 'Manchester United',
-    awayTeam: 'Tottenham',
-    kickoff: new Date(Date.now() + 172800000).toISOString(),
-    leagueId: 8,
-    predictions: { home: 38, draw: 32, away: 30, btts_yes: 58, btts_no: 42, over_2_5: 55, under_2_5: 45 },
-    odds: { home: 2.40, draw: 3.30, away: 2.90, btts_yes: 1.80, btts_no: 1.95, over_2_5: 1.85, under_2_5: 1.95 },
-  },
-  {
-    id: 10,
-    homeTeam: 'Real Madrid',
-    awayTeam: 'Barcelona',
-    kickoff: new Date(Date.now() + 86400000).toISOString(),
-    leagueId: 564,
-    predictions: { home: 40, draw: 30, away: 30, btts_yes: 65, btts_no: 35, over_2_5: 60, under_2_5: 40 },
-    odds: { home: 2.30, draw: 3.40, away: 2.80, btts_yes: 1.65, btts_no: 2.15, over_2_5: 1.75, under_2_5: 2.05 },
-  },
-  {
-    id: 20,
-    homeTeam: 'Bayern Munich',
-    awayTeam: 'Dortmund',
-    kickoff: new Date(Date.now() + 172800000).toISOString(),
-    leagueId: 82,
-    predictions: { home: 58, draw: 24, away: 18, btts_yes: 70, btts_no: 30, over_2_5: 75, under_2_5: 25 },
-    odds: { home: 1.55, draw: 4.20, away: 5.50, btts_yes: 1.50, btts_no: 2.45, over_2_5: 1.40, under_2_5: 2.80 },
-  },
-  {
-    id: 30,
-    homeTeam: 'Juventus',
-    awayTeam: 'AC Milan',
-    kickoff: new Date(Date.now() + 259200000).toISOString(),
-    leagueId: 384,
-    predictions: { home: 44, draw: 30, away: 26, btts_yes: 55, btts_no: 45, over_2_5: 52, under_2_5: 48 },
-    odds: { home: 2.15, draw: 3.25, away: 3.40, btts_yes: 1.85, btts_no: 1.90, over_2_5: 1.90, under_2_5: 1.90 },
-  },
-  {
-    id: 40,
-    homeTeam: 'PSG',
-    awayTeam: 'Marseille',
-    kickoff: new Date(Date.now() + 345600000).toISOString(),
-    leagueId: 301,
-    predictions: { home: 62, draw: 22, away: 16, btts_yes: 58, btts_no: 42, over_2_5: 65, under_2_5: 35 },
-    odds: { home: 1.45, draw: 4.50, away: 6.50, btts_yes: 1.78, btts_no: 2.00, over_2_5: 1.60, under_2_5: 2.30 },
-  },
-];
+type AccaMarket = 'home' | 'draw' | 'away' | 'btts_yes' | 'btts_no';
 
-export function FixtureSelector() {
-  const [selectedDate, setSelectedDate] = useState(0);
+function getOddsForMarket(fixture: AccaFixture, market: AccaMarket): number {
+  if (market === 'home') return fixture.odds.home;
+  if (market === 'draw') return fixture.odds.draw;
+  if (market === 'away') return fixture.odds.away;
+  // BTTS: derive fair odds from model probability (no bookmaker odds available)
+  const prob = fixture.predictions[market];
+  return prob > 0 ? Math.round((100 / prob) * 100) / 100 : 2.0;
+}
+
+function getProbForMarket(fixture: AccaFixture, market: AccaMarket): number {
+  return fixture.predictions[market];
+}
+
+interface FixtureSelectorProps {
+  fixtures: AccaFixture[];
+}
+
+export function FixtureSelector({ fixtures }: FixtureSelectorProps) {
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
   const { addSelection, removeSelection, getSelectionForFixture } = useAccaStore();
   const { tier } = useCredits();
 
-  const dateOptions = useMemo(() => Array.from({ length: 7 }, (_, i) => {
-    const date = addDays(new Date(), i);
-    return {
-      value: i,
-      label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : format(date, 'EEE d'),
-      date: format(date, 'yyyy-MM-dd'),
-    };
-  }), []);
+  // Build unique date options from actual fixture kickoffs
+  const dateOptions = useMemo(() => {
+    const dateSet = new Map<string, string>();
+    for (const f of fixtures) {
+      const d = new Date(f.kickoff);
+      const key = format(d, 'yyyy-MM-dd');
+      if (!dateSet.has(key)) {
+        const now = new Date();
+        const today = format(now, 'yyyy-MM-dd');
+        const tomorrow = format(new Date(now.getTime() + 86400000), 'yyyy-MM-dd');
+        let label: string;
+        if (key === today) label = 'Today';
+        else if (key === tomorrow) label = 'Tomorrow';
+        else label = format(d, 'EEE d MMM');
+        dateSet.set(key, label);
+      }
+    }
+    return Array.from(dateSet.entries()).map(([key, label]) => ({ key, label }));
+  }, [fixtures]);
 
-  const availableLeagues = LEAGUES.filter(
-    (league) => tier !== 'free' || league.tier === 'free'
-  );
+  // Leagues present in the real data
+  const availableLeagues = useMemo(() => {
+    const leagueIds = new Set(fixtures.map((f) => f.leagueId));
+    return LEAGUES.filter(
+      (league) =>
+        leagueIds.has(league.id) && (tier !== 'free' || league.tier === 'free')
+    );
+  }, [fixtures, tier]);
 
-  // Filter fixtures based on selected league (using useMemo to avoid useEffect)
-  const fixtures = useMemo(() => {
-    return selectedLeague
-      ? MOCK_FIXTURES.filter((f) => f.leagueId === selectedLeague)
-      : MOCK_FIXTURES;
-  }, [selectedLeague]);
+  // Filter fixtures by selected date and league
+  const filteredFixtures = useMemo(() => {
+    return fixtures.filter((f) => {
+      if (selectedDate && format(new Date(f.kickoff), 'yyyy-MM-dd') !== selectedDate) return false;
+      if (selectedLeague && f.leagueId !== selectedLeague) return false;
+      return true;
+    });
+  }, [fixtures, selectedDate, selectedLeague]);
 
-  const handleSelectMarket = (fixture: Fixture, market: BetMarket) => {
-    const existingSelection = getSelectionForFixture(fixture.id);
+  const handleSelectMarket = (fixture: AccaFixture, market: AccaMarket) => {
+    const existingSelection = getSelectionForFixture(fixture.fixtureId);
 
     if (existingSelection?.market === market) {
-      removeSelection(fixture.id, market);
+      removeSelection(fixture.fixtureId, market);
     } else {
       const selection: AccaSelection = {
-        fixtureId: fixture.id,
+        fixtureId: fixture.fixtureId,
         homeTeam: fixture.homeTeam,
         awayTeam: fixture.awayTeam,
         kickoff: fixture.kickoff,
         market,
         selection: getSelectionLabel(fixture, market),
-        odds: fixture.odds[market],
-        probability: fixture.predictions[market],
+        odds: getOddsForMarket(fixture, market),
+        probability: getProbForMarket(fixture, market),
       };
       addSelection(selection);
     }
   };
 
-  const getSelectionLabel = (fixture: Fixture, market: BetMarket): string => {
+  const getSelectionLabel = (fixture: AccaFixture, market: AccaMarket): string => {
     switch (market) {
       case 'home':
         return fixture.homeTeam + ' to win';
@@ -172,34 +115,53 @@ export function FixtureSelector() {
         return 'Both teams to score';
       case 'btts_no':
         return 'Both teams NOT to score';
-      case 'over_2_5':
-        return 'Over 2.5 goals';
-      case 'under_2_5':
-        return 'Under 2.5 goals';
       default:
         return market;
     }
   };
 
-  const getLeagueName = (leagueId: number): string => {
-    return LEAGUES.find((l) => l.id === leagueId)?.shortName || 'Unknown';
-  };
+  if (fixtures.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-12">
+          <div className="text-center">
+            <CalendarOff className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="font-semibold text-lg mb-2">No Upcoming Fixtures</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              All current fixtures have kicked off. Check back when the next gameweek predictions are available.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {dateOptions.map((option) => (
+      {/* Date filters */}
+      {dateOptions.length > 1 && (
+        <div className="flex flex-wrap gap-2">
           <Button
-            key={option.value}
-            variant={selectedDate === option.value ? 'default' : 'outline'}
+            variant={selectedDate === null ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedDate(option.value)}
+            onClick={() => setSelectedDate(null)}
           >
-            {option.label}
+            All Dates
           </Button>
-        ))}
-      </div>
+          {dateOptions.map((option) => (
+            <Button
+              key={option.key}
+              variant={selectedDate === option.key ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedDate(option.key)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      )}
 
+      {/* League filters */}
       <Tabs
         value={selectedLeague?.toString() || 'all'}
         onValueChange={(v) => setSelectedLeague(v === 'all' ? null : parseInt(v))}
@@ -214,36 +176,41 @@ export function FixtureSelector() {
         </TabsList>
       </Tabs>
 
-      {fixtures.length === 0 ? (
+      {filteredFixtures.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            No fixtures available for this date
+            No fixtures match the selected filters
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          {fixtures.map((fixture) => {
-            const existingSelection = getSelectionForFixture(fixture.id);
+          {filteredFixtures.map((fixture) => {
+            const existingSelection = getSelectionForFixture(fixture.fixtureId);
 
             return (
-              <Card key={fixture.id}>
+              <Card key={fixture.fixtureId}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">
                       {fixture.homeTeam} vs {fixture.awayTeam}
                     </CardTitle>
-                    <Badge variant="outline">{getLeagueName(fixture.leagueId)}</Badge>
+                    <Badge variant="outline">{fixture.leagueName}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {format(new Date(fixture.kickoff), 'EEE, d MMM yyyy HH:mm')}
+                    {fixture.predictedScore && (
+                      <span className="ml-2 text-primary">
+                        Predicted: {fixture.predictedScore}
+                      </span>
+                    )}
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {MARKETS.map((market) => {
                       const isSelected = existingSelection?.market === market.key;
-                      const probability = fixture.predictions[market.key];
-                      const odds = fixture.odds[market.key];
+                      const probability = getProbForMarket(fixture, market.key);
+                      const odds = getOddsForMarket(fixture, market.key);
 
                       return (
                         <Button

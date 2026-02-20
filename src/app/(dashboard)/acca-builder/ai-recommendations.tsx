@@ -5,17 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sparkles, TrendingUp, Target, Loader2, Plus } from 'lucide-react';
+import { Sparkles, TrendingUp, Target, Loader2, Plus, CalendarOff } from 'lucide-react';
 import { useAccaStore, type AccaSelection } from '@/stores/acca-store';
 import { useCredits } from '@/hooks/use-credits';
 import { CREDIT_COSTS } from '@/config/pricing';
+import type { AccaFixture } from '@/lib/acca';
 
 interface AiSuggestion {
   fixtureId: number;
   homeTeam: string;
   awayTeam: string;
   kickoff: string;
-  market: 'home' | 'draw' | 'away' | 'btts_yes' | 'btts_no' | 'over_2_5' | 'under_2_5';
+  market: 'home' | 'draw' | 'away' | 'btts_yes' | 'btts_no';
   selection: string;
   odds: number;
   probability: number;
@@ -31,7 +32,11 @@ interface AiAcca {
   selections: AiSuggestion[];
 }
 
-export function AiRecommendations() {
+interface AiRecommendationsProps {
+  fixtures: AccaFixture[];
+}
+
+export function AiRecommendations({ fixtures }: AiRecommendationsProps) {
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<AiAcca[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,14 +55,11 @@ export function AiRecommendations() {
         return;
       }
 
-      // Call AI API
+      // Call AI API with real fixture data
       const response = await fetch('/api/ai/recommendations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          riskLevel: 'mixed',
-          numSelections: 4,
-        }),
+        body: JSON.stringify({ fixtures }),
       });
 
       if (!response.ok) {
@@ -101,6 +103,22 @@ export function AiRecommendations() {
         return 'bg-gray-500/10 text-gray-500';
     }
   };
+
+  if (fixtures.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-12">
+          <div className="text-center">
+            <CalendarOff className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="font-semibold text-lg mb-2">No Upcoming Fixtures</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              All current fixtures have kicked off. AI suggestions will be available when new gameweek predictions are generated.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!recommendations && !loading) {
     return (
