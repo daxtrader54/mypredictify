@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "driver.js/dist/driver.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -178,88 +177,13 @@
   }
 }
 
-/* driver.js tour overrides */
-.driver-popover {
-  padding: 20px 24px !important;
-  border-radius: 12px !important;
-  max-width: 360px !important;
+/* Help mode — dashed outlines on data-tour sections */
+body[data-help-mode="true"] [data-tour] {
+  outline: 1.5px dashed rgba(34, 197, 94, 0.35);
+  outline-offset: 4px;
+  cursor: help;
+  transition: outline-color 0.2s;
 }
-.driver-popover .driver-popover-title {
-  font-size: 16px !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.01em !important;
-  margin-bottom: 6px !important;
-}
-.driver-popover .driver-popover-description {
-  font-size: 14px !important;
-  line-height: 1.6 !important;
-}
-.driver-popover .driver-popover-footer {
-  margin-top: 16px !important;
-}
-.driver-popover .driver-popover-footer button {
-  padding: 8px 18px !important;
-  border-radius: 8px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  transition: all 0.15s ease !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
-}
-.driver-popover .driver-popover-progress-text {
-  font-size: 12px !important;
-  font-weight: 500 !important;
-}
-/* Close (X) button in top-right */
-.driver-popover .driver-popover-close-btn {
-  padding: 4px !important;
-  font-size: 18px !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: #999 !important;
-}
-.driver-popover .driver-popover-close-btn:hover {
-  color: #fff !important;
-  background: transparent !important;
-}
-.dark .driver-popover {
-  background: #1e2030 !important;
-  color: #f0f0f5 !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-}
-.dark .driver-popover .driver-popover-title {
-  color: #f0f0f5 !important;
-}
-.dark .driver-popover .driver-popover-description {
-  color: #a0a0b0 !important;
-}
-.dark .driver-popover .driver-popover-progress-text {
-  color: #707080 !important;
-}
-.dark .driver-popover .driver-popover-prev-btn {
-  color: #d0d0dd !important;
-  background: rgba(255, 255, 255, 0.07) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  box-shadow: none !important;
-}
-.dark .driver-popover .driver-popover-prev-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-}
-.dark .driver-popover .driver-popover-next-btn {
-  background: #22c55e !important;
-  color: #fff !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-.dark .driver-popover .driver-popover-next-btn:hover {
-  background: #16a34a !important;
-}
-.dark .driver-popover .driver-popover-arrow-side-left .driver-popover-arrow,
-.dark .driver-popover .driver-popover-arrow-side-right .driver-popover-arrow,
-.dark .driver-popover .driver-popover-arrow-side-top .driver-popover-arrow,
-.dark .driver-popover .driver-popover-arrow-side-bottom .driver-popover-arrow {
-  border-color: #1e2030 !important;
+body[data-help-mode="true"] [data-tour]:hover {
+  outline-color: rgba(34, 197, 94, 0.6);
 }

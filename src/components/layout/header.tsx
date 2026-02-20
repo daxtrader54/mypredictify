@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Menu, LogOut, User, CreditCard, Coins, TrendingUp, Layers, Crown, Target, LayoutDashboard, BookOpen } from 'lucide-react';
+import { Menu, LogOut, User, CreditCard, Coins, TrendingUp, Layers, Crown, Target, LayoutDashboard, BookOpen, HelpCircle } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,6 +20,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Sidebar } from './sidebar';
 import { useCredits } from '@/hooks/use-credits';
+import { useHelpModeStore } from '@/stores/help-mode-store';
 import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/utils';
 
@@ -42,6 +43,7 @@ export function Header() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const { data: session, status } = useSession();
   const { credits, tier, loading: creditsLoading } = useCredits();
+  const helpMode = useHelpModeStore();
   const pathname = usePathname();
 
   return (
@@ -94,6 +96,23 @@ export function Header() {
             <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
           ) : session?.user ? (
             <>
+              {/* Help mode toggle */}
+              <button
+                onClick={helpMode.toggle}
+                className={cn(
+                  "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all",
+                  helpMode.isActive
+                    ? "bg-green-500/15 text-green-500 border border-green-500/30"
+                    : "bg-muted/50 text-muted-foreground border border-border/50 hover:bg-muted hover:text-foreground"
+                )}
+              >
+                {helpMode.isActive && (
+                  <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                )}
+                <HelpCircle className="h-3.5 w-3.5" />
+                {helpMode.isActive ? 'Help ON' : 'Help'}
+              </button>
+
               {/* Credits display */}
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
                 <div className="h-6 w-6 rounded-full bg-yellow-500/20 flex items-center justify-center">

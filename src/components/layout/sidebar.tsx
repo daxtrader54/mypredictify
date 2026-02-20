@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useCredits } from '@/hooks/use-credits';
-import { useTour } from '@/hooks/use-tour';
+import { useHelpModeStore } from '@/stores/help-mode-store';
 import { siteConfig, isAdmin } from '@/config/site';
 import { LEAGUES } from '@/config/leagues';
 import { Logo } from './logo';
@@ -102,7 +102,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { credits, tier, isPro, canRedeemDaily, redeemDailyCredits, loading } = useCredits();
-  const { startTour } = useTour();
+  const helpMode = useHelpModeStore();
 
   const handleRedeem = async () => {
     await redeemDailyCredits();
@@ -187,14 +187,22 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
         })}
       </nav>
 
-      {/* Guide button — visually distinct from nav */}
+      {/* Help mode toggle — for mobile access */}
       <div className="px-2 pb-1">
         <button
-          onClick={() => { startTour(); onNavigate?.(); }}
-          className="flex items-center justify-center gap-1.5 w-full rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-500/20 transition-colors"
+          onClick={() => { helpMode.toggle(); onNavigate?.(); }}
+          className={cn(
+            "flex items-center justify-center gap-1.5 w-full rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+            helpMode.isActive
+              ? "border border-green-500/30 bg-green-500/15 text-green-500"
+              : "border border-amber-500/30 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
+          )}
         >
+          {helpMode.isActive && (
+            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+          )}
           <HelpCircle className="h-3.5 w-3.5" />
-          Take a Tour
+          {helpMode.isActive ? 'Help ON' : 'Help Mode'}
         </button>
       </div>
 
