@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Target, Crosshair, Trophy, CalendarCheck, Info } from 'lucide-react';
+import { CURRENT_SEASON } from '@/config/site';
 
 function formatPct(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
@@ -184,9 +185,9 @@ export async function AccuracyTracker() {
   return (
     <div data-tour="accuracy-tracker" className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold mb-1">Prediction Accuracy</h2>
+        <h2 className="text-lg font-semibold mb-1">Prediction Accuracy — {CURRENT_SEASON} Season</h2>
         <p className="text-sm text-muted-foreground">
-          Track how the model performs across results and exact scores
+          Cumulative stats across all evaluated gameweeks this season. Updated after each round of matches.
         </p>
       </div>
 

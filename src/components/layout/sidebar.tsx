@@ -185,16 +185,18 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             </Link>
           );
         })}
+      </nav>
+
+      {/* Guide button — visually distinct from nav */}
+      <div className="px-2 pb-1">
         <button
           onClick={() => { startTour(); onNavigate?.(); }}
-          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all text-muted-foreground hover:bg-muted hover:text-foreground w-full"
+          className="flex items-center justify-center gap-1.5 w-full rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-500/20 transition-colors"
         >
-          <div className="h-7 w-7 rounded-md flex items-center justify-center bg-amber-500/10">
-            <HelpCircle className="h-3.5 w-3.5 text-amber-500" />
-          </div>
-          Guide
+          <HelpCircle className="h-3.5 w-3.5" />
+          Take a Tour
         </button>
-      </nav>
+      </div>
 
       <Separator className="opacity-50" />
 

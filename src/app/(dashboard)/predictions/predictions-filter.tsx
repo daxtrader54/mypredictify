@@ -84,7 +84,7 @@ export function PredictionsFilter({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div data-tour="predictions-filter" className="flex flex-wrap items-center gap-2">
       {leagues.map((league) => (
         <Button
           key={league.id}

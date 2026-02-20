@@ -235,6 +235,9 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
     });
   const completed = fixtures.filter((f) => f.status !== 'upcoming');
 
+  // All fixture IDs on this page for bulk unlock
+  const allFixtureIds = fixtures.map((f) => f.id);
+
   // When hideCompleted is on and there are no upcoming fixtures
   if (hideCompleted && upcoming.length === 0) {
     return (
@@ -251,7 +254,7 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
   }
 
   return (
-    <div className="space-y-6">
+    <div data-tour="predictions-grid" className="space-y-6">
       {upcoming.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -264,6 +267,7 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
                 fixture={fixture}
                 prediction={predictions.get(fixture.id)}
                 gameweek={gameweek}
+                siblingFixtureIds={allFixtureIds}
               />
             ))}
           </div>
@@ -282,6 +286,7 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
                 fixture={fixture}
                 prediction={predictions.get(fixture.id)}
                 gameweek={gameweek}
+                siblingFixtureIds={allFixtureIds}
               />
             ))}
           </div>

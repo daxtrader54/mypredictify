@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { ShareButton } from '@/components/predictions/share-button';
-import { Calendar, MapPin, Lock, TrendingUp, ArrowRight, Sparkles, Coins, Check, X } from 'lucide-react';
+import { Calendar, MapPin, Lock, TrendingUp, ArrowRight, Sparkles, Coins, Check, X, Target, Trophy, Globe } from 'lucide-react';
 import { format } from 'date-fns';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
 import { cn } from '@/lib/utils';
@@ -43,7 +43,6 @@ function getResultAccuracy(
   const actualResult = getActualResult(fixture.score);
   const predictedResult = prediction.advice;
 
-  // Check exact score match first
   if (prediction.predictedScore) {
     const [predHome, predAway] = prediction.predictedScore.split('-').map((s) => parseInt(s.trim()));
     if (predHome === fixture.score.home && predAway === fixture.score.away) {
@@ -51,7 +50,6 @@ function getResultAccuracy(
     }
   }
 
-  // Check result match
   if (actualResult === predictedResult) return 'correct-result';
   return 'incorrect';
 }
@@ -68,71 +66,122 @@ function getUnlockedSet(): Set<number> {
   }
 }
 
-function persistUnlocked(id: number) {
+function persistUnlockedBatch(ids: number[]) {
   try {
     const set = getUnlockedSet();
-    set.add(id);
+    ids.forEach((id) => set.add(id));
     localStorage.setItem(UNLOCKED_STORAGE_KEY, JSON.stringify([...set]));
   } catch { /* quota exceeded — non-critical */ }
+}
+
+// Custom event for cross-card bulk unlock
+const BULK_UNLOCK_EVENT = 'mypredictify:bulk-unlock';
+
+function dispatchBulkUnlock() {
+  window.dispatchEvent(new Event(BULK_UNLOCK_EVENT));
 }
 
 interface PredictionCardProps {
   fixture: ProcessedFixture;
   prediction?: ProcessedPrediction;
   gameweek?: number;
+  /** All fixture IDs on this page (same league), for bulk unlock */
+  siblingFixtureIds?: number[];
 }
 
-export function PredictionCard({ fixture, prediction, gameweek }: PredictionCardProps) {
+export function PredictionCard({ fixture, prediction, gameweek, siblingFixtureIds }: PredictionCardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
   const [creditError, setCreditError] = useState<string | null>(null);
-  const [deducting, setDeducting] = useState(false);
+  const [deducting, setDeducting] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
   const { data: session } = useSession();
   const { tier, deductCredits, hasEnoughCredits } = useCredits();
 
-  // Determine if this prediction is free for the user's tier + league
   const isFree = isFreeForTier(tier, fixture.leagueId);
 
-  // On mount, check localStorage for previously unlocked predictions
   useEffect(() => {
     if (isFree || getUnlockedSet().has(fixture.id)) {
       setUnlocked(true);
     }
   }, [isFree, fixture.id]);
 
-  const handleUnlock = useCallback(async () => {
+  // Listen for bulk unlock events from sibling cards
+  useEffect(() => {
+    const handler = () => {
+      if (getUnlockedSet().has(fixture.id)) {
+        setUnlocked(true);
+      }
+    };
+    window.addEventListener(BULK_UNLOCK_EVENT, handler);
+    return () => window.removeEventListener(BULK_UNLOCK_EVENT, handler);
+  }, [fixture.id]);
+
+  const handleUnlockOne = useCallback(async () => {
     setCreditError(null);
+    if (!session?.user) { setCreditError('Sign in to view predictions'); return; }
+    if (isFree || unlocked) { setUnlocked(true); setUnlockModalOpen(false); return; }
+    if (!hasEnoughCredits(CREDIT_COSTS.VIEW_PREDICTION)) { setCreditError('Not enough credits'); return; }
 
-    if (!session?.user) {
-      setCreditError('Sign in to view predictions');
-      return;
-    }
-
-    // Already free or unlocked
-    if (isFree || unlocked) {
-      setUnlocked(true);
-      return;
-    }
-
-    if (!hasEnoughCredits(CREDIT_COSTS.VIEW_PREDICTION)) {
-      setCreditError('Not enough credits');
-      return;
-    }
-
-    setDeducting(true);
+    setDeducting('one');
     const result = await deductCredits(
       CREDIT_COSTS.VIEW_PREDICTION,
       `View prediction: ${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`
     );
-    setDeducting(false);
+    setDeducting(null);
 
     if (result.success) {
-      persistUnlocked(fixture.id);
+      persistUnlockedBatch([fixture.id]);
       setUnlocked(true);
+      setUnlockModalOpen(false);
     } else {
       setCreditError(result.error || 'Failed to deduct credits');
     }
   }, [session, fixture, isFree, unlocked, deductCredits, hasEnoughCredits]);
+
+  const handleUnlockLeague = useCallback(async () => {
+    setCreditError(null);
+    const ids = siblingFixtureIds || [fixture.id];
+    if (!hasEnoughCredits(CREDIT_COSTS.REVEAL_LEAGUE_DASHBOARD)) { setCreditError('Not enough credits'); return; }
+
+    setDeducting('league');
+    const result = await deductCredits(
+      CREDIT_COSTS.REVEAL_LEAGUE_DASHBOARD,
+      `Reveal all ${fixture.leagueName} predictions`
+    );
+    setDeducting(null);
+
+    if (result.success) {
+      persistUnlockedBatch(ids);
+      setUnlocked(true);
+      setUnlockModalOpen(false);
+      dispatchBulkUnlock();
+    } else {
+      setCreditError(result.error || 'Failed to deduct credits');
+    }
+  }, [fixture, siblingFixtureIds, deductCredits, hasEnoughCredits]);
+
+  const handleUnlockAll = useCallback(async () => {
+    setCreditError(null);
+    const ids = siblingFixtureIds || [fixture.id];
+    if (!hasEnoughCredits(CREDIT_COSTS.REVEAL_ALL_DASHBOARD)) { setCreditError('Not enough credits'); return; }
+
+    setDeducting('all');
+    const result = await deductCredits(
+      CREDIT_COSTS.REVEAL_ALL_DASHBOARD,
+      `Reveal all predictions`
+    );
+    setDeducting(null);
+
+    if (result.success) {
+      persistUnlockedBatch(ids);
+      setUnlocked(true);
+      setUnlockModalOpen(false);
+      dispatchBulkUnlock();
+    } else {
+      setCreditError(result.error || 'Failed to deduct credits');
+    }
+  }, [fixture, siblingFixtureIds, deductCredits, hasEnoughCredits]);
 
   const handleViewDetails = useCallback(() => {
     setShowDetails(true);
@@ -171,6 +220,10 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
           : "bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
   );
 
+  const lockedSiblingCount = siblingFixtureIds
+    ? siblingFixtureIds.filter((id) => !getUnlockedSet().has(id) && !isFreeForTier(tier, fixture.leagueId)).length
+    : 0;
+
   return (
     <Card className={cardClasses}>
       <CardHeader className="pb-3">
@@ -201,16 +254,9 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
       <CardContent className="space-y-4">
         {/* Teams */}
         <div className="flex items-center justify-between py-2 overflow-hidden">
-          {/* Home team */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {fixture.homeTeam.logo ? (
-              <Image
-                src={fixture.homeTeam.logo}
-                alt={fixture.homeTeam.name}
-                width={36}
-                height={36}
-                className="rounded-lg shrink-0"
-              />
+              <Image src={fixture.homeTeam.logo} alt={fixture.homeTeam.name} width={36} height={36} className="rounded-lg shrink-0" />
             ) : (
               <div className="w-9 h-9 shrink-0 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-lg flex items-center justify-center text-xs font-bold text-blue-500 border border-blue-500/20">
                 {fixture.homeTeam.shortCode}
@@ -222,21 +268,17 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
             </div>
           </div>
 
-          {/* VS / Score / Predicted Score */}
           <div className="px-2 text-center shrink-0">
             {fixture.score ? (
               <div>
-                <div className="text-2xl font-bold">
-                  {fixture.score.home} - {fixture.score.away}
-                </div>
+                <div className="text-2xl font-bold">{fixture.score.home} - {fixture.score.away}</div>
                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider">FT</div>
                 {showPrediction && prediction?.predictedScore && (
                   <div className="mt-1">
                     <div className={cn(
                       "text-xs font-semibold",
                       resultAccuracy === 'correct-score' ? "text-amber-500" :
-                      resultAccuracy === 'correct-result' ? "text-green-500" :
-                      "text-red-400"
+                      resultAccuracy === 'correct-result' ? "text-green-500" : "text-red-400"
                     )}>
                       {prediction.predictedScore}
                     </div>
@@ -254,20 +296,13 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
             )}
           </div>
 
-          {/* Away team */}
           <div className="flex items-center gap-2 flex-1 justify-end text-right min-w-0">
             <div className="min-w-0">
               <p className="font-semibold text-sm truncate">{fixture.awayTeam.name}</p>
               <p className="text-xs text-muted-foreground">Away</p>
             </div>
             {fixture.awayTeam.logo ? (
-              <Image
-                src={fixture.awayTeam.logo}
-                alt={fixture.awayTeam.name}
-                width={36}
-                height={36}
-                className="rounded-lg shrink-0"
-              />
+              <Image src={fixture.awayTeam.logo} alt={fixture.awayTeam.name} width={36} height={36} className="rounded-lg shrink-0" />
             ) : (
               <div className="w-9 h-9 shrink-0 bg-gradient-to-br from-red-500/20 to-red-500/5 rounded-lg flex items-center justify-center text-xs font-bold text-red-500 border border-red-500/20">
                 {fixture.awayTeam.shortCode}
@@ -279,7 +314,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
         {/* Prediction data — unlocked */}
         {showPrediction ? (
           <div className="space-y-3">
-            {/* Probability bar */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-medium">
                 <span className="text-blue-500">{prediction.homeWin.toFixed(0)}%</span>
@@ -287,18 +321,9 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
                 <span className="text-red-500">{prediction.awayWin.toFixed(0)}%</span>
               </div>
               <div className="flex h-2.5 rounded-full overflow-hidden bg-muted">
-                <div
-                  className="bg-gradient-to-r from-blue-600 to-blue-500 transition-all"
-                  style={{ width: `${prediction.homeWin}%` }}
-                />
-                <div
-                  className="bg-gradient-to-r from-gray-500 to-gray-400 transition-all"
-                  style={{ width: `${prediction.draw}%` }}
-                />
-                <div
-                  className="bg-gradient-to-r from-red-500 to-red-600 transition-all"
-                  style={{ width: `${prediction.awayWin}%` }}
-                />
+                <div className="bg-gradient-to-r from-blue-600 to-blue-500 transition-all" style={{ width: `${prediction.homeWin}%` }} />
+                <div className="bg-gradient-to-r from-gray-500 to-gray-400 transition-all" style={{ width: `${prediction.draw}%` }} />
+                <div className="bg-gradient-to-r from-red-500 to-red-600 transition-all" style={{ width: `${prediction.awayWin}%` }} />
               </div>
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Home</span>
@@ -306,8 +331,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
                 <span>Away</span>
               </div>
             </div>
-
-            {/* Advice and confidence */}
             <div className="flex items-center justify-between pt-2 border-t border-border/50">
               <Badge variant={getAdviceBadgeVariant(prediction.advice)} className="gap-1">
                 <TrendingUp className="h-3 w-3" />
@@ -331,7 +354,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
             </div>
           </div>
         ) : prediction && !unlocked ? (
-          /* Prediction exists but locked — blur overlay */
           <div className="relative">
             <div className="blur-sm select-none pointer-events-none" aria-hidden>
               <div className="space-y-2">
@@ -356,7 +378,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
             </div>
           </div>
         ) : (
-          /* No prediction data at all */
           <div className="space-y-3">
             <Skeleton className="h-2.5 w-full rounded-full" />
             <div className="flex justify-between">
@@ -398,7 +419,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
         {prediction && (
           <>
             {unlocked ? (
-              /* View Details — free after unlock */
               <Dialog open={showDetails} onOpenChange={setShowDetails}>
                 <DialogTrigger asChild>
                   <Button
@@ -427,7 +447,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
                         <p className="text-4xl font-bold text-primary">{prediction.predictedScore}</p>
                       </div>
                     )}
-
                     <div className="grid grid-cols-3 gap-3">
                       <div className="p-4 bg-gradient-to-br from-blue-500/10 to-transparent rounded-xl border border-blue-500/20 text-center">
                         <p className="text-3xl font-bold text-blue-500">{prediction.homeWin.toFixed(1)}%</p>
@@ -442,7 +461,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
                         <p className="text-sm text-muted-foreground mt-1">Away Win</p>
                       </div>
                     </div>
-
                     {prediction.btts && (
                       <div className="p-4 bg-muted/50 rounded-xl">
                         <h4 className="font-semibold mb-3">Both Teams to Score</h4>
@@ -458,7 +476,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
                         </div>
                       </div>
                     )}
-
                     <div className="p-4 bg-gradient-to-br from-primary/10 to-transparent rounded-xl border border-primary/20">
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className="h-4 w-4 text-primary" />
@@ -477,7 +494,6 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
                         </p>
                       )}
                     </div>
-
                     {prediction.modelComponents && (
                       <div className="p-4 bg-muted/50 rounded-xl">
                         <h4 className="font-semibold mb-3">Model Breakdown</h4>
@@ -519,32 +535,100 @@ export function PredictionCard({ fixture, prediction, gameweek }: PredictionCard
                 </DialogContent>
               </Dialog>
             ) : (
-              /* Unlock button */
-              <div className="space-y-1.5">
-                {creditError && (
-                  <p className="text-xs text-destructive text-center">{creditError}</p>
-                )}
+              /* Unlock button — opens tiered modal */
+              <>
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full border-primary/30 hover:bg-primary/10 hover:border-primary/50"
-                  onClick={handleUnlock}
-                  disabled={deducting}
+                  onClick={() => setUnlockModalOpen(true)}
                 >
-                  {deducting ? 'Unlocking...' : (
-                    <>
-                      <Lock className="h-3 w-3 mr-1.5" />
-                      Unlock Prediction
-                      {!isFree && (
-                        <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-muted-foreground">
-                          <Coins className="h-3 w-3" />
-                          {CREDIT_COSTS.VIEW_PREDICTION}
-                        </span>
-                      )}
-                    </>
+                  <Lock className="h-3 w-3 mr-1.5" />
+                  Unlock Prediction
+                  {!isFree && (
+                    <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-muted-foreground">
+                      <Coins className="h-3 w-3" />
+                      {CREDIT_COSTS.VIEW_PREDICTION}
+                    </span>
                   )}
                 </Button>
-              </div>
+                <Dialog open={unlockModalOpen} onOpenChange={setUnlockModalOpen}>
+                  <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                      <DialogTitle className="text-base">Unlock Predictions</DialogTitle>
+                      <DialogDescription>
+                        {fixture.homeTeam.name} vs {fixture.awayTeam.name}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between h-auto py-3 px-4"
+                        onClick={handleUnlockOne}
+                        disabled={deducting !== null}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Target className="h-4 w-4 text-blue-500 shrink-0" />
+                          <span className="text-sm font-medium">This match</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Coins className="h-3 w-3" />
+                          <span className="font-semibold">{CREDIT_COSTS.VIEW_PREDICTION}</span>
+                          {deducting === 'one' && <span className="ml-1 animate-pulse">...</span>}
+                        </div>
+                      </Button>
+
+                      {lockedSiblingCount > 1 && (
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between h-auto py-3 px-4"
+                          onClick={handleUnlockLeague}
+                          disabled={deducting !== null}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Trophy className="h-4 w-4 text-amber-500 shrink-0" />
+                            <div className="text-left">
+                              <span className="text-sm font-medium block">All {fixture.leagueName}</span>
+                              <span className="text-[11px] text-muted-foreground">{lockedSiblingCount} matches</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Coins className="h-3 w-3" />
+                            <span className="font-semibold">{CREDIT_COSTS.REVEAL_LEAGUE_DASHBOARD}</span>
+                            {deducting === 'league' && <span className="ml-1 animate-pulse">...</span>}
+                          </div>
+                        </Button>
+                      )}
+
+                      {lockedSiblingCount > 1 && (
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between h-auto py-3 px-4"
+                          onClick={handleUnlockAll}
+                          disabled={deducting !== null}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-green-500 shrink-0" />
+                            <div className="text-left">
+                              <span className="text-sm font-medium block">All leagues</span>
+                              <span className="text-[11px] text-muted-foreground">All upcoming matches</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Coins className="h-3 w-3" />
+                            <span className="font-semibold">{CREDIT_COSTS.REVEAL_ALL_DASHBOARD}</span>
+                            {deducting === 'all' && <span className="ml-1 animate-pulse">...</span>}
+                          </div>
+                        </Button>
+                      )}
+
+                      {creditError && (
+                        <p className="text-xs text-destructive text-center pt-1">{creditError}</p>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </>
             )}
           </>
         )}

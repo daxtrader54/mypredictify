@@ -3,6 +3,8 @@ import { getSession } from '@/lib/auth/get-session';
 import OpenAI from 'openai';
 import type { AccaFixture } from '@/lib/acca';
 
+export const maxDuration = 30;
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 type Market = 'home' | 'draw' | 'away' | 'btts_yes' | 'btts_no';
@@ -119,7 +121,7 @@ Return JSON:
     response_format: { type: 'json_object' },
     temperature: 0.7,
     max_tokens: 2000,
-  });
+  }, { timeout: 20000 });
 
   const raw = JSON.parse(completion.choices[0].message.content || '{}') as AiResponse;
 
