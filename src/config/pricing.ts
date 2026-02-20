@@ -82,6 +82,7 @@ export const CREDIT_COSTS = {
   VIEW_DETAILED_STATS: 2,
   GENERATE_ACCA: 5,
   VIEW_VALUE_BET: 2,
+  REVEAL_ALL_DASHBOARD: 50,
 } as const;
 
 export const FREE_ACCA_DAILY_LIMIT = 3;

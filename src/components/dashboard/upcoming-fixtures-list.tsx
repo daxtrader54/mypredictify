@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Coins } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Lock, Coins, Unlock } from 'lucide-react';
 import { useCredits } from '@/hooks/use-credits';
 import { isFreeForTier, CREDIT_COSTS } from '@/config/pricing';
 
@@ -24,6 +25,14 @@ function persistUnlocked(id: number) {
   try {
     const set = getUnlockedSet();
     set.add(id);
+    localStorage.setItem(UNLOCKED_STORAGE_KEY, JSON.stringify([...set]));
+  } catch { /* quota exceeded — non-critical */ }
+}
+
+function persistUnlockedBatch(ids: number[]) {
+  try {
+    const set = getUnlockedSet();
+    ids.forEach((id) => set.add(id));
     localStorage.setItem(UNLOCKED_STORAGE_KEY, JSON.stringify([...set]));
   } catch { /* quota exceeded — non-critical */ }
 }
@@ -70,7 +79,12 @@ function predLabel(pred: string): string {
   return 'D';
 }
 
-function FixtureRow({ fixture }: { fixture: FixtureData }) {
+interface FixtureRowProps {
+  fixture: FixtureData;
+  forceUnlocked?: boolean;
+}
+
+function FixtureRow({ fixture, forceUnlocked }: FixtureRowProps) {
   const { tier, deductCredits, hasEnoughCredits } = useCredits();
   const [unlocked, setUnlocked] = useState(false);
   const [deducting, setDeducting] = useState(false);
@@ -78,10 +92,10 @@ function FixtureRow({ fixture }: { fixture: FixtureData }) {
   const isFree = isFreeForTier(tier, fixture.league.id);
 
   useEffect(() => {
-    if (isFree || getUnlockedSet().has(fixture.fixtureId)) {
+    if (isFree || forceUnlocked || getUnlockedSet().has(fixture.fixtureId)) {
       setUnlocked(true);
     }
-  }, [isFree, fixture.fixtureId]);
+  }, [isFree, forceUnlocked, fixture.fixtureId]);
 
   const handleUnlock = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -182,11 +196,78 @@ function FixtureRow({ fixture }: { fixture: FixtureData }) {
 }
 
 export function UpcomingFixturesList({ fixtures }: { fixtures: FixtureData[] }) {
+  const { tier, deductCredits, hasEnoughCredits } = useCredits();
+  const [revealedAll, setRevealedAll] = useState(false);
+  const [revealing, setRevealing] = useState(false);
+  const [revealError, setRevealError] = useState<string | null>(null);
+
+  // Count how many fixtures are locked (have predictions but aren't free for tier or already unlocked)
+  const lockedCount = useMemo(() => {
+    if (revealedAll) return 0;
+    const alreadyUnlocked = getUnlockedSet();
+    return fixtures.filter(
+      (f) => f.pred && !isFreeForTier(tier, f.league.id) && !alreadyUnlocked.has(f.fixtureId)
+    ).length;
+  }, [fixtures, tier, revealedAll]);
+
+  const handleRevealAll = useCallback(async () => {
+    setRevealError(null);
+
+    if (!hasEnoughCredits(CREDIT_COSTS.REVEAL_ALL_DASHBOARD)) {
+      setRevealError('Not enough credits');
+      return;
+    }
+
+    setRevealing(true);
+    const result = await deductCredits(
+      CREDIT_COSTS.REVEAL_ALL_DASHBOARD,
+      `Reveal all dashboard predictions (${lockedCount} matches)`
+    );
+    setRevealing(false);
+
+    if (result.success) {
+      const idsToUnlock = fixtures
+        .filter((f) => f.pred && !isFreeForTier(tier, f.league.id))
+        .map((f) => f.fixtureId);
+      persistUnlockedBatch(idsToUnlock);
+      setRevealedAll(true);
+    } else {
+      setRevealError(result.error || 'Failed to deduct credits');
+    }
+  }, [deductCredits, hasEnoughCredits, fixtures, tier, lockedCount]);
+
   return (
-    <div className="space-y-0.5">
-      {fixtures.map((m) => (
-        <FixtureRow key={m.fixtureId} fixture={m} />
-      ))}
+    <div>
+      {lockedCount > 0 && (
+        <div className="mb-2 flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full border-primary/30 hover:bg-primary/10 hover:border-primary/50 text-xs"
+            onClick={handleRevealAll}
+            disabled={revealing}
+          >
+            {revealing ? 'Revealing...' : (
+              <>
+                <Unlock className="h-3 w-3 mr-1.5" />
+                Reveal All Predictions
+                <span className="ml-1.5 inline-flex items-center gap-0.5 text-muted-foreground">
+                  <Coins className="h-3 w-3" />
+                  {CREDIT_COSTS.REVEAL_ALL_DASHBOARD}
+                </span>
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+      {revealError && (
+        <p className="text-xs text-destructive text-center mb-2">{revealError}</p>
+      )}
+      <div className="space-y-0.5">
+        {fixtures.map((m) => (
+          <FixtureRow key={m.fixtureId} fixture={m} forceUnlocked={revealedAll} />
+        ))}
+      </div>
     </div>
   );
 }
