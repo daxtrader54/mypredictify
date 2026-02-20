@@ -1,11 +1,9 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import Link from 'next/link';
 import { CURRENT_SEASON } from '@/config/site';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
-import Image from 'next/image';
+import { UpcomingFixturesList } from './upcoming-fixtures-list';
 
 interface MatchData {
   fixtureId: number;
@@ -64,34 +62,6 @@ async function getUpcomingFixtures(): Promise<(MatchData & { pred?: PredictionEn
   }
 }
 
-function formatKickoff(kickoff: string): string {
-  const d = new Date(kickoff);
-  return d.toLocaleDateString('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-function leagueShort(name: string): string {
-  const map: Record<string, string> = {
-    'Premier League': 'PL',
-    'La Liga': 'LL',
-    'Bundesliga': 'BL',
-    'Serie A': 'SA',
-    'Ligue 1': 'L1',
-  };
-  return map[name] || name.slice(0, 3).toUpperCase();
-}
-
-function predLabel(pred: string): string {
-  if (pred === 'H') return 'H';
-  if (pred === 'A') return 'A';
-  return 'D';
-}
-
 export async function UpcomingFixtures() {
   const fixtures = await getUpcomingFixtures();
 
@@ -113,6 +83,16 @@ export async function UpcomingFixtures() {
     );
   }
 
+  // Serialize fixture data for the client component
+  const fixtureData = fixtures.map((m) => ({
+    fixtureId: m.fixtureId,
+    league: m.league,
+    homeTeam: m.homeTeam,
+    awayTeam: m.awayTeam,
+    kickoff: m.kickoff,
+    pred: m.pred,
+  }));
+
   return (
     <Card data-tour="upcoming-fixtures">
       <CardHeader className="pb-3">
@@ -121,56 +101,8 @@ export async function UpcomingFixtures() {
           Upcoming Fixtures
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-0.5">
-        {fixtures.map((m) => (
-          <Link
-            key={m.fixtureId}
-            href={`/predictions?league=${m.league.id}`}
-            className="block py-2 px-1 md:px-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer group"
-          >
-            {/* Row 1: date + league */}
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors">
-                {formatKickoff(m.kickoff)}
-              </span>
-              <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 h-4">
-                {leagueShort(m.league.name)}
-              </Badge>
-              {m.pred && (
-                <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4 ml-auto">
-                  {predLabel(m.pred.prediction)}
-                </Badge>
-              )}
-            </div>
-            {/* Row 2: teams + score */}
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center gap-1 flex-1 min-w-0 justify-end text-right">
-                <span className="text-xs md:text-sm font-medium truncate">{m.homeTeam.name}</span>
-                {m.homeTeam.logo && (
-                  <Image src={m.homeTeam.logo} alt={m.homeTeam.shortCode} width={18} height={18} className="rounded-sm shrink-0" />
-                )}
-              </div>
-
-              {m.pred ? (
-                <div className="shrink-0 w-12 text-center">
-                  <span className="text-xs font-bold text-primary">
-                    {m.pred.predictedScore}
-                  </span>
-                  <span className="block text-[8px] uppercase text-muted-foreground tracking-wide">Pred</span>
-                </div>
-              ) : (
-                <span className="text-xs text-muted-foreground font-medium shrink-0 w-12 text-center">vs</span>
-              )}
-
-              <div className="flex items-center gap-1 flex-1 min-w-0">
-                {m.awayTeam.logo && (
-                  <Image src={m.awayTeam.logo} alt={m.awayTeam.shortCode} width={18} height={18} className="rounded-sm shrink-0" />
-                )}
-                <span className="text-xs md:text-sm font-medium truncate">{m.awayTeam.name}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+      <CardContent>
+        <UpcomingFixturesList fixtures={fixtureData} />
       </CardContent>
     </Card>
   );
