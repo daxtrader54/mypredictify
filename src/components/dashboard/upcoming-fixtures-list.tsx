@@ -161,7 +161,7 @@ function FixtureRow({ fixture, unlocked, onLockClick }: FixtureRowProps) {
   );
 }
 
-export function UpcomingFixturesList({ fixtures }: { fixtures: FixtureData[] }) {
+export function UpcomingFixturesList({ fixtures, allGameweekFixtureIds }: { fixtures: FixtureData[]; allGameweekFixtureIds?: number[] }) {
   const { tier, deductCredits, hasEnoughCredits } = useCredits();
   const [unlockedIds, setUnlockedIds] = useState<Set<number>>(new Set());
   const [modalOpen, setModalOpen] = useState(false);
@@ -241,22 +241,24 @@ export function UpcomingFixturesList({ fixtures }: { fixtures: FixtureData[] }) 
   }, [selectedFixture, fixtures, unlockedIds, unlockFixtures]);
 
   const handleRevealAll = useCallback(() => {
-    const allIds = fixtures
-      .filter((f) => f.pred && !unlockedIds.has(f.fixtureId))
-      .map((f) => f.fixtureId);
+    // Use allGameweekFixtureIds (all leagues) if available, not just displayed fixtures
+    const allIds = allGameweekFixtureIds || fixtures.map((f) => f.fixtureId);
     unlockFixtures(
       allIds,
       CREDIT_COSTS.REVEAL_ALL_DASHBOARD,
       `Reveal all dashboard predictions`,
       'all'
     );
-  }, [fixtures, unlockedIds, unlockFixtures]);
+  }, [allGameweekFixtureIds, fixtures, unlockFixtures]);
 
   const leagueLockedCount = selectedFixture
     ? fixtures.filter((f) => f.pred && f.league.id === selectedFixture.league.id && !unlockedIds.has(f.fixtureId)).length
     : 0;
 
-  const totalLockedCount = fixtures.filter((f) => f.pred && !unlockedIds.has(f.fixtureId)).length;
+  // When allGameweekFixtureIds is provided, count all locked IDs across the whole GW
+  const totalLockedCount = allGameweekFixtureIds
+    ? allGameweekFixtureIds.filter((id) => !unlockedIds.has(id)).length
+    : fixtures.filter((f) => f.pred && !unlockedIds.has(f.fixtureId)).length;
 
   return (
     <>

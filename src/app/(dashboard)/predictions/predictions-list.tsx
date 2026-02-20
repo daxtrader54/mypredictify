@@ -84,11 +84,12 @@ function deriveAdvice(homeWin: number, draw: number, awayWin: number): string {
 async function getFixturesWithPredictions(leagueId: number, gwNumber?: number): Promise<{
   fixtures: ProcessedFixture[];
   predictions: Map<number, ProcessedPrediction>;
+  allGameweekFixtureIds: number[];
   error?: string;
 }> {
   const gwDir = await getGameweekDir(gwNumber);
   if (!gwDir) {
-    return { fixtures: [], predictions: new Map(), error: 'No gameweek data found' };
+    return { fixtures: [], predictions: new Map(), allGameweekFixtureIds: [], error: 'No gameweek data found' };
   }
 
   let matches: MatchData[] = [];
@@ -97,7 +98,7 @@ async function getFixturesWithPredictions(leagueId: number, gwNumber?: number): 
     matches = JSON.parse(raw);
   } catch {
     // No data for this gameweek yet — show empty state (not an error)
-    return { fixtures: [], predictions: new Map() };
+    return { fixtures: [], predictions: new Map(), allGameweekFixtureIds: [] };
   }
 
   const leagueMatches = matches.filter((m) => m.league.id === leagueId);
@@ -149,6 +150,9 @@ async function getFixturesWithPredictions(leagueId: number, gwNumber?: number): 
 
   fixtures.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
+  // All fixture IDs across all leagues for this gameweek (for "unlock all" option)
+  const allGameweekFixtureIds = matches.map((m) => m.fixtureId);
+
   const predictions = new Map<number, ProcessedPrediction>();
 
   // Try to read pipeline-generated predictions first
@@ -196,11 +200,11 @@ async function getFixturesWithPredictions(leagueId: number, gwNumber?: number): 
     });
   }
 
-  return { fixtures, predictions };
+  return { fixtures, predictions, allGameweekFixtureIds };
 }
 
 export async function PredictionsList({ leagueId, gameweek, hideCompleted }: PredictionsListProps) {
-  const { fixtures, predictions, error } = await getFixturesWithPredictions(leagueId, gameweek);
+  const { fixtures, predictions, allGameweekFixtureIds, error } = await getFixturesWithPredictions(leagueId, gameweek);
 
   if (error) {
     return (
@@ -268,6 +272,7 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
                 prediction={predictions.get(fixture.id)}
                 gameweek={gameweek}
                 siblingFixtureIds={allFixtureIds}
+                allGameweekFixtureIds={allGameweekFixtureIds}
               />
             ))}
           </div>
@@ -287,6 +292,7 @@ export async function PredictionsList({ leagueId, gameweek, hideCompleted }: Pre
                 prediction={predictions.get(fixture.id)}
                 gameweek={gameweek}
                 siblingFixtureIds={allFixtureIds}
+                allGameweekFixtureIds={allGameweekFixtureIds}
               />
             ))}
           </div>

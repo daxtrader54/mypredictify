@@ -21,7 +21,10 @@ interface PredictionEntry {
   confidence: number;
 }
 
-async function getUpcomingFixtures(): Promise<(MatchData & { pred?: PredictionEntry })[]> {
+async function getUpcomingFixtures(): Promise<{
+  displayed: (MatchData & { pred?: PredictionEntry })[];
+  allFixtureIds: number[];
+}> {
   try {
     const baseDir = path.join(process.cwd(), 'data', 'gameweeks', CURRENT_SEASON);
     const entries = await fs.readdir(baseDir);
@@ -29,11 +32,14 @@ async function getUpcomingFixtures(): Promise<(MatchData & { pred?: PredictionEn
       .filter((e) => e.startsWith('GW'))
       .sort((a, b) => parseInt(b.replace('GW', '')) - parseInt(a.replace('GW', '')));
 
-    if (gameweeks.length === 0) return [];
+    if (gameweeks.length === 0) return { displayed: [], allFixtureIds: [] };
 
     const gwDir = path.join(baseDir, gameweeks[0]);
     const raw = await fs.readFile(path.join(gwDir, 'matches.json'), 'utf-8');
     const matches: MatchData[] = JSON.parse(raw);
+
+    // All fixture IDs across all leagues for this gameweek
+    const allFixtureIds = matches.map((m) => m.fixtureId);
 
     // Load predictions if available
     let predMap = new Map<number, PredictionEntry>();
@@ -49,7 +55,7 @@ async function getUpcomingFixtures(): Promise<(MatchData & { pred?: PredictionEn
     const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     // Show fixtures within the next 7 days, sorted by kickoff, take first 10
-    return matches
+    const displayed = matches
       .filter((m) => {
         const d = new Date(m.kickoff);
         return d > now && d <= weekFromNow;
@@ -57,15 +63,17 @@ async function getUpcomingFixtures(): Promise<(MatchData & { pred?: PredictionEn
       .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
       .slice(0, 10)
       .map((m) => ({ ...m, pred: predMap.get(m.fixtureId) }));
+
+    return { displayed, allFixtureIds };
   } catch {
-    return [];
+    return { displayed: [], allFixtureIds: [] };
   }
 }
 
 export async function UpcomingFixtures() {
-  const fixtures = await getUpcomingFixtures();
+  const { displayed, allFixtureIds } = await getUpcomingFixtures();
 
-  if (fixtures.length === 0) {
+  if (displayed.length === 0) {
     return (
       <Card>
         <CardHeader className="pb-3">
@@ -84,7 +92,7 @@ export async function UpcomingFixtures() {
   }
 
   // Serialize fixture data for the client component
-  const fixtureData = fixtures.map((m) => ({
+  const fixtureData = displayed.map((m) => ({
     fixtureId: m.fixtureId,
     league: m.league,
     homeTeam: m.homeTeam,
@@ -102,7 +110,7 @@ export async function UpcomingFixtures() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <UpcomingFixturesList fixtures={fixtureData} />
+        <UpcomingFixturesList fixtures={fixtureData} allGameweekFixtureIds={allFixtureIds} />
       </CardContent>
     </Card>
   );

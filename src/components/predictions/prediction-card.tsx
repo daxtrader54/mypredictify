@@ -85,11 +85,13 @@ interface PredictionCardProps {
   fixture: ProcessedFixture;
   prediction?: ProcessedPrediction;
   gameweek?: number;
-  /** All fixture IDs on this page (same league), for bulk unlock */
+  /** All fixture IDs on this page (same league), for league bulk unlock */
   siblingFixtureIds?: number[];
+  /** All fixture IDs across ALL leagues for this gameweek, for "all leagues" unlock */
+  allGameweekFixtureIds?: number[];
 }
 
-export function PredictionCard({ fixture, prediction, gameweek, siblingFixtureIds }: PredictionCardProps) {
+export function PredictionCard({ fixture, prediction, gameweek, siblingFixtureIds, allGameweekFixtureIds }: PredictionCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
   const [creditError, setCreditError] = useState<string | null>(null);
@@ -163,7 +165,8 @@ export function PredictionCard({ fixture, prediction, gameweek, siblingFixtureId
 
   const handleUnlockAll = useCallback(async () => {
     setCreditError(null);
-    const ids = siblingFixtureIds || [fixture.id];
+    // Use allGameweekFixtureIds (all leagues) if available, otherwise fall back to siblingFixtureIds
+    const ids = allGameweekFixtureIds || siblingFixtureIds || [fixture.id];
     if (!hasEnoughCredits(CREDIT_COSTS.REVEAL_ALL_DASHBOARD)) { setCreditError('Not enough credits'); return; }
 
     setDeducting('all');
@@ -181,7 +184,7 @@ export function PredictionCard({ fixture, prediction, gameweek, siblingFixtureId
     } else {
       setCreditError(result.error || 'Failed to deduct credits');
     }
-  }, [fixture, siblingFixtureIds, deductCredits, hasEnoughCredits]);
+  }, [fixture, allGameweekFixtureIds, siblingFixtureIds, deductCredits, hasEnoughCredits]);
 
   const handleViewDetails = useCallback(() => {
     setShowDetails(true);
