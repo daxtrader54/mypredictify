@@ -1,11 +1,18 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, Coins, Unlock } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Lock, Coins, Target, Globe, Trophy } from 'lucide-react';
 import { useCredits } from '@/hooks/use-credits';
 import { isFreeForTier, CREDIT_COSTS } from '@/config/pricing';
 
@@ -19,14 +26,6 @@ function getUnlockedSet(): Set<number> {
   } catch {
     return new Set();
   }
-}
-
-function persistUnlocked(id: number) {
-  try {
-    const set = getUnlockedSet();
-    set.add(id);
-    localStorage.setItem(UNLOCKED_STORAGE_KEY, JSON.stringify([...set]));
-  } catch { /* quota exceeded — non-critical */ }
 }
 
 function persistUnlockedBatch(ids: number[]) {
@@ -81,47 +80,11 @@ function predLabel(pred: string): string {
 
 interface FixtureRowProps {
   fixture: FixtureData;
-  forceUnlocked?: boolean;
+  unlocked: boolean;
+  onLockClick: (fixture: FixtureData) => void;
 }
 
-function FixtureRow({ fixture, forceUnlocked }: FixtureRowProps) {
-  const { tier, deductCredits, hasEnoughCredits } = useCredits();
-  const [unlocked, setUnlocked] = useState(false);
-  const [deducting, setDeducting] = useState(false);
-
-  const isFree = isFreeForTier(tier, fixture.league.id);
-
-  useEffect(() => {
-    if (isFree || forceUnlocked || getUnlockedSet().has(fixture.fixtureId)) {
-      setUnlocked(true);
-    }
-  }, [isFree, forceUnlocked, fixture.fixtureId]);
-
-  const handleUnlock = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (isFree || unlocked) {
-      setUnlocked(true);
-      return;
-    }
-
-    if (!hasEnoughCredits(CREDIT_COSTS.VIEW_PREDICTION)) return;
-
-    setDeducting(true);
-    const result = await deductCredits(
-      CREDIT_COSTS.VIEW_PREDICTION,
-      `View prediction: ${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`,
-      fixture.league.id
-    );
-    setDeducting(false);
-
-    if (result.success) {
-      persistUnlocked(fixture.fixtureId);
-      setUnlocked(true);
-    }
-  }, [isFree, unlocked, deductCredits, hasEnoughCredits, fixture]);
-
+function FixtureRow({ fixture, unlocked, onLockClick }: FixtureRowProps) {
   const showPred = fixture.pred && unlocked;
 
   return (
@@ -144,10 +107,13 @@ function FixtureRow({ fixture, forceUnlocked }: FixtureRowProps) {
         )}
         {fixture.pred && !unlocked && (
           <button
-            onClick={handleUnlock}
-            disabled={deducting}
-            className="ml-auto flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
-            title={`Unlock prediction (${CREDIT_COSTS.VIEW_PREDICTION} credit)`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onLockClick(fixture);
+            }}
+            className="ml-auto flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+            title="Unlock prediction"
           >
             <Lock className="h-3 w-3" />
             <Coins className="h-3 w-3" />
@@ -197,77 +163,195 @@ function FixtureRow({ fixture, forceUnlocked }: FixtureRowProps) {
 
 export function UpcomingFixturesList({ fixtures }: { fixtures: FixtureData[] }) {
   const { tier, deductCredits, hasEnoughCredits } = useCredits();
-  const [revealedAll, setRevealedAll] = useState(false);
-  const [revealing, setRevealing] = useState(false);
-  const [revealError, setRevealError] = useState<string | null>(null);
+  const [unlockedIds, setUnlockedIds] = useState<Set<number>>(new Set());
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedFixture, setSelectedFixture] = useState<FixtureData | null>(null);
+  const [deducting, setDeducting] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Count how many fixtures are locked (have predictions but aren't free for tier or already unlocked)
-  const lockedCount = useMemo(() => {
-    if (revealedAll) return 0;
-    const alreadyUnlocked = getUnlockedSet();
-    return fixtures.filter(
-      (f) => f.pred && !isFreeForTier(tier, f.league.id) && !alreadyUnlocked.has(f.fixtureId)
-    ).length;
-  }, [fixtures, tier, revealedAll]);
+  // On mount, load unlocked state from localStorage + tier
+  useEffect(() => {
+    const stored = getUnlockedSet();
+    const initial = new Set<number>();
+    fixtures.forEach((f) => {
+      if (isFreeForTier(tier, f.league.id) || stored.has(f.fixtureId)) {
+        initial.add(f.fixtureId);
+      }
+    });
+    setUnlockedIds(initial);
+  }, [fixtures, tier]);
 
-  const handleRevealAll = useCallback(async () => {
-    setRevealError(null);
+  const handleLockClick = useCallback((fixture: FixtureData) => {
+    setSelectedFixture(fixture);
+    setError(null);
+    setModalOpen(true);
+  }, []);
 
-    if (!hasEnoughCredits(CREDIT_COSTS.REVEAL_ALL_DASHBOARD)) {
-      setRevealError('Not enough credits');
+  const unlockFixtures = useCallback(async (
+    ids: number[],
+    cost: number,
+    reason: string,
+    key: string
+  ) => {
+    setError(null);
+
+    if (!hasEnoughCredits(cost)) {
+      setError('Not enough credits');
       return;
     }
 
-    setRevealing(true);
-    const result = await deductCredits(
-      CREDIT_COSTS.REVEAL_ALL_DASHBOARD,
-      `Reveal all dashboard predictions (${lockedCount} matches)`
-    );
-    setRevealing(false);
+    setDeducting(key);
+    const result = await deductCredits(cost, reason);
+    setDeducting(null);
 
     if (result.success) {
-      const idsToUnlock = fixtures
-        .filter((f) => f.pred && !isFreeForTier(tier, f.league.id))
-        .map((f) => f.fixtureId);
-      persistUnlockedBatch(idsToUnlock);
-      setRevealedAll(true);
+      persistUnlockedBatch(ids);
+      setUnlockedIds((prev) => {
+        const next = new Set(prev);
+        ids.forEach((id) => next.add(id));
+        return next;
+      });
+      setModalOpen(false);
     } else {
-      setRevealError(result.error || 'Failed to deduct credits');
+      setError(result.error || 'Failed to deduct credits');
     }
-  }, [deductCredits, hasEnoughCredits, fixtures, tier, lockedCount]);
+  }, [deductCredits, hasEnoughCredits]);
+
+  const handleRevealOne = useCallback(() => {
+    if (!selectedFixture) return;
+    unlockFixtures(
+      [selectedFixture.fixtureId],
+      CREDIT_COSTS.VIEW_PREDICTION,
+      `View prediction: ${selectedFixture.homeTeam.name} vs ${selectedFixture.awayTeam.name}`,
+      'one'
+    );
+  }, [selectedFixture, unlockFixtures]);
+
+  const handleRevealLeague = useCallback(() => {
+    if (!selectedFixture) return;
+    const leagueIds = fixtures
+      .filter((f) => f.pred && f.league.id === selectedFixture.league.id && !unlockedIds.has(f.fixtureId))
+      .map((f) => f.fixtureId);
+    unlockFixtures(
+      leagueIds,
+      CREDIT_COSTS.REVEAL_LEAGUE_DASHBOARD,
+      `Reveal all ${selectedFixture.league.name} predictions`,
+      'league'
+    );
+  }, [selectedFixture, fixtures, unlockedIds, unlockFixtures]);
+
+  const handleRevealAll = useCallback(() => {
+    const allIds = fixtures
+      .filter((f) => f.pred && !unlockedIds.has(f.fixtureId))
+      .map((f) => f.fixtureId);
+    unlockFixtures(
+      allIds,
+      CREDIT_COSTS.REVEAL_ALL_DASHBOARD,
+      `Reveal all dashboard predictions`,
+      'all'
+    );
+  }, [fixtures, unlockedIds, unlockFixtures]);
+
+  const leagueLockedCount = selectedFixture
+    ? fixtures.filter((f) => f.pred && f.league.id === selectedFixture.league.id && !unlockedIds.has(f.fixtureId)).length
+    : 0;
+
+  const totalLockedCount = fixtures.filter((f) => f.pred && !unlockedIds.has(f.fixtureId)).length;
 
   return (
-    <div>
-      {lockedCount > 0 && (
-        <div className="mb-2 flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full border-primary/30 hover:bg-primary/10 hover:border-primary/50 text-xs"
-            onClick={handleRevealAll}
-            disabled={revealing}
-          >
-            {revealing ? 'Revealing...' : (
-              <>
-                <Unlock className="h-3 w-3 mr-1.5" />
-                Reveal All Predictions
-                <span className="ml-1.5 inline-flex items-center gap-0.5 text-muted-foreground">
-                  <Coins className="h-3 w-3" />
-                  {CREDIT_COSTS.REVEAL_ALL_DASHBOARD}
-                </span>
-              </>
-            )}
-          </Button>
-        </div>
-      )}
-      {revealError && (
-        <p className="text-xs text-destructive text-center mb-2">{revealError}</p>
-      )}
+    <>
       <div className="space-y-0.5">
         {fixtures.map((m) => (
-          <FixtureRow key={m.fixtureId} fixture={m} forceUnlocked={revealedAll} />
+          <FixtureRow
+            key={m.fixtureId}
+            fixture={m}
+            unlocked={unlockedIds.has(m.fixtureId)}
+            onLockClick={handleLockClick}
+          />
         ))}
       </div>
-    </div>
+
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-base">Unlock Predictions</DialogTitle>
+            {selectedFixture && (
+              <DialogDescription>
+                {selectedFixture.homeTeam.name} vs {selectedFixture.awayTeam.name}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          <div className="space-y-2">
+            {/* Option 1: This match */}
+            <Button
+              variant="outline"
+              className="w-full justify-between h-auto py-3 px-4"
+              onClick={handleRevealOne}
+              disabled={deducting !== null}
+            >
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4 text-blue-500 shrink-0" />
+                <span className="text-sm font-medium">This match</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Coins className="h-3 w-3" />
+                <span className="font-semibold">{CREDIT_COSTS.VIEW_PREDICTION}</span>
+                {deducting === 'one' && <span className="ml-1 animate-pulse">...</span>}
+              </div>
+            </Button>
+
+            {/* Option 2: All from this league */}
+            {selectedFixture && leagueLockedCount > 1 && (
+              <Button
+                variant="outline"
+                className="w-full justify-between h-auto py-3 px-4"
+                onClick={handleRevealLeague}
+                disabled={deducting !== null}
+              >
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-amber-500 shrink-0" />
+                  <div className="text-left">
+                    <span className="text-sm font-medium block">All {selectedFixture.league.name}</span>
+                    <span className="text-[11px] text-muted-foreground">{leagueLockedCount} matches</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Coins className="h-3 w-3" />
+                  <span className="font-semibold">{CREDIT_COSTS.REVEAL_LEAGUE_DASHBOARD}</span>
+                  {deducting === 'league' && <span className="ml-1 animate-pulse">...</span>}
+                </div>
+              </Button>
+            )}
+
+            {/* Option 3: All leagues */}
+            {totalLockedCount > 1 && (
+              <Button
+                variant="outline"
+                className="w-full justify-between h-auto py-3 px-4"
+                onClick={handleRevealAll}
+                disabled={deducting !== null}
+              >
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-green-500 shrink-0" />
+                  <div className="text-left">
+                    <span className="text-sm font-medium block">All leagues</span>
+                    <span className="text-[11px] text-muted-foreground">{totalLockedCount} matches</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Coins className="h-3 w-3" />
+                  <span className="font-semibold">{CREDIT_COSTS.REVEAL_ALL_DASHBOARD}</span>
+                  {deducting === 'all' && <span className="ml-1 animate-pulse">...</span>}
+                </div>
+              </Button>
+            )}
+
+            {error && (
+              <p className="text-xs text-destructive text-center pt-1">{error}</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -5,6 +5,8 @@ import { SessionProvider } from '@/components/providers/session-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { PostHogProvider } from '@/components/providers/posthog-provider';
 import { TawkTo } from '@/components/providers/tawk-to';
+import { GoogleAnalytics } from '@/components/providers/google-analytics';
+import { CookieConsent } from '@/components/providers/cookie-consent';
 import { siteConfig } from '@/config/site';
 import './globals.css';
 
@@ -73,6 +75,8 @@ export default function RootLayout({
           </ThemeProvider>
         </SessionProvider>
         <TawkTo />
+        <GoogleAnalytics />
+        <CookieConsent />
       </body>
     </html>
   );

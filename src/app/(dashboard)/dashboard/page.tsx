@@ -51,8 +51,8 @@ export default async function DashboardPage({
   const justUpgraded = params.upgraded === 'true';
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Suspense fallback={<Skeleton className="h-64 w-full rounded-lg" />}>
           <UpcomingFixtures />
         </Suspense>

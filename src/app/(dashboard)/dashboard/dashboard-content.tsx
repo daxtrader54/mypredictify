@@ -4,12 +4,11 @@ import { useCredits } from '@/hooks/use-credits';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Coins, Crown, Gift, Target, Zap, ArrowRight, PartyPopper, HelpCircle } from 'lucide-react';
+import { Coins, Crown, Gift, Target, Zap, ArrowRight, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
 import type { User } from '@/lib/db/schema';
 import { PRICING_PLANS, formatPrice } from '@/config/pricing';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useTour } from '@/hooks/use-tour';
 
 interface DashboardContentProps {
   user: User;
@@ -19,7 +18,6 @@ interface DashboardContentProps {
 
 export function DashboardContent({ user, thisWeekPredictions = 0, justUpgraded = false }: DashboardContentProps) {
   const { credits, tier, isPro, canRedeemDaily, redeemDailyCredits, loading } = useCredits();
-  const { startTour } = useTour();
 
   const currentPlan = PRICING_PLANS.find((p) => p.id === tier);
 
@@ -50,10 +48,7 @@ export function DashboardContent({ user, thisWeekPredictions = 0, justUpgraded =
               Welcome back, {user.name?.split(' ')[0] || 'User'}!
             </h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={startTour} className="text-muted-foreground hover:text-foreground">
-            <HelpCircle className="h-4 w-4 mr-1.5" />
-            Take a Tour
-          </Button>
+          {/* Tour button moved to sidebar */}
         </div>
 
         {/* Inline stat cards */}

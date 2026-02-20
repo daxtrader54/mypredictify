@@ -17,12 +17,14 @@ import {
   Workflow,
   FileText,
   Shield,
+  HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useCredits } from '@/hooks/use-credits';
+import { useTour } from '@/hooks/use-tour';
 import { siteConfig, isAdmin } from '@/config/site';
 import { LEAGUES } from '@/config/leagues';
 import { Logo } from './logo';
@@ -100,6 +102,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { credits, tier, isPro, canRedeemDaily, redeemDailyCredits, loading } = useCredits();
+  const { startTour } = useTour();
 
   const handleRedeem = async () => {
     await redeemDailyCredits();
@@ -182,6 +185,15 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             </Link>
           );
         })}
+        <button
+          onClick={() => { startTour(); onNavigate?.(); }}
+          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all text-muted-foreground hover:bg-muted hover:text-foreground w-full"
+        >
+          <div className="h-7 w-7 rounded-md flex items-center justify-center bg-amber-500/10">
+            <HelpCircle className="h-3.5 w-3.5 text-amber-500" />
+          </div>
+          Guide
+        </button>
       </nav>
 
       <Separator className="opacity-50" />
