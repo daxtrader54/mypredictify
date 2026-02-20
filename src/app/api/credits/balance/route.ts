@@ -18,7 +18,7 @@ export async function GET() {
 
     const now = new Date();
     const hoursSinceReset = (now.getTime() - user.dailyCreditsLastReset.getTime()) / (1000 * 60 * 60);
-    const canRedeemDaily = hoursSinceReset >= 24 && user.tier === 'free';
+    const canRedeemDaily = hoursSinceReset >= 24 && user.tier !== 'gold';
 
     return NextResponse.json({
       credits: user.credits,

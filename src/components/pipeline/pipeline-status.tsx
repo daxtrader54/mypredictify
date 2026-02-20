@@ -55,6 +55,50 @@ async function getLatestGameweekDir(): Promise<string | null> {
   }
 }
 
+interface PerformanceLog {
+  cumulative?: { outcomeAccuracy?: number };
+  gameweeks?: unknown[];
+}
+
+interface SignalWeights {
+  modelWeights?: { elo?: number; poisson?: number; odds?: number };
+}
+
+async function getPerformanceData(): Promise<{ seasonAccuracy: string; gwsEvaluated: number }> {
+  try {
+    const raw = await fs.readFile(path.join(process.cwd(), 'data', 'memory', 'performance-log.json'), 'utf-8');
+    const data: PerformanceLog = JSON.parse(raw);
+    const accuracy = data.cumulative?.outcomeAccuracy;
+    const gwsEvaluated = data.gameweeks?.length ?? 0;
+    return {
+      seasonAccuracy: accuracy != null ? `${(accuracy * 100).toFixed(1)}%` : '--',
+      gwsEvaluated,
+    };
+  } catch {
+    return { seasonAccuracy: '--', gwsEvaluated: 0 };
+  }
+}
+
+async function getModelWeights(): Promise<{ name: string; weight: number; color: string }[]> {
+  const defaults = [
+    { name: 'Elo Ratings', weight: 0.30, color: 'bg-blue-500' },
+    { name: 'Poisson Model', weight: 0.30, color: 'bg-green-500' },
+    { name: 'Bookmaker Odds', weight: 0.40, color: 'bg-purple-500' },
+  ];
+  try {
+    const raw = await fs.readFile(path.join(process.cwd(), 'data', 'memory', 'signal-weights.json'), 'utf-8');
+    const data: SignalWeights = JSON.parse(raw);
+    if (data.modelWeights?.elo != null) {
+      return [
+        { name: 'Elo Ratings', weight: data.modelWeights.elo, color: 'bg-blue-500' },
+        { name: 'Poisson Model', weight: data.modelWeights.poisson!, color: 'bg-green-500' },
+        { name: 'Bookmaker Odds', weight: data.modelWeights.odds!, color: 'bg-purple-500' },
+      ];
+    }
+  } catch { /* use defaults */ }
+  return defaults;
+}
+
 async function getPipelineState() {
   const gwDir = await getLatestGameweekDir();
   if (!gwDir) {
@@ -166,7 +210,12 @@ function StatusBadge({ status }: { status: PipelineStep['status'] }) {
 }
 
 export async function PipelineStatus() {
-  const { steps, gwName, ingestLog, predictionCount } = await getPipelineState();
+  const [pipelineState, perfData, modelWeights] = await Promise.all([
+    getPipelineState(),
+    getPerformanceData(),
+    getModelWeights(),
+  ]);
+  const { steps, gwName, ingestLog, predictionCount } = pipelineState;
   const completedCount = steps.filter(s => s.status === 'completed').length;
 
   return (
@@ -241,7 +290,7 @@ export async function PipelineStatus() {
                 <TrendingUp className="h-5 w-5 text-green-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">--</p>
+                <p className="text-2xl font-bold">{perfData.seasonAccuracy}</p>
                 <p className="text-xs text-muted-foreground">Season Accuracy</p>
               </div>
             </div>
@@ -269,7 +318,7 @@ export async function PipelineStatus() {
                 <Brain className="h-5 w-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">0</p>
+                <p className="text-2xl font-bold">{perfData.gwsEvaluated}</p>
                 <p className="text-xs text-muted-foreground">Gameweeks Evaluated</p>
               </div>
             </div>
@@ -311,11 +360,7 @@ export async function PipelineStatus() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[
-              { name: 'Elo Ratings', weight: 0.30, color: 'bg-blue-500' },
-              { name: 'Poisson Model', weight: 0.30, color: 'bg-green-500' },
-              { name: 'Bookmaker Odds', weight: 0.40, color: 'bg-purple-500' },
-            ].map((signal) => (
+            {modelWeights.map((signal) => (
               <div key={signal.name} className="flex items-center gap-3">
                 <span className="text-sm font-medium w-32">{signal.name}</span>
                 <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
@@ -331,7 +376,7 @@ export async function PipelineStatus() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-4">
-            Current blend: 30% Elo + 30% Poisson + 40% Bookmaker Odds. Weights will adjust based on evaluation results.
+            Current blend: {modelWeights.map(w => `${(w.weight * 100).toFixed(0)}% ${w.name}`).join(' + ')}. Weights adjust based on evaluation results.
           </p>
         </CardContent>
       </Card>

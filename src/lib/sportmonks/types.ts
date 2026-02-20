@@ -252,39 +252,6 @@ export interface PredictionType {
   model_type: string;
 }
 
-export interface Probability {
-  id: number;
-  fixture_id: number;
-  type_id: number;
-  predictions: ProbabilityPredictions;
-  type?: PredictionType;
-  fixture?: Fixture;
-}
-
-export interface ProbabilityPredictions {
-  home: number;
-  away: number;
-  draw: number;
-}
-
-export interface ValueBet {
-  id: number;
-  fixture_id: number;
-  predictions: ValueBetPredictions;
-  type_id: number;
-  type?: PredictionType;
-  fixture?: Fixture;
-}
-
-export interface ValueBetPredictions {
-  bet: string;
-  bookmaker: string;
-  odd: number;
-  is_value: boolean;
-  stake: number;
-  fair_odd: number;
-}
-
 // Odds
 
 export interface Odd {
@@ -390,14 +357,6 @@ export interface FixturesQueryParams {
   page?: number;
 }
 
-export interface PredictionsQueryParams {
-  [key: string]: string | number | undefined;
-  include?: string;
-  filters?: string;
-  per_page?: number;
-  page?: number;
-}
-
 // Processed types for the app
 
 export interface ProcessedFixture {
@@ -448,13 +407,3 @@ export interface ProcessedOdds {
   bookmaker: string;
 }
 
-export interface ProcessedValueBet {
-  fixtureId: number;
-  fixture: ProcessedFixture;
-  bet: string;
-  bookmaker: string;
-  currentOdd: number;
-  fairOdd: number;
-  value: number; // percentage value
-  recommendedStake: number;
-}

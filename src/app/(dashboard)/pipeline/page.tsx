@@ -1,8 +1,7 @@
 import { PipelineStatus } from '@/components/pipeline/pipeline-status';
 import { Workflow } from 'lucide-react';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
-import { ADMIN_EMAIL } from '@/config/site';
+import { getSession } from '@/lib/auth/get-session';
+import { isAdmin } from '@/config/site';
 import { redirect } from 'next/navigation';
 
 export const metadata = {
@@ -11,8 +10,8 @@ export const metadata = {
 };
 
 export default async function PipelinePage() {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.email !== ADMIN_EMAIL) {
+  const session = await getSession();
+  if (!isAdmin(session?.user?.email)) {
     redirect('/dashboard');
   }
 

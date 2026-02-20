@@ -95,51 +95,74 @@ async function main() {
     return;
   }
 
-  const gwDir = path.join(baseDir, gameweeks[0]);
-  console.log(`Processing ${gameweeks[0]}...`);
+  for (const gwName of gameweeks) {
+    const gwDir = path.join(baseDir, gwName);
+    const matchesPath = path.join(gwDir, 'matches.json');
 
-  const raw = await fs.readFile(path.join(gwDir, 'matches.json'), 'utf-8');
-  const matches: MatchData[] = JSON.parse(raw);
-
-  // Load existing results
-  const resultsPath = path.join(gwDir, 'results.json');
-  let existingResults = new Map<number, ResultData>();
-  try {
-    const existingRaw = await fs.readFile(resultsPath, 'utf-8');
-    const existing: ResultData[] = JSON.parse(existingRaw);
-    existingResults = new Map(existing.map((r) => [r.fixtureId, r]));
-  } catch {
-    // No existing results
-  }
-
-  const now = new Date();
-  // Only check fixtures that have passed kickoff and don't already have a 'finished' result
-  const toCheck = matches.filter((m) => {
-    const kickoff = new Date(m.kickoff);
-    if (kickoff > now) return false; // hasn't started yet
-    const existing = existingResults.get(m.fixtureId);
-    if (existing?.status === 'finished') return false; // already have final result
-    return true;
-  });
-
-  console.log(`  ${toCheck.length} fixtures to check (${matches.length} total, ${existingResults.size} already have results)`);
-
-  let fetched = 0;
-  for (const m of toCheck) {
-    const result = await fetchFixture(m.fixtureId);
-    if (result) {
-      existingResults.set(m.fixtureId, result);
-      console.log(`  ${m.homeTeam.name} ${result.homeGoals}-${result.awayGoals} ${m.awayTeam.name} [${result.status}]`);
-      fetched++;
+    // Skip GWs without matches.json
+    try {
+      await fs.access(matchesPath);
+    } catch {
+      continue;
     }
-    // Small delay to respect rate limits
-    await new Promise((r) => setTimeout(r, 200));
-  }
 
-  // Write results
-  const allResults = Array.from(existingResults.values());
-  await fs.writeFile(resultsPath, JSON.stringify(allResults, null, 2));
-  console.log(`  ✓ ${fetched} new results fetched, ${allResults.length} total saved to results.json`);
+    console.log(`Processing ${gwName}...`);
+
+    const raw = await fs.readFile(matchesPath, 'utf-8');
+    const matches: MatchData[] = JSON.parse(raw);
+
+    // Load existing results
+    const resultsPath = path.join(gwDir, 'results.json');
+    let existingResults = new Map<number, ResultData>();
+    try {
+      const existingRaw = await fs.readFile(resultsPath, 'utf-8');
+      const existing: ResultData[] = JSON.parse(existingRaw);
+      existingResults = new Map(existing.map((r) => [r.fixtureId, r]));
+    } catch {
+      // No existing results
+    }
+
+    // Skip if all matches already have 'finished' status
+    const allFinished = matches.every((m) => existingResults.get(m.fixtureId)?.status === 'finished');
+    if (allFinished && matches.length > 0) {
+      console.log(`  All ${matches.length} matches already finished — skipping`);
+      continue;
+    }
+
+    const now = new Date();
+    // Only check fixtures that have passed kickoff and don't already have a 'finished' result
+    const toCheck = matches.filter((m) => {
+      const kickoff = new Date(m.kickoff);
+      if (kickoff > now) return false; // hasn't started yet
+      const existing = existingResults.get(m.fixtureId);
+      if (existing?.status === 'finished') return false; // already have final result
+      return true;
+    });
+
+    if (toCheck.length === 0) {
+      console.log(`  No fixtures to check — skipping`);
+      continue;
+    }
+
+    console.log(`  ${toCheck.length} fixtures to check (${matches.length} total, ${existingResults.size} already have results)`);
+
+    let fetched = 0;
+    for (const m of toCheck) {
+      const result = await fetchFixture(m.fixtureId);
+      if (result) {
+        existingResults.set(m.fixtureId, result);
+        console.log(`  ${m.homeTeam.name} ${result.homeGoals}-${result.awayGoals} ${m.awayTeam.name} [${result.status}]`);
+        fetched++;
+      }
+      // Small delay to respect rate limits
+      await new Promise((r) => setTimeout(r, 200));
+    }
+
+    // Write results
+    const allResults = Array.from(existingResults.values());
+    await fs.writeFile(resultsPath, JSON.stringify(allResults, null, 2));
+    console.log(`  ✓ ${fetched} new results fetched, ${allResults.length} total saved to results.json`);
+  }
 }
 
 main().catch(console.error);

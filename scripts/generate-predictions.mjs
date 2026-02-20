@@ -308,6 +308,7 @@ for (const match of matches) {
 
   predictions.push({
     fixtureId: match.fixtureId,
+    leagueId: match.league.id,
     league: match.league.name,
     homeTeam: match.homeTeam.name,
     awayTeam: match.awayTeam.name,

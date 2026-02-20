@@ -19,7 +19,7 @@ export function ShareButton({ fixtureId, gameweek, leagueId, homeTeam, awayTeam 
     e.preventDefault();
     e.stopPropagation();
 
-    const url = `${window.location.origin}/predictions?league=${leagueId}&gw=${gameweek}&match=${fixtureId}`;
+    const url = `${window.location.origin}/predictions?league=${leagueId}&gw=${gameweek}`;
     const text = `Check out the AI prediction for ${homeTeam} vs ${awayTeam} on MyPredictify`;
 
     if (navigator.share) {
@@ -38,7 +38,7 @@ export function ShareButton({ fixtureId, gameweek, leagueId, homeTeam, awayTeam 
     } catch {
       // Clipboard API not available
     }
-  }, [fixtureId, gameweek, leagueId, homeTeam, awayTeam]);
+  }, [gameweek, leagueId, homeTeam, awayTeam]);
 
   return (
     <Button

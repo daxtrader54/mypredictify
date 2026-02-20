@@ -1,5 +1,6 @@
 import { eq, and, gte, sql, lt } from 'drizzle-orm';
 import { db, users, creditTransactions, type User, type NewUser } from './index';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export async function getUser(id: string): Promise<User | null> {
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
@@ -49,7 +50,7 @@ export async function getOrCreateUser(
     return existing;
   }
 
-  return createUser({
+  const newUser = await createUser({
     id: email, // Use email as ID
     email,
     name: name || null,
@@ -59,6 +60,15 @@ export async function getOrCreateUser(
     hasApiAccess: false,
     favoriteLeagues: [8], // Premier League
   });
+
+  // Send welcome email (non-blocking — must not block signup)
+  try {
+    await sendWelcomeEmail(email, name);
+  } catch {
+    // Email failure should never block account creation
+  }
+
+  return newUser;
 }
 
 // Credits operations
@@ -243,7 +253,7 @@ export async function updateUserSubscription(
     updates.credits = 100;
     updates.monthlyCreditsLastReset = new Date();
   } else if (tier === 'gold') {
-    updates.credits = 2000;
+    updates.credits = 999999;
     updates.monthlyCreditsLastReset = new Date();
   }
 

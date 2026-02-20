@@ -21,7 +21,7 @@ export async function generateMetadata({ searchParams }: PredictionsPageProps): 
       title: `${title} | MyPredictify`,
       description: 'AI-powered football match predictions with win probabilities and predicted scores.',
       images: gw
-        ? [{ url: `${siteConfig.url}/api/og/prediction?gw=${gw}${leagueId ? `&league=${leagueId}` : ''}`, width: 1200, height: 630 }]
+        ? [{ url: `${siteConfig.url}/api/og/results?gw=${gw}`, width: 1200, height: 630 }]
         : undefined,
     },
   };

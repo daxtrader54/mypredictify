@@ -49,8 +49,8 @@ export async function loadResults(
           status: r.status as ResultData['status'],
         });
       }
-    } catch {
-      // DB table might not exist yet — fall back to file results
+    } catch (error) {
+      console.error('Failed to load results from DB:', error);
     }
   }
 

@@ -2,18 +2,13 @@ import { unstable_cache } from 'next/cache';
 import type {
   SportMonksResponse,
   Fixture,
-  Probability,
-  ValueBet,
   Standing,
   Season,
   League,
   Team,
   Odd,
   FixturesQueryParams,
-  PredictionsQueryParams,
   ProcessedFixture,
-  ProcessedPrediction,
-  ProcessedValueBet,
   ProcessedTeam,
 } from './types';
 
@@ -141,37 +136,6 @@ class SportMonksClient {
     }, {
       revalidate: 3600, // 1 hour
       tags: ['h2h', `h2h-${teamId1}-${teamId2}`],
-    });
-  }
-
-  // Predictions — NOT available on Standard European plan (needs Predictions add-on)
-  // Our pipeline generates its own predictions via Elo + Poisson + 5-signal research
-  // Keeping methods for future use if add-on is purchased
-  async getProbabilities(params: PredictionsQueryParams = {}): Promise<SportMonksResponse<Probability[]>> {
-    return this.request<Probability[]>('/predictions/probabilities', params, {
-      revalidate: 1800,
-      tags: ['predictions', 'probabilities'],
-    });
-  }
-
-  async getProbabilitiesByFixture(fixtureId: number): Promise<SportMonksResponse<Probability[]>> {
-    return this.request<Probability[]>(`/predictions/probabilities/fixtures/${fixtureId}`, {}, {
-      revalidate: 1800,
-      tags: ['predictions', `predictions-fixture-${fixtureId}`],
-    });
-  }
-
-  async getValueBets(params: PredictionsQueryParams = {}): Promise<SportMonksResponse<ValueBet[]>> {
-    return this.request<ValueBet[]>('/predictions/value-bets', params, {
-      revalidate: 1800,
-      tags: ['predictions', 'value-bets'],
-    });
-  }
-
-  async getValueBetsByFixture(fixtureId: number): Promise<SportMonksResponse<ValueBet[]>> {
-    return this.request<ValueBet[]>(`/predictions/value-bets/fixtures/${fixtureId}`, {}, {
-      revalidate: 1800,
-      tags: ['predictions', `value-bets-fixture-${fixtureId}`],
     });
   }
 
@@ -324,39 +288,6 @@ function processTeam(team?: Team): ProcessedTeam {
   };
 }
 
-export function processProbability(probability: Probability): ProcessedPrediction {
-  const { home, draw, away } = probability.predictions;
-  const maxProb = Math.max(home, draw, away);
-
-  let advice = 'Draw';
-  if (home === maxProb) advice = 'Home Win';
-  else if (away === maxProb) advice = 'Away Win';
-
-  return {
-    homeWin: home,
-    draw,
-    awayWin: away,
-    advice,
-    confidence: maxProb,
-  };
-}
-
-export function processValueBet(valueBet: ValueBet, fixture: ProcessedFixture): ProcessedValueBet {
-  const { bet, bookmaker, odd, fair_odd, stake } = valueBet.predictions;
-  const value = ((fair_odd - odd) / odd) * 100;
-
-  return {
-    fixtureId: valueBet.fixture_id,
-    fixture,
-    bet,
-    bookmaker,
-    currentOdd: odd,
-    fairOdd: fair_odd,
-    value,
-    recommendedStake: stake,
-  };
-}
-
 // Cached functions for common queries
 
 export const getCachedUpcomingFixtures = unstable_cache(
@@ -378,40 +309,6 @@ export const getCachedUpcomingFixtures = unstable_cache(
   },
   ['upcoming-fixtures'],
   { revalidate: 300, tags: ['fixtures'] }
-);
-
-export const getCachedProbabilities = unstable_cache(
-  async (fixtureIds: number[]) => {
-    const client = getSportMonksClient();
-    const response = await client.getProbabilities({
-      filters: `fixture_ids:${fixtureIds.join(',')}`,
-      include: 'type',
-    });
-
-    const probabilityMap = new Map<number, ProcessedPrediction>();
-    for (const prob of response.data) {
-      if (prob.type?.code === 'FULLTIME_RESULT') {
-        probabilityMap.set(prob.fixture_id, processProbability(prob));
-      }
-    }
-
-    return probabilityMap;
-  },
-  ['probabilities'],
-  { revalidate: 1800, tags: ['predictions'] }
-);
-
-export const getCachedValueBets = unstable_cache(
-  async () => {
-    const client = getSportMonksClient();
-    const response = await client.getValueBets({
-      include: 'type;fixture.participants;fixture.league',
-    });
-
-    return response.data;
-  },
-  ['value-bets'],
-  { revalidate: 1800, tags: ['predictions', 'value-bets'] }
 );
 
 export const getCachedStandings = unstable_cache(

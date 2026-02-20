@@ -109,11 +109,11 @@ export function SubscriptionContent({ user }: { user: User }) {
           <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
             <div>
               <div className="text-sm text-muted-foreground">Available Credits</div>
-              <div className="text-3xl font-bold">{user.credits.toLocaleString()}</div>
+              <div className="text-3xl font-bold">{user.tier === 'gold' ? 'Unlimited' : user.credits.toLocaleString()}</div>
             </div>
             <div className="text-right">
               <div className="text-sm text-muted-foreground">Monthly Allowance</div>
-              <div className="text-xl font-semibold">{currentPlan?.credits.toLocaleString()}</div>
+              <div className="text-xl font-semibold">{currentPlan?.credits === Infinity ? 'Unlimited' : currentPlan?.credits.toLocaleString()}</div>
             </div>
           </div>
 

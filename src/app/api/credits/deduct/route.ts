@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/get-session';
-import { deductCredits } from '@/lib/db/users';
+import { deductCredits, getOrCreateUser } from '@/lib/db/users';
+import { isFreeForTier } from '@/config/pricing';
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { amount, reason } = body;
+    const { amount, reason, leagueId } = body;
 
     if (typeof amount !== 'number' || amount <= 0) {
       return NextResponse.json(
@@ -25,6 +26,14 @@ export async function POST(request: Request) {
         { error: 'Reason is required' },
         { status: 400 }
       );
+    }
+
+    // Check if this league is free for the user's tier
+    if (typeof leagueId === 'number') {
+      const user = await getOrCreateUser(session.user.email, session.user.name, session.user.image);
+      if (isFreeForTier(user.tier, leagueId)) {
+        return NextResponse.json({ success: true, newBalance: user.credits });
+      }
     }
 
     const result = await deductCredits(session.user.email, amount, reason);

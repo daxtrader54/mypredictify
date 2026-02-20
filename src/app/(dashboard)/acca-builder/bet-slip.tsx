@@ -12,12 +12,29 @@ export function BetSlip() {
   const { selections, removeSelection, getCombinedOdds } = useAccaStore();
   const combinedOdds = getCombinedOdds();
 
-  const copyToClipboard = () => {
+  const formatSlipText = () => {
     const text = selections
       .map((s) => `${s.homeTeam} vs ${s.awayTeam}: ${s.selection} @ ${s.odds.toFixed(2)}`)
       .join('\n');
-    const footer = `\nCombined Odds: ${combinedOdds.toFixed(2)}`;
-    navigator.clipboard.writeText(text + footer);
+    return `${text}\n\nCombined Odds: ${combinedOdds.toFixed(2)}\n\nBuilt with MyPredictify`;
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(formatSlipText());
+  };
+
+  const handleShare = async () => {
+    const text = formatSlipText();
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'My ACCA - MyPredictify', text });
+      } catch {
+        // User cancelled share — fall back to clipboard
+        navigator.clipboard.writeText(text);
+      }
+    } else {
+      navigator.clipboard.writeText(text);
+    }
   };
 
   if (selections.length === 0) {
@@ -52,7 +69,7 @@ export function BetSlip() {
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={copyToClipboard}>
               <Copy className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
           </div>

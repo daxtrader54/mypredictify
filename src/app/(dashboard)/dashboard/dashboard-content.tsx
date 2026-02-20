@@ -4,16 +4,19 @@ import { useCredits } from '@/hooks/use-credits';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Coins, Crown, Gift, Target, Zap, ArrowRight } from 'lucide-react';
+import { Coins, Crown, Gift, Target, Zap, ArrowRight, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
 import type { User } from '@/lib/db/schema';
 import { PRICING_PLANS, formatPrice } from '@/config/pricing';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface DashboardContentProps {
   user: User;
+  thisWeekPredictions?: number;
+  justUpgraded?: boolean;
 }
 
-export function DashboardContent({ user }: DashboardContentProps) {
+export function DashboardContent({ user, thisWeekPredictions = 0, justUpgraded = false }: DashboardContentProps) {
   const { credits, tier, isPro, canRedeemDaily, redeemDailyCredits, loading } = useCredits();
 
   const currentPlan = PRICING_PLANS.find((p) => p.id === tier);
@@ -23,6 +26,15 @@ export function DashboardContent({ user }: DashboardContentProps) {
   };
 
   return (
+    <>
+    {justUpgraded && (
+      <Alert className="border-green-500/50 bg-green-500/10 mb-4">
+        <PartyPopper className="h-4 w-4 text-green-500" />
+        <AlertDescription className="text-green-700 dark:text-green-400">
+          Congratulations on upgrading to <span className="font-semibold capitalize">{tier}</span>! You now have access to all your new features.
+        </AlertDescription>
+      </Alert>
+    )}
     <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-3 md:p-5">
       <div className="relative">
         {/* Top row: badge + greeting */}
@@ -49,7 +61,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
             {loading ? (
               <Skeleton className="h-5 w-16" />
             ) : (
-              <p className="text-lg font-bold leading-tight">{credits.toLocaleString()}</p>
+              <p className="text-lg font-bold leading-tight">{tier === 'gold' ? 'Unlimited' : credits.toLocaleString()}</p>
             )}
           </div>
 
@@ -97,10 +109,11 @@ export function DashboardContent({ user }: DashboardContentProps) {
               <span className="text-[11px] font-medium text-muted-foreground">This Week</span>
               <Target className="h-3 w-3 text-blue-500" />
             </div>
-            <p className="text-lg font-bold leading-tight">0</p>
+            <p className="text-lg font-bold leading-tight">{thisWeekPredictions}</p>
           </div>
         </div>
       </div>
     </div>
+    </>
   );
 }

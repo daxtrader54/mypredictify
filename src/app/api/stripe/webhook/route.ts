@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { PRICING_PLANS, ADD_ONS, type PricingTier } from '@/config/pricing';
+import { PRICING_PLANS, type PricingTier } from '@/config/pricing';
 import {
   getUserByEmail,
   getUserByStripeCustomerId,
   updateUserSubscription,
   cancelSubscription,
 } from '@/lib/db/users';
+import { sendUpgradeEmail } from '@/lib/email';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-12-15.clover',
@@ -21,10 +22,8 @@ for (const plan of PRICING_PLANS) {
   if (plan.stripePriceIdAnnual) PRICE_TO_TIER[plan.stripePriceIdAnnual] = plan.id;
 }
 
-// API access add-on price IDs
-const API_ACCESS_PRICE_IDS = new Set(
-  ADD_ONS.filter((a) => a.id === 'api-access' && a.stripePriceId).map((a) => a.stripePriceId!)
-);
+// API access add-on price IDs (none currently configured)
+const API_ACCESS_PRICE_IDS = new Set<string>();
 
 function getTierFromSubscription(subscription: Stripe.Subscription): {
   tier: PricingTier;
@@ -92,6 +91,15 @@ export async function POST(req: Request) {
         );
 
         console.log(`Webhook: ${userId} upgraded to ${tier} (subscription: ${subscription.id})`);
+
+        // Send upgrade confirmation email (non-blocking)
+        try {
+          const user = await getUserByEmail(userId);
+          if (user) await sendUpgradeEmail(userId, user.name, tier);
+        } catch {
+          // Email failure should never block upgrade
+        }
+
         break;
       }
 

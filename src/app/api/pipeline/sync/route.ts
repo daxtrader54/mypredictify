@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readFileSync, existsSync, readdirSync } from 'fs';
+import { readFile, readdir } from 'fs/promises';
+import { existsSync } from 'fs';
 import { resolve } from 'path';
 import { db } from '@/lib/db';
 import { gameweeks, matchPredictions, weeklyMetrics } from '@/lib/db/schema';
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     let targetGw = gwName;
 
     if (!targetSeason) {
-      const seasons = readdirSync(dataDir).sort().reverse();
+      const seasons = (await readdir(dataDir)).sort().reverse();
       if (seasons.length === 0) {
         return NextResponse.json({ error: 'No seasons found' }, { status: 404 });
       }
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
 
     if (!targetGw) {
       const seasonDir = resolve(dataDir, targetSeason);
-      const gws = readdirSync(seasonDir)
+      const gws = (await readdir(seasonDir))
         .filter(d => d.startsWith('GW'))
         .sort((a, b) => {
           const numA = parseInt(a.replace('GW', ''));
@@ -71,9 +72,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No predictions.json found' }, { status: 404 });
     }
 
-    const predictions = JSON.parse(readFileSync(predictionsPath, 'utf-8'));
+    const predictions = JSON.parse(await readFile(predictionsPath, 'utf-8'));
 
     // Build gameweek rows (one per league) — batch upsert
+    // leagueId || 8 fallback for predictions generated before A5 fix added leagueId
     const leagueIds = [...new Set(predictions.map((p: { leagueId?: number }) => p.leagueId || 8))] as number[];
 
     const gwRows = leagueIds.map((leagueId) => ({
@@ -150,7 +152,7 @@ export async function POST(request: Request) {
     // Sync evaluation if exists — batch upsert
     const evalPath = resolve(gwDir, 'evaluation.json');
     if (existsSync(evalPath)) {
-      const evaluation = JSON.parse(readFileSync(evalPath, 'utf-8'));
+      const evaluation = JSON.parse(await readFile(evalPath, 'utf-8'));
 
       if (evaluation.summary) {
         const metricRows = leagueIds.map((leagueId) => {

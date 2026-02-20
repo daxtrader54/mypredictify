@@ -18,7 +18,7 @@ interface CreditsContextValue extends CreditsState {
   isPaid: boolean;
   fetchCredits: () => Promise<void>;
   redeemDailyCredits: () => Promise<{ success: boolean; creditsAdded?: number; error?: string }>;
-  deductCredits: (amount: number, reason: string) => Promise<{ success: boolean; error?: string }>;
+  deductCredits: (amount: number, reason: string, leagueId?: number) => Promise<{ success: boolean; error?: string }>;
   hasEnoughCredits: (amount: number) => boolean;
 }
 
@@ -111,7 +111,8 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
 
   const deductCredits = useCallback(async (
     amount: number,
-    reason: string
+    reason: string,
+    leagueId?: number
   ): Promise<{ success: boolean; error?: string }> => {
     if (state.credits < amount) {
       return { success: false, error: 'Insufficient credits' };
@@ -121,7 +122,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       const response = await fetch('/api/credits/deduct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, reason }),
+        body: JSON.stringify({ amount, reason, leagueId }),
       });
 
       const data = await response.json();
@@ -178,7 +179,7 @@ const defaultValue: CreditsContextValue = {
   isPaid: false,
   fetchCredits: async () => {},
   redeemDailyCredits: async () => ({ success: false, error: 'No provider' }),
-  deductCredits: async () => ({ success: false, error: 'No provider' }),
+  deductCredits: async (_a: number, _r: string, _l?: number) => ({ success: false, error: 'No provider' }),
   hasEnoughCredits: () => false,
 };
 

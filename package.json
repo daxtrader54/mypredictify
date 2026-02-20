@@ -24,7 +24,8 @@
     "update-poisson-cal": "tsx scripts/update-poisson-calibration.ts",
     "version-skill": "tsx scripts/version-skill.ts",
     "track-skill-perf": "tsx scripts/track-skill-performance.ts",
-    "pipeline-cron": "tsx scripts/pipeline-cron.ts"
+    "pipeline-cron": "tsx scripts/pipeline-cron.ts",
+    "blog": "tsx scripts/generate-blog-post.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -50,11 +51,13 @@
     "next-auth": "^4.24.13",
     "next-themes": "^0.4.6",
     "openai": "^6.15.0",
+    "posthog-js": "^1.352.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.70.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
+    "resend": "^6.9.2",
     "stripe": "^20.1.2",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.5",

@@ -15,7 +15,6 @@ export const siteConfig = {
   ogImage: '/og-image.png',
   links: {
     twitter: 'https://twitter.com/mypredictify',
-    github: 'https://github.com/mypredictify',
   },
   creator: 'MyPredictify',
   keywords: [
@@ -50,43 +49,6 @@ export const navConfig = {
     {
       title: 'Pricing',
       href: '/pricing',
-    },
-  ],
-  sidebarNav: [
-    {
-      title: 'Dashboard',
-      href: '/dashboard',
-      icon: 'dashboard',
-    },
-    {
-      title: 'Predictions',
-      href: '/predictions',
-      icon: 'target',
-    },
-    {
-      title: 'Value Bets',
-      href: '/value-bets',
-      icon: 'trending-up',
-    },
-    {
-      title: 'ACCA Builder',
-      href: '/acca-builder',
-      icon: 'layers',
-    },
-    {
-      title: 'Pipeline',
-      href: '/pipeline',
-      icon: 'workflow',
-    },
-    {
-      title: 'Reports',
-      href: '/reports',
-      icon: 'file-text',
-    },
-    {
-      title: 'Today',
-      href: '/today',
-      icon: 'calendar-days',
     },
   ],
 };

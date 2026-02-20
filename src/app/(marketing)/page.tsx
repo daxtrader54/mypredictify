@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { PricingCards } from './pricing/pricing-cards';
 import { getSession } from '@/lib/auth/get-session';
+import { CREDIT_COSTS } from '@/config/pricing';
 
 export default async function HomePage() {
   const session = await getSession();
@@ -340,19 +341,19 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto text-center">
             <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
-              <p className="text-2xl font-bold text-primary">1</p>
+              <p className="text-2xl font-bold text-primary">{CREDIT_COSTS.VIEW_PREDICTION}</p>
               <p className="text-sm text-muted-foreground mt-1">View prediction</p>
             </div>
             <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
-              <p className="text-2xl font-bold text-primary">2</p>
+              <p className="text-2xl font-bold text-primary">{CREDIT_COSTS.VIEW_VALUE_BET}</p>
               <p className="text-sm text-muted-foreground mt-1">Value bet</p>
             </div>
             <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
-              <p className="text-2xl font-bold text-primary">3</p>
+              <p className="text-2xl font-bold text-primary">{CREDIT_COSTS.VIEW_DETAILED_STATS}</p>
               <p className="text-sm text-muted-foreground mt-1">Detailed stats</p>
             </div>
             <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
-              <p className="text-2xl font-bold text-primary">5</p>
+              <p className="text-2xl font-bold text-primary">{CREDIT_COSTS.GENERATE_ACCA}</p>
               <p className="text-sm text-muted-foreground mt-1">Generate ACCA</p>
             </div>
           </div>

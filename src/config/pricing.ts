@@ -15,15 +15,6 @@ export interface PricingPlan {
   popular?: boolean;
 }
 
-export interface AddOn {
-  id: string;
-  name: string;
-  description: string;
-  price: number; // in pence per month
-  stripePriceId: string | null;
-  features: string[];
-}
-
 export const PRICING_PLANS: PricingPlan[] = [
   {
     id: 'free',
@@ -85,8 +76,6 @@ export const PRICING_PLANS: PricingPlan[] = [
     popular: true,
   },
 ];
-
-export const ADD_ONS: AddOn[] = [];
 
 export const CREDIT_COSTS = {
   VIEW_PREDICTION: 1,
