@@ -46,6 +46,7 @@ interface User {
   monthlyCreditsLastReset: string;
   createdAt: string;
   updatedAt: string;
+  visits: { totalVisits: number; lastVisit: string | null };
 }
 
 interface UsersResponse {
@@ -201,19 +202,21 @@ export function AdminContent() {
                   <TableHead className="text-center">Tier</TableHead>
                   <TableHead className="text-center">Credits</TableHead>
                   <TableHead className="text-center">Stripe</TableHead>
+                  <TableHead className="text-center">Visits</TableHead>
+                  <TableHead>Last Active</TableHead>
                   <TableHead>Joined</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       Loading...
                     </TableCell>
                   </TableRow>
                 ) : users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       No users found
                     </TableCell>
                   </TableRow>
@@ -242,6 +245,12 @@ export function AdminContent() {
                         ) : (
                           <span className="text-xs text-muted-foreground">—</span>
                         )}
+                      </TableCell>
+                      <TableCell className="text-center font-mono text-sm">
+                        {user.visits?.totalVisits || 0}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {user.visits?.lastVisit ? formatDate(user.visits.lastVisit) : '—'}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {formatDate(user.createdAt)}
@@ -308,6 +317,10 @@ export function AdminContent() {
                 <div className="font-bold">{selectedUser.credits.toLocaleString()}</div>
                 <div className="text-muted-foreground">Joined</div>
                 <div>{formatDate(selectedUser.createdAt)}</div>
+                <div className="text-muted-foreground">Total Visits</div>
+                <div className="font-bold">{selectedUser.visits?.totalVisits || 0}</div>
+                <div className="text-muted-foreground">Last Active</div>
+                <div>{selectedUser.visits?.lastVisit ? formatDate(selectedUser.visits.lastVisit) : '—'}</div>
                 <div className="text-muted-foreground">Last updated</div>
                 <div>{formatDate(selectedUser.updatedAt)}</div>
                 {selectedUser.stripeCustomerId && (

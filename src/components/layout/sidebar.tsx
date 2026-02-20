@@ -118,7 +118,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
       {/* Credits section */}
       {session && (
         <div className="px-2 py-1.5 border-b border-border/50">
-          <div className="flex items-center justify-between rounded-md bg-yellow-500/5 border border-yellow-500/15 px-2.5 py-1.5">
+          <div data-tour="sidebar-credits" className="flex items-center justify-between rounded-md bg-yellow-500/5 border border-yellow-500/15 px-2.5 py-1.5">
             <div className="flex items-center gap-2">
               <Coins className="h-4 w-4 text-yellow-500 shrink-0" />
               <span className="font-bold text-sm">
@@ -151,7 +151,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 p-2">
+      <nav data-tour="sidebar-nav" className="flex-1 space-y-0.5 p-2">
         <p className="px-3 py-1.5 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
           Main Menu
         </p>
@@ -187,7 +187,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
       <Separator className="opacity-50" />
 
       {/* Leagues section */}
-      <div className="p-2">
+      <div data-tour="sidebar-leagues" className="p-2">
         <p className="px-3 py-1.5 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
           Leagues
         </p>

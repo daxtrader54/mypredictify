@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "driver.js/dist/driver.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -175,4 +176,42 @@
   .container {
     max-width: 1280px;
   }
+}
+
+/* driver.js dark mode overrides */
+.dark .driver-popover {
+  background-color: oklch(0.18 0.02 260);
+  color: oklch(0.98 0 0);
+  border: 1px solid oklch(1 0 0 / 12%);
+}
+.dark .driver-popover .driver-popover-title {
+  color: oklch(0.98 0 0);
+}
+.dark .driver-popover .driver-popover-description {
+  color: oklch(0.65 0 0);
+}
+.dark .driver-popover .driver-popover-progress-text {
+  color: oklch(0.65 0 0);
+}
+.dark .driver-popover .driver-popover-prev-btn {
+  color: oklch(0.98 0 0);
+  border-color: oklch(1 0 0 / 12%);
+}
+.dark .driver-popover .driver-popover-prev-btn:hover {
+  background-color: oklch(0.25 0.02 260);
+}
+.dark .driver-popover .driver-popover-next-btn,
+.dark .driver-popover .driver-popover-close-btn {
+  background-color: oklch(0.75 0.18 145);
+  color: oklch(0.13 0.02 260);
+}
+.dark .driver-popover .driver-popover-next-btn:hover,
+.dark .driver-popover .driver-popover-close-btn:hover {
+  background-color: oklch(0.8 0.18 145);
+}
+.dark .driver-popover .driver-popover-arrow-side-left .driver-popover-arrow,
+.dark .driver-popover .driver-popover-arrow-side-right .driver-popover-arrow,
+.dark .driver-popover .driver-popover-arrow-side-top .driver-popover-arrow,
+.dark .driver-popover .driver-popover-arrow-side-bottom .driver-popover-arrow {
+  border-color: oklch(0.18 0.02 260);
 }

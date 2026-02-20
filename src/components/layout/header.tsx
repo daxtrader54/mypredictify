@@ -46,7 +46,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+      <div className="flex h-14 items-center px-4">
         {/* Mobile menu */}
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
@@ -66,8 +66,8 @@ export function Header() {
           <span className="font-bold text-xl hidden sm:inline-block">{siteConfig.name}</span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center space-x-1 ml-8">
+        {/* Desktop nav — centered */}
+        <nav className="hidden md:flex items-center space-x-1 flex-1 justify-center">
           {(session ? authenticatedNavItems : unauthenticatedNavItems).map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -89,7 +89,7 @@ export function Header() {
         </nav>
 
         {/* Right side */}
-        <div className="flex flex-1 items-center justify-end space-x-3">
+        <div className="flex items-center space-x-3 ml-auto md:ml-0">
           {status === 'loading' ? (
             <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
           ) : session?.user ? (

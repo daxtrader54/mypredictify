@@ -4,11 +4,12 @@ import { useCredits } from '@/hooks/use-credits';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Coins, Crown, Gift, Target, Zap, ArrowRight, PartyPopper } from 'lucide-react';
+import { Coins, Crown, Gift, Target, Zap, ArrowRight, PartyPopper, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import type { User } from '@/lib/db/schema';
 import { PRICING_PLANS, formatPrice } from '@/config/pricing';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTour } from '@/hooks/use-tour';
 
 interface DashboardContentProps {
   user: User;
@@ -18,6 +19,7 @@ interface DashboardContentProps {
 
 export function DashboardContent({ user, thisWeekPredictions = 0, justUpgraded = false }: DashboardContentProps) {
   const { credits, tier, isPro, canRedeemDaily, redeemDailyCredits, loading } = useCredits();
+  const { startTour } = useTour();
 
   const currentPlan = PRICING_PLANS.find((p) => p.id === tier);
 
@@ -35,7 +37,7 @@ export function DashboardContent({ user, thisWeekPredictions = 0, justUpgraded =
         </AlertDescription>
       </Alert>
     )}
-    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-3 md:p-5">
+    <div data-tour="welcome-card" className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-3 md:p-5">
       <div className="relative">
         {/* Top row: badge + greeting */}
         <div className="flex items-center justify-between mb-3">
@@ -48,6 +50,10 @@ export function DashboardContent({ user, thisWeekPredictions = 0, justUpgraded =
               Welcome back, {user.name?.split(' ')[0] || 'User'}!
             </h1>
           </div>
+          <Button variant="ghost" size="sm" onClick={startTour} className="text-muted-foreground hover:text-foreground">
+            <HelpCircle className="h-4 w-4 mr-1.5" />
+            Take a Tour
+          </Button>
         </div>
 
         {/* Inline stat cards */}

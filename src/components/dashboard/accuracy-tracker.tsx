@@ -182,7 +182,7 @@ export async function AccuracyTracker() {
   const hasData = data.gameweeks.length > 0;
 
   return (
-    <div className="space-y-6">
+    <div data-tour="accuracy-tracker" className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold mb-1">Prediction Accuracy</h2>
         <p className="text-sm text-muted-foreground">

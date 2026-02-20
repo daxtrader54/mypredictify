@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/get-session';
 import { isAdmin } from '@/config/site';
-import { db, users } from '@/lib/db';
+import { db, users, pageVisits } from '@/lib/db';
 import { like, or, sql } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
@@ -37,8 +37,35 @@ export async function GET(request: NextRequest) {
   const countResult = await db.select({ count: sql<number>`count(*)` }).from(users);
   const total = Number(countResult[0]?.count ?? 0);
 
+  // Fetch visit stats per user
+  let visitStats: Record<string, { totalVisits: number; lastVisit: string | null }> = {};
+  try {
+    const visitRows = await db
+      .select({
+        userId: pageVisits.userId,
+        totalVisits: sql<number>`count(*)`,
+        lastVisit: sql<string>`max(${pageVisits.createdAt})`,
+      })
+      .from(pageVisits)
+      .groupBy(pageVisits.userId);
+
+    for (const row of visitRows) {
+      visitStats[row.userId] = {
+        totalVisits: Number(row.totalVisits),
+        lastVisit: row.lastVisit,
+      };
+    }
+  } catch {
+    // page_visits table may not exist yet — continue without visit data
+  }
+
+  const usersWithVisits = results.map((u) => ({
+    ...u,
+    visits: visitStats[u.id] || { totalVisits: 0, lastVisit: null },
+  }));
+
   return NextResponse.json({
-    users: results,
+    users: usersWithVisits,
     total,
     page,
     pages: Math.ceil(total / limit),

@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { SessionProvider } from '@/components/providers/session-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { PostHogProvider } from '@/components/providers/posthog-provider';
+import { TawkTo } from '@/components/providers/tawk-to';
 import { siteConfig } from '@/config/site';
 import './globals.css';
 
@@ -71,6 +72,7 @@ export default function RootLayout({
             </Suspense>
           </ThemeProvider>
         </SessionProvider>
+        <TawkTo />
       </body>
     </html>
   );

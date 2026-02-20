@@ -75,7 +75,7 @@ export function LeagueStandings() {
   const relegationStart = activeLeague === 82 ? 17 : 18; // Bundesliga has 18 teams
 
   return (
-    <Card>
+    <Card data-tour="league-standings">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Trophy className="h-4 w-4 text-yellow-500" />

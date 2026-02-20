@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth/get-session';
 import { Header } from '@/components/layout/header';
 import { Sidebar } from '@/components/layout/sidebar';
 import { CreditsProvider } from '@/components/providers/credits-provider';
+import { VisitTracker } from '@/components/providers/visit-tracker';
 
 export default async function DashboardLayout({
   children,
@@ -16,6 +17,7 @@ export default async function DashboardLayout({
 
   return (
     <CreditsProvider>
+      <VisitTracker />
       <div className="min-h-screen bg-background">
         <Header />
         <div className="flex">

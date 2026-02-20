@@ -70,11 +70,20 @@ export const predictionViews = predictifySchema.table('prediction_views', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Page visits for admin analytics
+export const pageVisits = predictifySchema.table('page_visits', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  route: text('route').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   creditTransactions: many(creditTransactions),
   accaHistory: many(accaHistory),
   predictionViews: many(predictionViews),
+  pageVisits: many(pageVisits),
 }));
 
 export const creditTransactionsRelations = relations(creditTransactions, ({ one }) => ({
@@ -94,6 +103,13 @@ export const accaHistoryRelations = relations(accaHistory, ({ one }) => ({
 export const predictionViewsRelations = relations(predictionViews, ({ one }) => ({
   user: one(users, {
     fields: [predictionViews.userId],
+    references: [users.id],
+  }),
+}));
+
+export const pageVisitsRelations = relations(pageVisits, ({ one }) => ({
+  user: one(users, {
+    fields: [pageVisits.userId],
     references: [users.id],
   }),
 }));
@@ -222,6 +238,7 @@ export type NewUser = typeof users.$inferInsert;
 export type CreditTransaction = typeof creditTransactions.$inferSelect;
 export type AccaHistoryRecord = typeof accaHistory.$inferSelect;
 export type PredictionView = typeof predictionViews.$inferSelect;
+export type PageVisit = typeof pageVisits.$inferSelect;
 
 export interface AccaSelection {
   fixtureId: number;
