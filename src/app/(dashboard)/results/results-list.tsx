@@ -313,7 +313,7 @@ export async function ResultsList({ page }: { page?: number }) {
                             {row.fixture.homeTeam.logo ? (
                               <Image
                                 src={row.fixture.homeTeam.logo}
-                                alt=""
+                                alt={`${row.fixture.homeTeam.name} logo`}
                                 width={18}
                                 height={18}
                                 className="rounded shrink-0"
@@ -330,7 +330,7 @@ export async function ResultsList({ page }: { page?: number }) {
                             {row.fixture.awayTeam.logo ? (
                               <Image
                                 src={row.fixture.awayTeam.logo}
-                                alt=""
+                                alt={`${row.fixture.awayTeam.name} logo`}
                                 width={18}
                                 height={18}
                                 className="rounded shrink-0"

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
@@ -22,14 +23,46 @@ import { PricingCards } from './pricing/pricing-cards';
 import { getSession } from '@/lib/auth/get-session';
 import { CREDIT_COSTS } from '@/config/pricing';
 
+export const metadata: Metadata = {
+  title: 'MyPredictify — AI Football Predictions for Premier League, La Liga & More',
+  description: 'Get AI-powered football predictions with 68% accuracy across the Premier League, La Liga, Bundesliga, Serie A & Ligue 1. Match predictions, value bets, ACCA builder. Start free.',
+  alternates: { canonical: 'https://mypredictify.com' },
+};
+
 export default async function HomePage() {
   const session = await getSession();
   if (session?.user) {
     redirect('/dashboard');
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'MyPredictify',
+    url: 'https://mypredictify.com',
+    description: 'AI-powered football predictions for the Premier League, La Liga, Bundesliga, Serie A & Ligue 1. Get match predictions, value bets, and ACCA builder with 68% accuracy.',
+    applicationCategory: 'SportsApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'GBP',
+      lowPrice: '0',
+      highPrice: '49',
+      offerCount: '3',
+    },
+    author: {
+      '@type': 'Organization',
+      name: 'MyPredictify',
+      url: 'https://mypredictify.com',
+    },
+  };
+
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden">
         {/* Background gradient */}

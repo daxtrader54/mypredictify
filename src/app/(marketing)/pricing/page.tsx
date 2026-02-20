@@ -7,13 +7,44 @@ import { CREDIT_COSTS } from '@/config/pricing';
 import { PricingCards } from './pricing-cards';
 
 export const metadata: Metadata = {
-  title: 'Pricing',
-  description: 'Choose the plan that works best for you',
+  title: 'Pricing — Football Prediction Plans from Free to Gold',
+  description: 'Compare MyPredictify plans: Free (100 credits), Pro (unlimited Premier League, £19/mo), and Gold (all 5 leagues, £49/mo). Start free, upgrade anytime.',
 };
 
 export default function PricingPage() {
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Can I cancel anytime?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Yes! You can cancel your subscription at any time. You\'ll continue to have access until the end of your billing period.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'Do credits roll over?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Credits reset at the start of each billing cycle. Daily bonus credits must be claimed within 24 hours.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'What\'s the difference between Pro and Gold?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Pro gives you unlimited Premier League predictions at no credit cost, plus 100 credits and +10 daily for other leagues. Gold gives you unlimited predictions across all 5 European leagues with no credit limits at all.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'Can Free users access all leagues?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Yes! Free users can browse and unlock predictions for any league using credits. You start with 100 credits and earn +10 daily.' },
+      },
+    ],
+  };
+
   return (
     <div className="py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="container">
         {/* Header */}
         <div className="text-center mb-12">

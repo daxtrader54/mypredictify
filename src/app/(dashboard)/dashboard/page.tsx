@@ -13,8 +13,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Your MyPredictify dashboard',
+  title: 'Dashboard — Upcoming Fixtures, Standings & Accuracy',
+  description: 'Your MyPredictify dashboard with upcoming fixtures, live league standings, prediction accuracy tracker, and credits overview.',
 };
 
 async function getThisWeekPredictions(): Promise<number> {

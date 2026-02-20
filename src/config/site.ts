@@ -10,7 +10,7 @@ export function isAdmin(email?: string | null): boolean {
 
 export const siteConfig = {
   name: 'MyPredictify',
-  description: 'AI-powered football predictions and betting recommendations',
+  description: 'AI-powered football predictions for the Premier League, La Liga, Bundesliga, Serie A & Ligue 1. Get match predictions, value bets, and ACCA builder with 68% accuracy.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://mypredictify.com',
   ogImage: '/og-image.png',
   links: {
@@ -19,16 +19,23 @@ export const siteConfig = {
   creator: 'MyPredictify',
   keywords: [
     'football predictions',
+    'football prediction site',
+    'AI football predictions',
     'betting tips',
-    'AI predictions',
-    'Premier League',
-    'La Liga',
-    'Bundesliga',
-    'Serie A',
-    'Ligue 1',
-    'accumulator',
-    'ACCA',
+    'match predictions today',
+    'Premier League predictions',
+    'La Liga predictions',
+    'Bundesliga predictions',
+    'Serie A predictions',
+    'Ligue 1 predictions',
+    'accumulator tips',
+    'ACCA builder',
     'value bets',
+    'football betting tips',
+    'correct score predictions',
+    'predicted scores',
+    'football prediction model',
+    'win probability football',
   ],
 };
 

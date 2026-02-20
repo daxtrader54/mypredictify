@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
@@ -10,6 +11,16 @@ import Link from 'next/link';
 
 interface ReportPageProps {
   params: Promise<{ gameweek: string[] }>;
+}
+
+export async function generateMetadata({ params }: ReportPageProps): Promise<Metadata> {
+  const { gameweek: segments } = await params;
+  if (!segments || segments.length < 2) return {};
+  const [season, gw] = segments;
+  return {
+    title: `${gw} Report — ${season} Season`,
+    description: `Prediction performance report for ${gw} of the ${season} football season. Accuracy metrics, correct outcomes, and model analysis.`,
+  };
 }
 
 export default async function ReportPage({ params }: ReportPageProps) {
