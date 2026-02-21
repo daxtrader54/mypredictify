@@ -523,11 +523,31 @@ export function PredictionCard({ fixture, prediction, gameweek, siblingFixtureId
                           )}
                           {prediction.modelComponents.odds && (
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">Bookmaker Odds (40%)</span>
+                              <span className="text-muted-foreground">Bookmaker Odds{prediction.modelComponents.polymarket ? '' : ' (40%)'}</span>
                               <div className="flex gap-3 font-mono text-xs">
                                 <span className="text-blue-500">H {(prediction.modelComponents.odds.H * 100).toFixed(0)}%</span>
                                 <span className="text-gray-400">D {(prediction.modelComponents.odds.D * 100).toFixed(0)}%</span>
                                 <span className="text-red-500">A {(prediction.modelComponents.odds.A * 100).toFixed(0)}%</span>
+                              </div>
+                            </div>
+                          )}
+                          {prediction.modelComponents.polymarket && (
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Polymarket</span>
+                              <div className="flex gap-3 font-mono text-xs">
+                                <span className="text-blue-500">H {(prediction.modelComponents.polymarket.H * 100).toFixed(0)}%</span>
+                                <span className="text-gray-400">D {(prediction.modelComponents.polymarket.D * 100).toFixed(0)}%</span>
+                                <span className="text-red-500">A {(prediction.modelComponents.polymarket.A * 100).toFixed(0)}%</span>
+                              </div>
+                            </div>
+                          )}
+                          {prediction.modelComponents.blendedMarket && (
+                            <div className="flex items-center justify-between text-sm border-t border-border/30 pt-2">
+                              <span className="text-muted-foreground font-medium">Blended Market (40%)</span>
+                              <div className="flex gap-3 font-mono text-xs">
+                                <span className="text-blue-500">H {(prediction.modelComponents.blendedMarket.H * 100).toFixed(0)}%</span>
+                                <span className="text-gray-400">D {(prediction.modelComponents.blendedMarket.D * 100).toFixed(0)}%</span>
+                                <span className="text-red-500">A {(prediction.modelComponents.blendedMarket.A * 100).toFixed(0)}%</span>
                               </div>
                             </div>
                           )}

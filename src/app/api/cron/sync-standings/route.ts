@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { rawQuery } from '@/lib/db/raw-query';
 import { db } from '@/lib/db';
 import { leagueStandings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -19,23 +19,16 @@ function getDetail(details: Array<{ type?: { code?: string }; value: number }>, 
 }
 
 async function ensureTable() {
-  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-  if (!dbUrl) return;
-
-  const sql = neon(dbUrl);
-
-  // Check if table exists
-  const check = await sql`
-    SELECT EXISTS (
+  const check = await rawQuery<{ exists: boolean }>(
+    `SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
       WHERE table_schema = 'predictify' AND table_name = 'league_standings'
-    ) as exists
-  `;
+    ) as exists`
+  );
 
   if (check[0]?.exists) return;
 
-  // Create the table
-  await sql`
+  await rawQuery(`
     CREATE TABLE IF NOT EXISTS predictify.league_standings (
       id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
       league_id INTEGER NOT NULL,
@@ -54,7 +47,7 @@ async function ensureTable() {
       points INTEGER NOT NULL DEFAULT 0,
       updated_at TIMESTAMP NOT NULL DEFAULT now()
     )
-  `;
+  `);
 }
 
 export async function GET(_request: NextRequest) {

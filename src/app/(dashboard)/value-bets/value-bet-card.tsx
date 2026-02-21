@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight, Coins, Lock } from 'lucide-react';
+import { ArrowUpRight, Coins, Lock, AlertTriangle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useCredits } from '@/hooks/use-credits';
 import { CREDIT_COSTS, isFreeForTier } from '@/config/pricing';
@@ -23,6 +23,8 @@ export interface ValueBetData {
   edge: number;
   predictedScore: string;
   confidence: number;
+  polymarketProb?: number;
+  marketsDisagree?: boolean;
 }
 
 const VB_STORAGE_KEY = 'mypredictify:revealed-vb';
@@ -101,7 +103,15 @@ export function ValueBetCard({ vb }: { vb: ValueBetData }) {
     <Card className="overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <Badge variant="outline" className="text-xs">{vb.league}</Badge>
+          <div className="flex items-center gap-1.5">
+            <Badge variant="outline" className="text-xs">{vb.league}</Badge>
+            {vb.marketsDisagree && (
+              <Badge variant="secondary" className="text-xs gap-0.5 bg-amber-500/15 text-amber-500 border-amber-500/30">
+                <AlertTriangle className="h-3 w-3" />
+                Markets Disagree
+              </Badge>
+            )}
+          </div>
           <div className="flex items-center gap-1 text-green-500 font-bold text-sm">
             <ArrowUpRight className="h-3.5 w-3.5" />
             +{(vb.edge * 100).toFixed(1)}% edge
@@ -136,7 +146,7 @@ export function ValueBetCard({ vb }: { vb: ValueBetData }) {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+            <div className={`grid gap-2 text-center text-xs ${vb.polymarketProb !== undefined ? 'grid-cols-4' : 'grid-cols-3'}`}>
               <div className="p-2 bg-muted/50 rounded-lg">
                 <p className="font-bold text-sm">{(vb.modelProb * 100).toFixed(0)}%</p>
                 <p className="text-muted-foreground">Our Model</p>
@@ -145,6 +155,12 @@ export function ValueBetCard({ vb }: { vb: ValueBetData }) {
                 <p className="font-bold text-sm">{(vb.impliedProb * 100).toFixed(0)}%</p>
                 <p className="text-muted-foreground">Bookmaker</p>
               </div>
+              {vb.polymarketProb !== undefined && (
+                <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                  <p className="font-bold text-sm text-purple-500">{(vb.polymarketProb * 100).toFixed(0)}%</p>
+                  <p className="text-muted-foreground">Polymarket</p>
+                </div>
+              )}
               <div className="p-2 bg-muted/50 rounded-lg">
                 <p className="font-bold text-sm">{vb.odds.toFixed(2)}</p>
                 <p className="text-muted-foreground">Odds</p>

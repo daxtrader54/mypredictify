@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { neon } from '@neondatabase/serverless';
+import { rawQuery } from '@/lib/db/raw-query';
 import { db } from '@/lib/db';
 import { matchResults } from '@/lib/db/schema';
 import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
@@ -27,20 +27,16 @@ interface FetchedResult {
 }
 
 async function ensureTable() {
-  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-  if (!dbUrl) return;
-
-  const sql = neon(dbUrl);
-  const check = await sql`
-    SELECT EXISTS (
+  const check = await rawQuery<{ exists: boolean }>(
+    `SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
       WHERE table_schema = 'predictify' AND table_name = 'match_results'
-    ) as exists
-  `;
+    ) as exists`
+  );
 
   if (check[0]?.exists) return;
 
-  await sql`
+  await rawQuery(`
     CREATE TABLE IF NOT EXISTS predictify.match_results (
       fixture_id INTEGER PRIMARY KEY,
       home_goals INTEGER NOT NULL,
@@ -48,7 +44,7 @@ async function ensureTable() {
       status TEXT NOT NULL,
       updated_at TIMESTAMP NOT NULL DEFAULT now()
     )
-  `;
+  `);
 }
 
 async function fetchFixtureResult(fixtureId: number, token: string): Promise<FetchedResult | null> {

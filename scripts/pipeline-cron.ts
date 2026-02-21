@@ -355,6 +355,12 @@ function predictGameweek(gw: GWInfo): ActionResult {
   const start = Date.now();
   log(`\n=== PREDICT ${gw.name} ===`);
 
+  // Step 0: Export latest Polymarket prices from DB → JSON
+  const polyRes = run('npx tsx scripts/export-polymarket-prices.ts', 'export-polymarket-prices');
+  if (!polyRes.ok && !dryRun) {
+    warn('export-polymarket-prices failed — continuing without Polymarket data');
+  }
+
   // Run generate-predictions.mjs
   const predRes = run(
     `node scripts/generate-predictions.mjs ${gw.name} ${season}`,

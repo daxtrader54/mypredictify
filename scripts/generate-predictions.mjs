@@ -49,6 +49,22 @@ if (existsSync(calibrationPath)) {
   } catch { /* use defaults */ }
 }
 
+// Load Polymarket prices (exported by export-polymarket-prices.ts)
+let POLYMARKET_PRICES = {};
+const polymarketPath = join(root, 'data/memory/polymarket-prices.json');
+if (existsSync(polymarketPath)) {
+  try {
+    const polyData = JSON.parse(readFileSync(polymarketPath, 'utf-8'));
+    if (polyData.prices) {
+      POLYMARKET_PRICES = polyData.prices;
+      console.log(`Loaded Polymarket prices for ${Object.keys(POLYMARKET_PRICES).length} fixtures`);
+    }
+  } catch { /* use defaults */ }
+}
+
+// Market signal blend: how to split the market signal between bookmaker and polymarket
+const MARKET_BLEND = { bookmaker: 0.6, polymarket: 0.4 };
+
 const HOME_ADVANTAGE = 65; // Elo home bonus
 
 function getElo(teamId) {
@@ -270,13 +286,44 @@ for (const match of matches) {
   const wElo = MODEL_WEIGHTS.elo;
   const wPoisson = MODEL_WEIGHTS.poisson;
   const wOdds = MODEL_WEIGHTS.odds;
-  let finalH, finalD, finalA;
-  if (oddsProbs) {
-    finalH = elo.homeWin * wElo + poisson.homeWin * wPoisson + oddsProbs.homeWin * wOdds;
-    finalD = elo.draw * wElo + poisson.draw * wPoisson + oddsProbs.draw * wOdds;
-    finalA = elo.awayWin * wElo + poisson.awayWin * wPoisson + oddsProbs.awayWin * wOdds;
+
+  // Check for Polymarket data for this fixture
+  const polyPrices = POLYMARKET_PRICES[match.fixtureId];
+  let polymarketProbs = null;
+  if (polyPrices && polyPrices.homeWinProb > 0) {
+    polymarketProbs = {
+      homeWin: polyPrices.homeWinProb,
+      draw: polyPrices.drawProb,
+      awayWin: polyPrices.awayWinProb,
+    };
+  }
+
+  // Compute blended market signal (bookmaker + polymarket)
+  let marketH, marketD, marketA;
+  if (oddsProbs && polymarketProbs) {
+    // Blend bookmaker and polymarket within the market signal
+    marketH = oddsProbs.homeWin * MARKET_BLEND.bookmaker + polymarketProbs.homeWin * MARKET_BLEND.polymarket;
+    marketD = oddsProbs.draw * MARKET_BLEND.bookmaker + polymarketProbs.draw * MARKET_BLEND.polymarket;
+    marketA = oddsProbs.awayWin * MARKET_BLEND.bookmaker + polymarketProbs.awayWin * MARKET_BLEND.polymarket;
+  } else if (oddsProbs) {
+    marketH = oddsProbs.homeWin;
+    marketD = oddsProbs.draw;
+    marketA = oddsProbs.awayWin;
+  } else if (polymarketProbs) {
+    marketH = polymarketProbs.homeWin;
+    marketD = polymarketProbs.draw;
+    marketA = polymarketProbs.awayWin;
   } else {
-    // No odds: redistribute odds weight proportionally to elo/poisson
+    marketH = null;
+  }
+
+  let finalH, finalD, finalA;
+  if (marketH !== null) {
+    finalH = elo.homeWin * wElo + poisson.homeWin * wPoisson + marketH * wOdds;
+    finalD = elo.draw * wElo + poisson.draw * wPoisson + marketD * wOdds;
+    finalA = elo.awayWin * wElo + poisson.awayWin * wPoisson + marketA * wOdds;
+  } else {
+    // No market data: redistribute odds weight proportionally to elo/poisson
     const noOddsTotal = wElo + wPoisson;
     const adjElo = wElo / noOddsTotal;
     const adjPoisson = wPoisson / noOddsTotal;
@@ -323,6 +370,8 @@ for (const match of matches) {
       elo: { H: Math.round(elo.homeWin * 1000) / 1000, D: Math.round(elo.draw * 1000) / 1000, A: Math.round(elo.awayWin * 1000) / 1000 },
       poisson: { H: Math.round(poisson.homeWin * 1000) / 1000, D: Math.round(poisson.draw * 1000) / 1000, A: Math.round(poisson.awayWin * 1000) / 1000 },
       odds: oddsProbs ? { H: Math.round(oddsProbs.homeWin * 1000) / 1000, D: Math.round(oddsProbs.draw * 1000) / 1000, A: Math.round(oddsProbs.awayWin * 1000) / 1000 } : null,
+      polymarket: polymarketProbs ? { H: Math.round(polymarketProbs.homeWin * 1000) / 1000, D: Math.round(polymarketProbs.draw * 1000) / 1000, A: Math.round(polymarketProbs.awayWin * 1000) / 1000 } : null,
+      blendedMarket: (marketH !== null) ? { H: Math.round(marketH * 1000) / 1000, D: Math.round(marketD * 1000) / 1000, A: Math.round(marketA * 1000) / 1000 } : null,
       btts: { yes: Math.round(poisson.btts.yes * 100), no: Math.round(poisson.btts.no * 100) },
     },
   });

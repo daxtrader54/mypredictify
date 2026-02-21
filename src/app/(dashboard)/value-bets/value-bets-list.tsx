@@ -4,6 +4,8 @@ import { CURRENT_SEASON } from '@/config/site';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { TrendingUp, AlertCircle } from 'lucide-react';
 import { ValueBetCard, type ValueBetData } from './value-bet-card';
+import { db, predictionMarketPrices } from '@/lib/db';
+import { eq, desc } from 'drizzle-orm';
 
 interface MatchData {
   fixtureId: number;
@@ -38,6 +40,40 @@ async function getLatestGameweekDir(): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+interface PolymarketPriceData {
+  homeWinProb: number;
+  drawProb: number;
+  awayWinProb: number;
+}
+
+async function getPolymarketPrices(fixtureIds: number[]): Promise<Map<number, PolymarketPriceData>> {
+  const priceMap = new Map<number, PolymarketPriceData>();
+  if (fixtureIds.length === 0) return priceMap;
+
+  try {
+    const rows = await db
+      .select()
+      .from(predictionMarketPrices)
+      .where(eq(predictionMarketPrices.source, 'polymarket'))
+      .orderBy(desc(predictionMarketPrices.fetchedAt));
+
+    // Keep only latest per fixture
+    for (const row of rows) {
+      if (!priceMap.has(row.fixtureId) && fixtureIds.includes(row.fixtureId)) {
+        priceMap.set(row.fixtureId, {
+          homeWinProb: parseFloat(row.homeWinProb),
+          drawProb: parseFloat(row.drawProb),
+          awayWinProb: parseFloat(row.awayWinProb),
+        });
+      }
+    }
+  } catch {
+    // DB might not have the table yet — graceful fallback
+  }
+
+  return priceMap;
 }
 
 async function getValueBets(): Promise<ValueBetData[]> {
@@ -109,6 +145,25 @@ async function getValueBets(): Promise<ValueBetData[]> {
 
   // Sort by edge descending
   valueBets.sort((a, b) => b.edge - a.edge);
+
+  // Enrich with Polymarket data
+  const fixtureIds = valueBets.map(vb => vb.fixtureId);
+  const polyPrices = await getPolymarketPrices(fixtureIds);
+
+  for (const vb of valueBets) {
+    const poly = polyPrices.get(vb.fixtureId);
+    if (poly) {
+      // Determine which Polymarket prob corresponds to this bet
+      const polyProb = vb.bet === 'Home Win' ? poly.homeWinProb
+        : vb.bet === 'Away Win' ? poly.awayWinProb
+        : poly.drawProb;
+      vb.polymarketProb = polyProb;
+
+      // Flag if bookmaker and polymarket disagree by >10%
+      vb.marketsDisagree = Math.abs(vb.impliedProb - polyProb) > 0.10;
+    }
+  }
+
   return valueBets;
 }
 

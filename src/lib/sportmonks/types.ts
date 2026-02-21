@@ -397,6 +397,8 @@ export interface ProcessedPrediction {
     elo?: { H: number; D: number; A: number };
     poisson?: { H: number; D: number; A: number };
     odds?: { H: number; D: number; A: number } | null;
+    polymarket?: { H: number; D: number; A: number } | null;
+    blendedMarket?: { H: number; D: number; A: number } | null;
   };
 }
 

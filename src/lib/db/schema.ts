@@ -232,6 +232,20 @@ export const weeklyMetricsRelations = relations(weeklyMetrics, ({ one }) => ({
   }),
 }));
 
+// Prediction market prices (Polymarket, Betfair, etc.)
+export const predictionMarketPrices = predictifySchema.table('prediction_market_prices', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  fixtureId: integer('fixture_id').notNull(),
+  source: text('source').notNull(), // 'polymarket' | 'betfair'
+  homeWinProb: decimal('home_win_prob', { precision: 5, scale: 4 }).notNull(),
+  drawProb: decimal('draw_prob', { precision: 5, scale: 4 }).notNull(),
+  awayWinProb: decimal('away_win_prob', { precision: 5, scale: 4 }).notNull(),
+  volume: decimal('volume', { precision: 15, scale: 2 }),
+  liquidity: decimal('liquidity', { precision: 15, scale: 2 }),
+  externalEventId: text('external_event_id'),
+  fetchedAt: timestamp('fetched_at').defaultNow().notNull(),
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -260,3 +274,7 @@ export type MatchPrediction = typeof matchPredictions.$inferSelect;
 export type NewMatchPrediction = typeof matchPredictions.$inferInsert;
 export type WeeklyMetric = typeof weeklyMetrics.$inferSelect;
 export type PipelineRun = typeof pipelineRuns.$inferSelect;
+
+// Polymarket types
+export type PredictionMarketPrice = typeof predictionMarketPrices.$inferSelect;
+export type NewPredictionMarketPrice = typeof predictionMarketPrices.$inferInsert;

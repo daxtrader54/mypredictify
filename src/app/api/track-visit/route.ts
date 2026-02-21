@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { rawQuery } from '@/lib/db/raw-query';
 import { getSession } from '@/lib/auth/get-session';
 import { db, pageVisits } from '@/lib/db';
 
@@ -7,28 +7,24 @@ let tableReady = false;
 
 async function ensureTable() {
   if (tableReady) return;
-  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-  if (!dbUrl) return;
 
-  const sql = neon(dbUrl);
-
-  const check = await sql`
-    SELECT EXISTS (
+  const check = await rawQuery<{ exists: boolean }>(
+    `SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
       WHERE table_schema = 'predictify' AND table_name = 'page_visits'
-    ) as exists
-  `;
+    ) as exists`
+  );
 
   if (!check[0]?.exists) {
-    await sql`
+    await rawQuery(`
       CREATE TABLE IF NOT EXISTS predictify.page_visits (
         id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id TEXT NOT NULL REFERENCES predictify.users(id) ON DELETE CASCADE,
         route TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT NOW() NOT NULL
       )
-    `;
-    await sql`CREATE INDEX IF NOT EXISTS idx_page_visits_user_id ON predictify.page_visits(user_id)`;
+    `);
+    await rawQuery(`CREATE INDEX IF NOT EXISTS idx_page_visits_user_id ON predictify.page_visits(user_id)`);
   }
 
   tableReady = true;
