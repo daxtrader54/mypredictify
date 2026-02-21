@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { db } from '@/lib/db';
 import { blogPosts } from '@/lib/db/schema';
+import { rawQuery } from '@/lib/db/raw-query';
 import { desc, eq, and, sql } from 'drizzle-orm';
 
 export interface BlogPost {
@@ -27,6 +28,43 @@ export interface BlogFilter {
 
 const BLOG_DIR = path.join(process.cwd(), 'data', 'blog');
 const DEFAULT_PER_PAGE = 12;
+
+let blogTableReady = false;
+
+async function ensureBlogTable() {
+  if (blogTableReady) return;
+  try {
+    await rawQuery(`
+      DO $$ BEGIN
+        CREATE TYPE predictify.blog_post_type AS ENUM ('preview', 'review', 'weekly-roundup', 'analysis');
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$
+    `);
+    await rawQuery(`
+      DO $$ BEGIN
+        CREATE TYPE predictify.blog_post_status AS ENUM ('draft', 'published', 'archived');
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$
+    `);
+    await rawQuery(`
+      CREATE TABLE IF NOT EXISTS predictify.blog_posts (
+        id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+        slug TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        description TEXT,
+        type predictify.blog_post_type NOT NULL,
+        status predictify.blog_post_status NOT NULL DEFAULT 'published',
+        league_id INTEGER,
+        league_name TEXT,
+        gameweek INTEGER,
+        season TEXT,
+        published_at TIMESTAMP NOT NULL DEFAULT now(),
+        created_at TIMESTAMP NOT NULL DEFAULT now()
+      )
+    `);
+    blogTableReady = true;
+  } catch {
+    // Non-critical — will fall back to filesystem
+  }
+}
 
 /** Get posts from filesystem (fallback) */
 async function getFileSystemPosts(): Promise<BlogPost[]> {
@@ -61,6 +99,7 @@ export async function getAllPosts(filter?: BlogFilter): Promise<{
   const perPage = filter?.perPage ?? DEFAULT_PER_PAGE;
 
   // Try DB-backed index first
+  await ensureBlogTable();
   try {
     const conditions = [eq(blogPosts.status, 'published')];
 
@@ -158,6 +197,7 @@ export async function getAllSlugs(): Promise<string[]> {
 
 /** Index a blog post into the DB for fast querying */
 export async function indexBlogPost(post: BlogPost): Promise<void> {
+  await ensureBlogTable();
   try {
     const type = post.type ?? inferPostType(post.slug);
 

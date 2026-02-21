@@ -5,11 +5,17 @@ import { computeSyncPlan } from '@/lib/sync/match-windows';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
-  // Admin-only diagnostic endpoint
-  const session = await getSession();
-  if (!session?.user?.email || !isAdmin(session.user.email)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function GET(request: NextRequest) {
+  // Allow bearer token auth (for VPS/CLI access) or admin session
+  const authHeader = request.headers.get('authorization');
+  const syncKey = process.env.PIPELINE_SYNC_KEY;
+  const isBearerAuth = syncKey && authHeader === `Bearer ${syncKey}`;
+
+  if (!isBearerAuth) {
+    const session = await getSession();
+    if (!session?.user?.email || !isAdmin(session.user.email)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
   }
 
   try {

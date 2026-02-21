@@ -88,15 +88,24 @@ export async function GET(_request: NextRequest) {
 
   let synced = 0;
   const errors: string[] = [];
+  const debug: Record<string, { events: number; fixtures: number; matched: number; eventTitles?: string[] }> = {};
 
   // Match and sync by league
-  for (const [leagueIdStr, events] of allEvents) {
-    if (events.length === 0) continue;
+  for (const [leagueId, events] of allEvents) {
+    const leagueFixtures = upcomingFixtures.filter(f => f.league.id === leagueId);
+    const leagueName = leagueFixtures[0]?.league.name || `League ${leagueId}`;
 
-    const leagueFixtures = upcomingFixtures.filter(f => f.league.id === leagueIdStr);
-    if (leagueFixtures.length === 0) continue;
+    debug[leagueName] = {
+      events: events.length,
+      fixtures: leagueFixtures.length,
+      matched: 0,
+      eventTitles: events.slice(0, 5).map(e => e.title),
+    };
+
+    if (events.length === 0 || leagueFixtures.length === 0) continue;
 
     const matched = matchEventsToFixtures(events, leagueFixtures);
+    debug[leagueName].matched = matched.length;
 
     for (const { event, fixtureId } of matched) {
       try {
@@ -124,6 +133,7 @@ export async function GET(_request: NextRequest) {
     status: 'synced',
     checked: upcomingFixtures.length,
     synced,
+    debug,
     errors: errors.length > 0 ? errors : undefined,
     timestamp: now.toISOString(),
   });
