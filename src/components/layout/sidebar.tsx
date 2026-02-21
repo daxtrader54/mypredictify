@@ -18,6 +18,8 @@ import {
   FileText,
   Shield,
   HelpCircle,
+  Newspaper,
+  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -80,6 +82,20 @@ const navItems = [
     color: 'text-indigo-500',
     bgColor: 'bg-indigo-500/10',
     admin: true,
+  },
+  {
+    title: 'Markets',
+    href: '/polymarket',
+    icon: BarChart3,
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10',
+  },
+  {
+    title: 'Blog',
+    href: '/blog',
+    icon: Newspaper,
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
   },
   {
     title: 'Today',

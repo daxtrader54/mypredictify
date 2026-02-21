@@ -1,5 +1,5 @@
 import { getAccuracyData, type AccuracyData, type GameweekAccuracy } from '@/app/(dashboard)/dashboard/accuracy-data';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -97,12 +97,12 @@ function LeagueTable({ leagues }: { leagues: AccuracyData['leagueTotals'] }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Accuracy by League</CardTitle>
-        <CardDescription>Cumulative performance across all evaluated gameweeks</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Card variant="terminal">
+      <div className="pb-3 border-b border-border/40">
+        <div className="text-base font-semibold">Accuracy by League</div>
+        <div className="text-muted-foreground text-sm">Cumulative performance across all evaluated gameweeks</div>
+      </div>
+      <div className="pt-3">
         <Table>
           <TableHeader>
             <TableRow>
@@ -127,7 +127,7 @@ function LeagueTable({ leagues }: { leagues: AccuracyData['leagueTotals'] }) {
             ))}
           </TableBody>
         </Table>
-      </CardContent>
+      </div>
     </Card>
   );
 }
@@ -138,12 +138,12 @@ function GameweekHistory({ gameweeks }: { gameweeks: GameweekAccuracy[] }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Gameweek History</CardTitle>
-        <CardDescription>Per-round accuracy breakdown (most recent first)</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <Card variant="terminal">
+      <div className="pb-3 border-b border-border/40">
+        <div className="text-base font-semibold">Gameweek History</div>
+        <div className="text-muted-foreground text-sm">Per-round accuracy breakdown (most recent first)</div>
+      </div>
+      <div className="pt-3 space-y-4">
         {gameweeks.map((gw) => (
           <div key={gw.name} className="rounded-lg border p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -173,7 +173,7 @@ function GameweekHistory({ gameweeks }: { gameweeks: GameweekAccuracy[] }) {
             )}
           </div>
         ))}
-      </CardContent>
+      </div>
     </Card>
   );
 }

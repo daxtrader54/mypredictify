@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/responsible-gambling`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.2 },
   ];
 
-  const posts = await getAllPosts();
+  const { posts } = await getAllPosts();
   const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post.publishedAt),

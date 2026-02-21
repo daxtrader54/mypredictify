@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { leagueStandings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { LEAGUES } from '@/config/leagues';
+import { computeSyncPlan } from '@/lib/sync/match-windows';
 
 const SPORTMONKS_BASE = 'https://api.sportmonks.com/v3/football';
 
@@ -56,7 +57,6 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ error: 'SPORTMONKS_API_TOKEN not configured' }, { status: 500 });
   }
 
-  // Ensure table exists before syncing
   try {
     await ensureTable();
   } catch (error) {
@@ -67,11 +67,37 @@ export async function GET(_request: NextRequest) {
     );
   }
 
+  // Filter to leagues that had matches in the last 24h
+  let leaguesToSync = LEAGUES;
+  let apiCalls = 0;
+  let skippedReason: string | undefined;
+
+  try {
+    const syncPlan = await computeSyncPlan();
+    if (syncPlan.recentLeagueIds.length > 0) {
+      leaguesToSync = LEAGUES.filter((l) => syncPlan.recentLeagueIds.includes(l.id));
+      skippedReason = `Only syncing ${leaguesToSync.length}/${LEAGUES.length} leagues (had matches in last 24h)`;
+    } else if (!syncPlan.isMatchday) {
+      // No matches in last 24h and not a matchday — skip entirely
+      return NextResponse.json({
+        status: 'no-recent-matches',
+        apiCalls: 0,
+        synced: [],
+        skipped: LEAGUES.map((l) => l.name),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch {
+    // If sync plan fails, fall back to syncing all leagues
+    skippedReason = 'Sync plan unavailable, syncing all leagues';
+  }
+
   const results: Array<{ league: string; status: string; count?: number; error?: string }> = [];
 
-  for (const league of LEAGUES) {
+  for (const league of leaguesToSync) {
     try {
       const url = `${SPORTMONKS_BASE}/standings/seasons/${league.seasonId}?api_token=${token}&include=participant;details.type`;
+      apiCalls++;
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -124,5 +150,10 @@ export async function GET(_request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ synced: results, timestamp: new Date().toISOString() });
+  return NextResponse.json({
+    synced: results,
+    apiCalls,
+    filterReason: skippedReason,
+    timestamp: new Date().toISOString(),
+  });
 }

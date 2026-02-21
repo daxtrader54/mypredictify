@@ -232,6 +232,36 @@ export const weeklyMetricsRelations = relations(weeklyMetrics, ({ one }) => ({
   }),
 }));
 
+// Blog posts index (content lives in JSON files, this is for querying/filtering)
+export const blogPostTypeEnum = predictifySchema.enum('blog_post_type', ['preview', 'review', 'weekly-roundup', 'analysis']);
+export const blogPostStatusEnum = predictifySchema.enum('blog_post_status', ['draft', 'published', 'archived']);
+
+export const blogPosts = predictifySchema.table('blog_posts', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  slug: text('slug').notNull().unique(),
+  title: text('title').notNull(),
+  description: text('description'),
+  type: blogPostTypeEnum('type').notNull(),
+  status: blogPostStatusEnum('status').default('published').notNull(),
+  leagueId: integer('league_id'), // null = all leagues
+  leagueName: text('league_name'),
+  gameweek: integer('gameweek'),
+  season: text('season'),
+  publishedAt: timestamp('published_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Sync events (tracking every cron execution for monitoring)
+export const syncEvents = predictifySchema.table('sync_events', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  endpoint: text('endpoint').notNull(), // 'sync-results', 'sync-standings', 'sync-polymarket'
+  status: text('status').notNull(), // 'success', 'error', 'skipped'
+  apiCalls: integer('api_calls').default(0).notNull(),
+  durationMs: integer('duration_ms'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Prediction market prices (Polymarket, Betfair, etc.)
 export const predictionMarketPrices = predictifySchema.table('prediction_market_prices', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -274,6 +304,14 @@ export type MatchPrediction = typeof matchPredictions.$inferSelect;
 export type NewMatchPrediction = typeof matchPredictions.$inferInsert;
 export type WeeklyMetric = typeof weeklyMetrics.$inferSelect;
 export type PipelineRun = typeof pipelineRuns.$inferSelect;
+
+// Blog types
+export type BlogPostRecord = typeof blogPosts.$inferSelect;
+export type NewBlogPostRecord = typeof blogPosts.$inferInsert;
+
+// Sync types
+export type SyncEvent = typeof syncEvents.$inferSelect;
+export type NewSyncEvent = typeof syncEvents.$inferInsert;
 
 // Polymarket types
 export type PredictionMarketPrice = typeof predictionMarketPrices.$inferSelect;

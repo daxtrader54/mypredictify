@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { CURRENT_SEASON } from '@/config/site';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import { UpcomingFixturesList } from './upcoming-fixtures-list';
 
@@ -75,18 +75,14 @@ export async function UpcomingFixtures() {
 
   if (displayed.length === 0) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Calendar className="h-4 w-4 text-blue-500" />
-            Upcoming Fixtures
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground text-center py-8">
-            No upcoming fixtures this week. New matches will appear after the next pipeline run.
-          </p>
-        </CardContent>
+      <Card variant="terminal">
+        <div className="flex items-center gap-2 text-base font-semibold pb-3 border-b border-border/40">
+          <Calendar className="h-4 w-4 text-blue-500" />
+          Upcoming Fixtures
+        </div>
+        <p className="text-sm text-muted-foreground text-center py-8">
+          No upcoming fixtures this week. New matches will appear after the next pipeline run.
+        </p>
       </Card>
     );
   }
@@ -102,16 +98,14 @@ export async function UpcomingFixtures() {
   }));
 
   return (
-    <Card data-tour="upcoming-fixtures">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Calendar className="h-4 w-4 text-blue-500" />
-          Upcoming Fixtures
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card variant="terminal" data-tour="upcoming-fixtures">
+      <div className="flex items-center gap-2 text-base font-semibold pb-3 border-b border-border/40">
+        <Calendar className="h-4 w-4 text-blue-500" />
+        Upcoming Fixtures
+      </div>
+      <div className="pt-3">
         <UpcomingFixturesList fixtures={fixtureData} allGameweekFixtureIds={allFixtureIds} />
-      </CardContent>
+      </div>
     </Card>
   );
 }

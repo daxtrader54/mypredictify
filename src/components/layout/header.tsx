@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Menu, LogOut, User, CreditCard, Coins, TrendingUp, Layers, Crown, Target, LayoutDashboard, BookOpen, HelpCircle } from 'lucide-react';
+import { Menu, LogOut, User, CreditCard, Coins, TrendingUp, Layers, Crown, Target, LayoutDashboard, BookOpen, HelpCircle, Newspaper, BarChart3 } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -29,13 +29,16 @@ const authenticatedNavItems = [
   { href: '/predictions', label: 'Predictions', icon: Target },
   { href: '/value-bets', label: 'Value Bets', icon: TrendingUp },
   { href: '/acca-builder', label: 'ACCA Builder', icon: Layers },
+  { href: '/polymarket', label: 'Markets', icon: BarChart3 },
+  { href: '/blog', label: 'Blog', icon: Newspaper },
 ];
 
 const unauthenticatedNavItems = [
   { href: '/predictions', label: 'Predictions', icon: Target },
   { href: '/value-bets', label: 'Value Bets', icon: TrendingUp },
   { href: '/acca-builder', label: 'ACCA Builder', icon: Layers },
-  { href: '/blog', label: 'Blog', icon: BookOpen },
+  { href: '/polymarket', label: 'Markets', icon: BarChart3 },
+  { href: '/blog', label: 'Blog', icon: Newspaper },
   { href: '/pricing', label: 'Pricing', icon: Crown },
 ];
 

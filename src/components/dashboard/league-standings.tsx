@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -75,12 +75,12 @@ export function LeagueStandings() {
   const relegationStart = activeLeague === 82 ? 17 : 18; // Bundesliga has 18 teams
 
   return (
-    <Card data-tour="league-standings">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
+    <Card variant="terminal" data-tour="league-standings">
+      <div className="pb-3 border-b border-border/40">
+        <div className="flex items-center gap-2 text-base font-semibold">
           <Trophy className="h-4 w-4 text-yellow-500" />
           League Standings
-        </CardTitle>
+        </div>
         <div className="flex gap-1 flex-wrap mt-2">
           {LEAGUES.map((league) => (
             <Button
@@ -95,8 +95,8 @@ export function LeagueStandings() {
             </Button>
           ))}
         </div>
-      </CardHeader>
-      <CardContent className="px-0">
+      </div>
+      <div className="pt-3">
         {loading && rows.length === 0 ? (
           <div className="space-y-2 px-6">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -193,7 +193,7 @@ export function LeagueStandings() {
             </Table>
           </div>
         )}
-      </CardContent>
+      </div>
     </Card>
   );
 }

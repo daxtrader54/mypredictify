@@ -25,7 +25,9 @@
     "version-skill": "tsx scripts/version-skill.ts",
     "track-skill-perf": "tsx scripts/track-skill-performance.ts",
     "pipeline-cron": "tsx scripts/pipeline-cron.ts",
-    "blog": "tsx scripts/generate-blog-post.ts"
+    "blog": "tsx scripts/generate-blog-post.ts",
+    "blog:review": "tsx scripts/generate-blog-review.ts",
+    "blog:roundup": "tsx scripts/generate-blog-weekly-roundup.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

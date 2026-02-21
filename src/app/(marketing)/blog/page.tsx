@@ -4,6 +4,8 @@ import { getAllPosts } from '@/lib/blog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { BookOpen } from 'lucide-react';
+import { LEAGUES } from '@/config/leagues';
+import { BlogFilters } from './blog-filters';
 
 export const metadata: Metadata = {
   title: 'Football Predictions Blog | MyPredictify',
@@ -16,12 +18,28 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function BlogIndexPage() {
-  const posts = await getAllPosts();
+const TYPE_LABELS: Record<string, string> = {
+  preview: 'Preview',
+  review: 'Review',
+  'weekly-roundup': 'Roundup',
+  analysis: 'Analysis',
+};
+
+export default async function BlogIndexPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string; league?: string; page?: string }>;
+}) {
+  const params = await searchParams;
+  const type = params.type || undefined;
+  const leagueId = params.league ? parseInt(params.league) : undefined;
+  const page = params.page ? parseInt(params.page) : 1;
+
+  const { posts, total, totalPages } = await getAllPosts({ type, leagueId, page, perPage: 12 });
 
   return (
     <div className="container py-16 max-w-4xl">
-      <div className="mb-12 text-center">
+      <div className="mb-8 text-center">
         <Badge variant="secondary" className="mb-4">
           <BookOpen className="h-3 w-3 mr-1" />
           Blog
@@ -32,47 +50,85 @@ export default async function BlogIndexPage() {
         </p>
       </div>
 
+      <BlogFilters
+        activeType={type}
+        activeLeagueId={leagueId}
+        leagues={LEAGUES.map((l) => ({ id: l.id, name: l.name, shortName: l.shortName, flag: l.flag }))}
+      />
+
       {posts.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
-          <p>No blog posts yet. Check back soon for weekly match previews!</p>
+          <p>No blog posts found. {type || leagueId ? 'Try adjusting your filters.' : 'Check back soon for weekly match previews!'}</p>
         </div>
       ) : (
-        <div className="grid gap-6">
-          {posts.map((post) => (
-            <Link key={post.slug} href={`/blog/${post.slug}`}>
-              <Card className="hover:border-primary/50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs">
-                          {post.league}
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          GW{post.gameweek}
-                        </Badge>
+        <>
+          <div className="grid gap-6">
+            {posts.map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`}>
+                <Card className="hover:border-primary/50 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          {post.type && (
+                            <Badge variant="default" className="text-xs">
+                              {TYPE_LABELS[post.type] ?? post.type}
+                            </Badge>
+                          )}
+                          <Badge variant="outline" className="text-xs">
+                            {post.league}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            GW{post.gameweek}
+                          </Badge>
+                        </div>
+                        <h2 className="text-lg font-semibold mb-1">{post.title}</h2>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {post.description}
+                        </p>
                       </div>
-                      <h2 className="text-lg font-semibold mb-1">{post.title}</h2>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {post.description}
-                      </p>
+                      <time
+                        dateTime={post.publishedAt}
+                        className="text-xs text-muted-foreground whitespace-nowrap"
+                      >
+                        {new Date(post.publishedAt).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </time>
                     </div>
-                    <time
-                      dateTime={post.publishedAt}
-                      className="text-xs text-muted-foreground whitespace-nowrap"
-                    >
-                      {new Date(post.publishedAt).toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                    </time>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              {page > 1 && (
+                <Link
+                  href={`/blog?${new URLSearchParams({ ...(type ? { type } : {}), ...(leagueId ? { league: String(leagueId) } : {}), page: String(page - 1) }).toString()}`}
+                  className="px-3 py-1.5 text-sm rounded-md border hover:bg-muted transition-colors"
+                >
+                  Previous
+                </Link>
+              )}
+              <span className="text-sm text-muted-foreground">
+                Page {page} of {totalPages} ({total} posts)
+              </span>
+              {page < totalPages && (
+                <Link
+                  href={`/blog?${new URLSearchParams({ ...(type ? { type } : {}), ...(leagueId ? { league: String(leagueId) } : {}), page: String(page + 1) }).toString()}`}
+                  className="px-3 py-1.5 text-sm rounded-md border hover:bg-muted transition-colors"
+                >
+                  Next
+                </Link>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

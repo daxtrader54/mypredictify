@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { rawQuery } from '@/lib/db/raw-query';
 import { db } from '@/lib/db';
 import { predictionMarketPrices } from '@/lib/db/schema';
-import { getAvailableGameweeks, GW_BASE_DIR } from '@/lib/gameweeks';
 import { fetchAllLeagueEvents, extractMatchPrices, POLYMARKET_SERIES } from '@/lib/polymarket/client';
 import { matchEventsToFixtures } from '@/lib/polymarket/matcher';
+import { getUpcomingFixturesInWindow } from '@/lib/sync/match-windows';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,31 +53,22 @@ export async function GET(_request: NextRequest) {
   }
 
   const now = new Date();
-  const gameweeks = await getAvailableGameweeks();
 
-  // Collect upcoming fixtures from all gameweeks
-  const upcomingFixtures: MatchData[] = [];
-
-  for (const gw of gameweeks) {
-    const gwDir = path.join(GW_BASE_DIR, `GW${gw}`);
-    try {
-      const raw = await fs.readFile(path.join(gwDir, 'matches.json'), 'utf-8');
-      const matches: MatchData[] = JSON.parse(raw);
-
-      for (const m of matches) {
-        // Only include upcoming fixtures (kickoff in the future)
-        if (new Date(m.kickoff) > now && POLYMARKET_SERIES[m.league.id]) {
-          upcomingFixtures.push(m);
-        }
-      }
-    } catch {
-      continue;
-    }
+  // Only fetch for fixtures with kickoff in next 48h
+  let upcomingFixtures: MatchData[];
+  try {
+    const allUpcoming = await getUpcomingFixturesInWindow(48);
+    upcomingFixtures = allUpcoming.filter((m) => POLYMARKET_SERIES[m.league.id]);
+  } catch {
+    // Fallback: no fixtures available
+    upcomingFixtures = [];
   }
 
   if (upcomingFixtures.length === 0) {
     return NextResponse.json({
-      message: 'No upcoming fixtures to check',
+      status: 'no-upcoming-fixtures',
+      message: 'No fixtures with Polymarket coverage in next 48h',
+      apiCalls: 0,
       checked: 0,
       synced: 0,
       timestamp: now.toISOString(),
@@ -132,6 +121,7 @@ export async function GET(_request: NextRequest) {
   }
 
   return NextResponse.json({
+    status: 'synced',
     checked: upcomingFixtures.length,
     synced,
     errors: errors.length > 0 ? errors : undefined,

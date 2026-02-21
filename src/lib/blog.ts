@@ -1,5 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { db } from '@/lib/db';
+import { blogPosts } from '@/lib/db/schema';
+import { desc, eq, and, sql } from 'drizzle-orm';
 
 export interface BlogPost {
   slug: string;
@@ -12,11 +15,21 @@ export interface BlogPost {
   publishedAt: string;
   content: string;
   keywords: string[];
+  type?: 'preview' | 'review' | 'weekly-roundup' | 'analysis';
+}
+
+export interface BlogFilter {
+  type?: string;
+  leagueId?: number;
+  page?: number;
+  perPage?: number;
 }
 
 const BLOG_DIR = path.join(process.cwd(), 'data', 'blog');
+const DEFAULT_PER_PAGE = 12;
 
-export async function getAllPosts(): Promise<BlogPost[]> {
+/** Get posts from filesystem (fallback) */
+async function getFileSystemPosts(): Promise<BlogPost[]> {
   try {
     const files = await fs.readdir(BLOG_DIR);
     const jsonFiles = files.filter((f) => f.endsWith('.json'));
@@ -36,6 +49,91 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   }
 }
 
+/** Get all posts with optional filtering and pagination */
+export async function getAllPosts(filter?: BlogFilter): Promise<{
+  posts: BlogPost[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+}> {
+  const page = filter?.page ?? 1;
+  const perPage = filter?.perPage ?? DEFAULT_PER_PAGE;
+
+  // Try DB-backed index first
+  try {
+    const conditions = [eq(blogPosts.status, 'published')];
+
+    if (filter?.type) {
+      conditions.push(sql`${blogPosts.type} = ${filter.type}`);
+    }
+    if (filter?.leagueId) {
+      conditions.push(eq(blogPosts.leagueId, filter.leagueId));
+    }
+
+    const [countResult, dbPosts] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(blogPosts).where(and(...conditions)),
+      db
+        .select()
+        .from(blogPosts)
+        .where(and(...conditions))
+        .orderBy(desc(blogPosts.publishedAt))
+        .limit(perPage)
+        .offset((page - 1) * perPage),
+    ]);
+
+    const total = Number(countResult[0]?.count ?? 0);
+
+    if (total > 0) {
+      // Load content from files for each post
+      const posts = await Promise.all(
+        dbPosts.map(async (dbPost) => {
+          const filePost = await getPostBySlug(dbPost.slug);
+          return filePost ?? {
+            slug: dbPost.slug,
+            title: dbPost.title,
+            description: dbPost.description ?? '',
+            league: dbPost.leagueName ?? 'All Leagues',
+            leagueId: dbPost.leagueId ?? 0,
+            gameweek: dbPost.gameweek ?? 0,
+            season: dbPost.season ?? '',
+            publishedAt: dbPost.publishedAt.toISOString(),
+            content: '',
+            keywords: [],
+            type: dbPost.type,
+          };
+        })
+      );
+
+      return { posts, total, page, perPage, totalPages: Math.ceil(total / perPage) };
+    }
+  } catch {
+    // DB not available, fall through to filesystem
+  }
+
+  // Filesystem fallback
+  let allPosts = await getFileSystemPosts();
+
+  if (filter?.type) {
+    allPosts = allPosts.filter((p) => p.type === filter.type);
+  }
+  if (filter?.leagueId) {
+    allPosts = allPosts.filter((p) => p.leagueId === filter.leagueId);
+  }
+
+  const total = allPosts.length;
+  const paginated = allPosts.slice((page - 1) * perPage, page * perPage);
+
+  return {
+    posts: paginated,
+    total,
+    page,
+    perPage,
+    totalPages: Math.ceil(total / perPage),
+  };
+}
+
+/** Get a single post by slug (always from filesystem) */
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
     const files = await fs.readdir(BLOG_DIR);
@@ -52,7 +150,52 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   return null;
 }
 
+/** Get all slugs for static generation */
 export async function getAllSlugs(): Promise<string[]> {
-  const posts = await getAllPosts();
+  const { posts } = await getAllPosts({ perPage: 1000 });
   return posts.map((p) => p.slug);
+}
+
+/** Index a blog post into the DB for fast querying */
+export async function indexBlogPost(post: BlogPost): Promise<void> {
+  try {
+    const type = post.type ?? inferPostType(post.slug);
+
+    await db
+      .insert(blogPosts)
+      .values({
+        slug: post.slug,
+        title: post.title,
+        description: post.description,
+        type,
+        status: 'published',
+        leagueId: post.leagueId || null,
+        leagueName: post.league || null,
+        gameweek: post.gameweek || null,
+        season: post.season || null,
+        publishedAt: new Date(post.publishedAt),
+      })
+      .onConflictDoUpdate({
+        target: blogPosts.slug,
+        set: {
+          title: post.title,
+          description: post.description,
+          type,
+          leagueId: post.leagueId || null,
+          leagueName: post.league || null,
+          gameweek: post.gameweek || null,
+          season: post.season || null,
+          publishedAt: new Date(post.publishedAt),
+        },
+      });
+  } catch {
+    // Non-critical
+  }
+}
+
+function inferPostType(slug: string): 'preview' | 'review' | 'weekly-roundup' | 'analysis' {
+  if (slug.includes('preview')) return 'preview';
+  if (slug.includes('review') || slug.includes('results')) return 'review';
+  if (slug.includes('roundup') || slug.includes('weekly')) return 'weekly-roundup';
+  return 'analysis';
 }
