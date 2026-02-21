@@ -28,7 +28,10 @@ interface PredictionEntry {
   prediction: string;
   predictedScore: string;
   confidence: number;
-  probabilities: {
+  homeWinProb?: number;
+  drawProb?: number;
+  awayWinProb?: number;
+  probabilities?: {
     home: number;
     draw: number;
     away: number;
@@ -126,9 +129,9 @@ async function getPolymarketData() {
           liquidity: parseFloat(price.liquidity || '0'),
         },
         model: pred ? {
-          homeWinProb: pred.probabilities?.home ?? 0,
-          drawProb: pred.probabilities?.draw ?? 0,
-          awayWinProb: pred.probabilities?.away ?? 0,
+          homeWinProb: pred.homeWinProb ?? pred.probabilities?.home ?? 0,
+          drawProb: pred.drawProb ?? pred.probabilities?.draw ?? 0,
+          awayWinProb: pred.awayWinProb ?? pred.probabilities?.away ?? 0,
           prediction: pred.prediction,
           confidence: pred.confidence,
         } : null,
