@@ -7,14 +7,17 @@
 
 const GAMMA_API_BASE = 'https://gamma-api.polymarket.com';
 
-/** Polymarket series IDs for supported football leagues */
-export const POLYMARKET_SERIES: Record<number, number> = {
-  8: 10188,    // Premier League
-  564: 10193,  // La Liga
-  82: 10194,   // Bundesliga
-  301: 10195,  // Ligue 1
-  384: 10203,  // Serie A
+/** Polymarket tag IDs for supported football leagues (from /sports endpoint) */
+export const POLYMARKET_TAGS: Record<number, number> = {
+  8: 82,       // Premier League
+  564: 780,    // La Liga
+  82: 1494,    // Bundesliga
+  301: 102070, // Ligue 1
+  384: 101962, // Serie A
 };
+
+/** @deprecated Use POLYMARKET_TAGS instead */
+export const POLYMARKET_SERIES = POLYMARKET_TAGS;
 
 export interface PolymarketOutcome {
   outcome: string;      // e.g. "Yes"
@@ -61,10 +64,10 @@ async function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Fetch events for a specific Polymarket series (league).
+ * Fetch events for a specific Polymarket league tag.
  */
-export async function fetchSeriesEvents(seriesId: number): Promise<PolymarketEvent[]> {
-  const url = `${GAMMA_API_BASE}/events?series=${seriesId}&closed=false&active=true&limit=50`;
+export async function fetchSeriesEvents(tagId: number): Promise<PolymarketEvent[]> {
+  const url = `${GAMMA_API_BASE}/events?tag_id=${tagId}&closed=false&active=true&limit=50`;
 
   const response = await fetch(url, {
     headers: { 'Accept': 'application/json' },
@@ -84,10 +87,10 @@ export async function fetchSeriesEvents(seriesId: number): Promise<PolymarketEve
 export async function fetchAllLeagueEvents(): Promise<Map<number, PolymarketEvent[]>> {
   const results = new Map<number, PolymarketEvent[]>();
 
-  for (const [leagueIdStr, seriesId] of Object.entries(POLYMARKET_SERIES)) {
+  for (const [leagueIdStr, tagId] of Object.entries(POLYMARKET_TAGS)) {
     const leagueId = parseInt(leagueIdStr);
     try {
-      const events = await fetchSeriesEvents(seriesId);
+      const events = await fetchSeriesEvents(tagId);
       results.set(leagueId, events);
     } catch (error) {
       console.warn(`Failed to fetch Polymarket events for league ${leagueId}:`, error);
