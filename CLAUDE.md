@@ -256,6 +256,10 @@ npm run sync-results    # Fetch match results for past fixtures
 ## TODO / Planned Features
 
 - **ACCA Builder bookmaker integrations** — Add ability to place bets directly with bookmakers (Bet365, William Hill, etc.) from the ACCA builder
+- **Polymarket backdating test** — Compare historical Polymarket prices vs our model vs actual results. Measure log-loss/Brier score for both to determine if blending Polymarket data improves predictions.
+- **Model accuracy improvement** — GW25 showed ~28% result accuracy (well below target). Key issues: (1) strong home bias in predictions, (2) draws almost never predicted despite many occurring, (3) upsets not captured. Needs: review Elo/Poisson weights, recalibrate draw probability thresholds, evaluate whether bookmaker odds weight (40%) is too low, analyze signal-weights.json and adjust.
+- **Markets page Help Mode** — Add `data-tour` attributes and tooltip configs for the Polymarket page (league filter, market cards, Polymarket vs Model comparison, value indicators). Also add an explainer note about Polymarket's 2-way market structure (no draw market, hence 0% draw).
+- **Normalize Polymarket probabilities** — Polymarket offers separate binary markets (no draw). Currently showing raw 0% draw. Should normalize 2-way prices into 3-way probabilities for fair model comparison.
 
 ## SportMonks Integration
 

@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { ShareButton } from '@/components/predictions/share-button';
+import { ShareForCreditsButton } from '@/components/share/share-for-credits-button';
 import { Calendar, MapPin, Lock, TrendingUp, ArrowRight, Sparkles, Coins, Check, X, Target, Trophy, Globe } from 'lucide-react';
 import { format } from 'date-fns';
 import type { ProcessedFixture, ProcessedPrediction } from '@/lib/sportmonks/types';
@@ -242,12 +242,11 @@ export function PredictionCard({ fixture, prediction, gameweek, siblingFixtureId
               {fixture.leagueName}
             </Badge>
             {gameweek && (
-              <ShareButton
-                fixtureId={fixture.id}
-                gameweek={gameweek}
-                leagueId={fixture.leagueId}
-                homeTeam={fixture.homeTeam.name}
-                awayTeam={fixture.awayTeam.name}
+              <ShareForCreditsButton
+                contentType="prediction"
+                contentId={`${fixture.id}`}
+                shareText={`${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`}
+                shareUrl={`https://mypredictify.com/predictions?league=${fixture.leagueId}&gw=${gameweek}`}
               />
             )}
           </div>

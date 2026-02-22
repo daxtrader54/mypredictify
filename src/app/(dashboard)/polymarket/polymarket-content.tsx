@@ -87,6 +87,7 @@ export function PolymarketContent({ markets, leagues }: { markets: MarketEntry[]
           {filtered.map((market) => (
             <MarketCard
               key={market.fixtureId}
+              fixtureId={market.fixtureId}
               homeTeam={market.homeTeam}
               awayTeam={market.awayTeam}
               kickoff={market.kickoff}

@@ -3,8 +3,10 @@
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, DollarSign } from 'lucide-react';
+import { ShareForCreditsButton } from '@/components/share/share-for-credits-button';
 
 interface MarketCardProps {
+  fixtureId?: number;
   homeTeam: string;
   awayTeam: string;
   kickoff: string;
@@ -87,7 +89,7 @@ function ValueIndicator({ modelProb, marketProb }: { modelProb: number; marketPr
   );
 }
 
-export function MarketCard({ homeTeam, awayTeam, kickoff, leagueName, polymarket, bookmaker, model }: MarketCardProps) {
+export function MarketCard({ fixtureId, homeTeam, awayTeam, kickoff, leagueName, polymarket, bookmaker, model }: MarketCardProps) {
   const kickoffDate = new Date(kickoff);
   const timeStr = kickoffDate.toLocaleDateString('en-GB', {
     weekday: 'short',
@@ -121,6 +123,11 @@ export function MarketCard({ homeTeam, awayTeam, kickoff, leagueName, polymarket
             <DollarSign className="h-3 w-3" />
             {formatVolume(polymarket.volume)}
           </Badge>
+          <ShareForCreditsButton
+            contentType="market"
+            contentId={fixtureId ? `${fixtureId}` : `${homeTeam}-${awayTeam}`}
+            shareText={`${homeTeam} vs ${awayTeam} market analysis`}
+          />
         </div>
       </div>
 

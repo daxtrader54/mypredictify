@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { X, Receipt, Copy, Share2 } from 'lucide-react';
+import { X, Receipt, Copy } from 'lucide-react';
 import { useAccaStore } from '@/stores/acca-store';
+import { ShareForCreditsButton } from '@/components/share/share-for-credits-button';
 
 export function BetSlip() {
   const { selections, removeSelection, getCombinedOdds } = useAccaStore();
@@ -21,20 +22,6 @@ export function BetSlip() {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(formatSlipText());
-  };
-
-  const handleShare = async () => {
-    const text = formatSlipText();
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'My ACCA - MyPredictify', text });
-      } catch {
-        // User cancelled share — fall back to clipboard
-        navigator.clipboard.writeText(text);
-      }
-    } else {
-      navigator.clipboard.writeText(text);
-    }
   };
 
   if (selections.length === 0) {
@@ -69,9 +56,11 @@ export function BetSlip() {
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={copyToClipboard}>
               <Copy className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare}>
-              <Share2 className="h-4 w-4" />
-            </Button>
+            <ShareForCreditsButton
+              contentType="acca"
+              contentId={selections.map((s) => s.fixtureId).join('-')}
+              shareText={`${selections.length}-fold ACCA @ ${combinedOdds.toFixed(2)}`}
+            />
           </div>
         </div>
       </CardHeader>

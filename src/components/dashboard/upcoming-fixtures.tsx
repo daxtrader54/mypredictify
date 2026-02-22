@@ -1,7 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { CURRENT_SEASON } from '@/config/site';
-import { Card } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import { UpcomingFixturesList } from './upcoming-fixtures-list';
 
@@ -75,7 +74,7 @@ export async function UpcomingFixtures() {
 
   if (displayed.length === 0) {
     return (
-      <Card variant="terminal">
+      <div>
         <div className="flex items-center gap-2 text-base font-semibold pb-3 border-b border-border/40">
           <Calendar className="h-4 w-4 text-blue-500" />
           Upcoming Fixtures
@@ -83,7 +82,7 @@ export async function UpcomingFixtures() {
         <p className="text-sm text-muted-foreground text-center py-8">
           No upcoming fixtures this week. New matches will appear after the next pipeline run.
         </p>
-      </Card>
+      </div>
     );
   }
 
@@ -98,7 +97,7 @@ export async function UpcomingFixtures() {
   }));
 
   return (
-    <Card variant="terminal" data-tour="upcoming-fixtures">
+    <div data-tour="upcoming-fixtures">
       <div className="flex items-center gap-2 text-base font-semibold pb-3 border-b border-border/40">
         <Calendar className="h-4 w-4 text-blue-500" />
         Upcoming Fixtures
@@ -106,6 +105,6 @@ export async function UpcomingFixtures() {
       <div className="pt-3">
         <UpcomingFixturesList fixtures={fixtureData} allGameweekFixtureIds={allFixtureIds} />
       </div>
-    </Card>
+    </div>
   );
 }

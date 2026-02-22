@@ -8,6 +8,9 @@ interface CreditsState {
   tier: 'free' | 'pro' | 'gold';
   hasApiAccess: boolean;
   canRedeemDaily: boolean;
+  shareCreditsUsedToday: number;
+  shareCreditsRemaining: number;
+  shareDailyCap: number;
   loading: boolean;
   error: string | null;
 }
@@ -20,6 +23,7 @@ interface CreditsContextValue extends CreditsState {
   redeemDailyCredits: () => Promise<{ success: boolean; creditsAdded?: number; error?: string }>;
   deductCredits: (amount: number, reason: string, leagueId?: number) => Promise<{ success: boolean; error?: string }>;
   hasEnoughCredits: (amount: number) => boolean;
+  shareForCredits: (contentType: string, contentId: string, platform: string, url: string) => Promise<{ success: boolean; creditsAwarded?: number; error?: string }>;
 }
 
 const CreditsContext = createContext<CreditsContextValue | null>(null);
@@ -31,6 +35,9 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     tier: 'free',
     hasApiAccess: false,
     canRedeemDaily: false,
+    shareCreditsUsedToday: 0,
+    shareCreditsRemaining: 50,
+    shareDailyCap: 50,
     loading: true,
     error: null,
   });
@@ -51,6 +58,9 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
         tier: data.tier,
         hasApiAccess: data.hasApiAccess,
         canRedeemDaily: data.canRedeemDaily,
+        shareCreditsUsedToday: data.shareCreditsUsedToday ?? 0,
+        shareCreditsRemaining: data.shareCreditsRemaining ?? 50,
+        shareDailyCap: data.shareDailyCap ?? 50,
         loading: false,
         error: null,
       });
@@ -72,6 +82,9 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
         tier: 'free',
         hasApiAccess: false,
         canRedeemDaily: false,
+        shareCreditsUsedToday: 0,
+        shareCreditsRemaining: 50,
+        shareDailyCap: 50,
         loading: false,
         error: null,
       });
@@ -149,6 +162,42 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     return state.credits >= amount;
   }, [state.credits]);
 
+  const shareForCredits = useCallback(async (
+    contentType: string,
+    contentId: string,
+    platform: string,
+    url: string
+  ): Promise<{ success: boolean; creditsAwarded?: number; error?: string }> => {
+    try {
+      const response = await fetch('/api/credits/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contentType, contentId, platform, url }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error };
+      }
+
+      // Update local state
+      setState((prev) => ({
+        ...prev,
+        credits: data.newBalance,
+        shareCreditsUsedToday: data.dailyUsed,
+        shareCreditsRemaining: Math.max(0, (data.dailyCap ?? 50) - data.dailyUsed),
+      }));
+
+      return { success: true, creditsAwarded: data.creditsAwarded };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }, []);
+
   const value: CreditsContextValue = {
     ...state,
     isPro: state.tier === 'pro' || state.tier === 'gold',
@@ -158,6 +207,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     redeemDailyCredits,
     deductCredits,
     hasEnoughCredits,
+    shareForCredits,
   };
 
   return (
@@ -172,6 +222,9 @@ const defaultValue: CreditsContextValue = {
   tier: 'free',
   hasApiAccess: false,
   canRedeemDaily: false,
+  shareCreditsUsedToday: 0,
+  shareCreditsRemaining: 50,
+  shareDailyCap: 50,
   loading: true,
   error: null,
   isPro: false,
@@ -181,6 +234,7 @@ const defaultValue: CreditsContextValue = {
   redeemDailyCredits: async () => ({ success: false, error: 'No provider' }),
   deductCredits: async (_a: number, _r: string, _l?: number) => ({ success: false, error: 'No provider' }),
   hasEnoughCredits: () => false,
+  shareForCredits: async () => ({ success: false, error: 'No provider' }),
 };
 
 export function useCreditsContext() {

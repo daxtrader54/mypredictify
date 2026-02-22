@@ -15,7 +15,7 @@ export const predictifySchema = pgSchema('predictify');
 // Enums
 export const tierEnum = predictifySchema.enum('tier', ['free', 'pro', 'gold']);
 export const accaStatusEnum = predictifySchema.enum('acca_status', ['pending', 'won', 'lost', 'partial']);
-export const transactionTypeEnum = predictifySchema.enum('transaction_type', ['deduct', 'redeem', 'purchase', 'subscription', 'refund']);
+export const transactionTypeEnum = predictifySchema.enum('transaction_type', ['deduct', 'redeem', 'purchase', 'subscription', 'refund', 'share']);
 
 // Users table
 export const users = predictifySchema.table('users', {

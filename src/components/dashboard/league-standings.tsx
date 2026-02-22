@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -75,7 +74,7 @@ export function LeagueStandings() {
   const relegationStart = activeLeague === 82 ? 17 : 18; // Bundesliga has 18 teams
 
   return (
-    <Card variant="terminal" data-tour="league-standings">
+    <div data-tour="league-standings">
       <div className="pb-3 border-b border-border/40">
         <div className="flex items-center gap-2 text-base font-semibold">
           <Trophy className="h-4 w-4 text-yellow-500" />
@@ -194,6 +193,6 @@ export function LeagueStandings() {
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 }

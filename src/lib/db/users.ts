@@ -1,5 +1,6 @@
-import { eq, and, gte, sql, lt } from 'drizzle-orm';
+import { eq, and, gte, sql, lt, sum } from 'drizzle-orm';
 import { db, users, creditTransactions, type User, type NewUser } from './index';
+import { SHARE_CREDITS } from '@/config/pricing';
 import { sendWelcomeEmail } from '@/lib/email';
 
 export async function getUser(id: string): Promise<User | null> {
@@ -137,7 +138,7 @@ export async function deductCredits(
 export async function addCredits(
   userId: string,
   amount: number,
-  type: 'redeem' | 'purchase' | 'subscription' | 'refund',
+  type: 'redeem' | 'purchase' | 'subscription' | 'refund' | 'share',
   reason?: string
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
   // Atomic: increment credits in a single statement, prevents race conditions
@@ -270,4 +271,63 @@ export async function cancelSubscription(userId: string): Promise<void> {
       updatedAt: new Date(),
     })
     .where(eq(users.id, userId));
+}
+
+// Share credits
+export async function getShareCreditsUsedToday(userId: string): Promise<number> {
+  const now = new Date();
+  const startOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+  const result = await db
+    .select({ total: sum(creditTransactions.amount) })
+    .from(creditTransactions)
+    .where(
+      and(
+        eq(creditTransactions.userId, userId),
+        eq(creditTransactions.type, 'share'),
+        gte(creditTransactions.createdAt, startOfDayUTC)
+      )
+    );
+
+  return Number(result[0]?.total) || 0;
+}
+
+export async function awardShareCredits(
+  userId: string,
+  contentType: string,
+  platform: string
+): Promise<{ success: boolean; creditsAwarded: number; newBalance: number; dailyUsed: number; error?: string }> {
+  const used = await getShareCreditsUsedToday(userId);
+  const remaining = SHARE_CREDITS.DAILY_CAP - used;
+
+  if (remaining <= 0) {
+    const user = await getUser(userId);
+    return {
+      success: false,
+      creditsAwarded: 0,
+      newBalance: user?.credits ?? 0,
+      dailyUsed: used,
+      error: 'Daily share credit limit reached',
+    };
+  }
+
+  const award = Math.min(SHARE_CREDITS.PER_SHARE, remaining);
+  const result = await addCredits(userId, award, 'share', `Share: ${contentType} | ${platform}`);
+
+  if (!result.success) {
+    return {
+      success: false,
+      creditsAwarded: 0,
+      newBalance: result.newBalance,
+      dailyUsed: used,
+      error: result.error,
+    };
+  }
+
+  return {
+    success: true,
+    creditsAwarded: award,
+    newBalance: result.newBalance,
+    dailyUsed: used + award,
+  };
 }

@@ -185,7 +185,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all',
+                'flex items-center gap-2.5 rounded-lg px-2.5 py-1 text-sm font-medium transition-all',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -208,7 +208,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
         <button
           onClick={() => { helpMode.toggle(); onNavigate?.(); }}
           className={cn(
-            "flex items-center justify-center gap-1.5 w-full rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+            "flex items-center justify-center gap-1.5 w-full rounded-md px-3 py-1 text-xs font-semibold transition-colors",
             helpMode.isActive
               ? "border border-green-500/30 bg-green-500/15 text-green-500"
               : "border border-amber-500/30 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
@@ -240,7 +240,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
                 href={leagueHref}
                 onClick={onNavigate}
                 className={cn(
-                  'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors',
+                  'flex items-center gap-2.5 rounded-md px-2.5 py-1 text-sm transition-colors',
                   isActive
                     ? 'bg-muted text-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground',

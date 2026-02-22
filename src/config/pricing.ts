@@ -88,6 +88,11 @@ export const CREDIT_COSTS = {
 
 export const FREE_ACCA_DAILY_LIMIT = 3;
 
+export const SHARE_CREDITS = {
+  PER_SHARE: 10,
+  DAILY_CAP: 50,
+} as const;
+
 // Premier League league ID for tier-based free access checks
 export const PREMIER_LEAGUE_ID = 8;
 

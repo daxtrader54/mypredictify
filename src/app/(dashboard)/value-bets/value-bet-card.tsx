@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight, Coins, Lock, AlertTriangle } from 'lucide-react';
+import { ShareForCreditsButton } from '@/components/share/share-for-credits-button';
 import { useSession } from 'next-auth/react';
 import { useCredits } from '@/hooks/use-credits';
 import { CREDIT_COSTS, isFreeForTier } from '@/config/pricing';
@@ -171,6 +172,11 @@ export function ValueBetCard({ vb }: { vb: ValueBetData }) {
               <Badge variant="secondary" className="text-xs">
                 {(vb.confidence * 100).toFixed(0)}% confident
               </Badge>
+              <ShareForCreditsButton
+                contentType="value-bet"
+                contentId={`${vb.fixtureId}-${vb.bet}`}
+                shareText={`${vb.homeTeam} vs ${vb.awayTeam} — ${vb.bet} (+${(vb.edge * 100).toFixed(1)}% edge)`}
+              />
             </div>
           </>
         ) : (

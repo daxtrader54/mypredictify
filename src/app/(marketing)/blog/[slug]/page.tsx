@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { siteConfig } from '@/config/site';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { BlogShare } from '@/components/blog/blog-share';
 
 export async function generateStaticParams() {
   const slugs = await getAllSlugs();
@@ -95,6 +96,8 @@ export default async function BlogPostPage({
       <article className="prose prose-neutral dark:prose-invert max-w-none">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
       </article>
+
+      <BlogShare slug={slug} title={post.title} />
     </div>
   );
 }
