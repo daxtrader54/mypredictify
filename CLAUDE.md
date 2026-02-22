@@ -8,19 +8,20 @@ MyPredictify is a Football Prediction SaaS application — live at **https://myp
 
 ## Deployment
 
-- **Hosting**: Vercel (auto-deploys on push to `main`)
+- **Hosting**: Coolify v4 on VPS (auto-deploys on push to `main`)
 - **Repo**: `github.com/daxtrader54/mypredictify`
 - **Domain**: mypredictify.com
-- **Database**: Neon PostgreSQL (Vercel integration, `my-predictify-database`)
+- **Database**: Postgres 16 Alpine in Coolify-managed container. User=`postgres`, DB=`predictify`
 - **DB Schema**: All tables live in the `predictify` Postgres schema (not `public`)
 - **Auth**: Google OAuth (project: "My Predictify" in Google Cloud Console)
-- DB connection: code checks both `DATABASE_URL` and `POSTGRES_URL` (Vercel sets both via Neon integration)
-- Schema migrations: `npx drizzle-kit push` (but note: custom pg schema requires `CREATE SCHEMA predictify` first — drizzle-kit won't auto-create it)
+- DB connection: code checks both `DATABASE_URL` and `POSTGRES_URL`
+- Schema migrations: `npx drizzle-kit push` locally. Production requires manual SQL via Coolify DB terminal.
+- **Production DB terminal**: Coolify dashboard → Databases → postgresql-database → Terminal → `psql -U postgres -d predictify`
 - Sign-in callback is non-blocking on DB errors — user record created on first dashboard visit via `getOrCreateUser`
-- `leagueStandings` synced via Vercel cron (`/api/cron/sync-standings`) daily at 04:00 UTC
-- `matchResults` synced via Vercel cron (`/api/cron/sync-results`) every 30 min — auto-fetches finished fixtures from SportMonks
+- `leagueStandings` synced via cron (`/api/cron/sync-standings`) daily at 04:00 UTC
+- `matchResults` synced via cron (`/api/cron/sync-results`) every 30 min — auto-fetches finished fixtures from SportMonks
 - Cron endpoints auto-create tables on first run via `ensureTable()` — no manual migration needed on production
-- **Local DB ≠ Production DB** — `.env.local` DATABASE_URL points to a different Neon database than Vercel's. `drizzle-kit push` locally does NOT affect production.
+- **Local DB ≠ Production DB** — `drizzle-kit push` locally does NOT affect production.
 - Admin emails: configured in `src/config/site.ts` via `ADMIN_EMAILS` array + `isAdmin()` helper
 
 ## Tech Stack
@@ -76,7 +77,7 @@ npm run sync-results    # Fetch match results for past fixtures
 │   │   ├── (marketing)/       # Public pages (landing, pricing; redirects auth users to /dashboard)
 │   │   └── api/               # API routes
 │   │       ├── admin/users/   # Admin user management API
-│   │       ├── cron/          # Vercel cron endpoints (unauthenticated)
+│   │       ├── cron/          # Cron endpoints (unauthenticated)
 │   │       │   ├── sync-standings/  # Daily standings sync from SportMonks → DB
 │   │       │   └── sync-results/    # Every 30min results sync from SportMonks → DB
 │   │       ├── pipeline/sync/ # Data file → Postgres sync (batch upsert)
@@ -117,7 +118,7 @@ npm run sync-results    # Fetch match results for past fixtures
 │   └── config/                # Pipeline configuration
 │       ├── leagues.json
 │       └── pipeline.json
-├── vercel.json                # Vercel cron configuration (standings daily, results every 30min)
+├── vercel.json                # Cron configuration (standings daily, results every 30min)
 ├── drizzle/                   # Generated migration SQL
 ├── .claude/skills/            # Claude CLI skill definitions
 │   ├── ingest-gameweek/       # Fetch fixtures + data from APIs
@@ -168,22 +169,22 @@ npm run sync-results    # Fetch match results for past fixtures
 
 **Authentication:**
 - Auth enforced in `(dashboard)/layout.tsx` via `getSession()` → redirect to `/login`
-- No middleware.ts — Next.js 16 Edge Runtime breaks `getToken()` on Vercel
+- No middleware.ts — Next.js 16 Edge Runtime breaks `getToken()`, causes auth redirect loops
 - Auth uses JWT strategy — `getSession()` never hits DB after sign-in. DB can be broken and auth still works.
 - API routes use `getSession()` individually; pipeline sync uses Bearer token
 - SportMonks proxy routes (`/api/sportmonks/*`) also require session auth
-- Cron endpoints (`/api/cron/*`) are unauthenticated — required for Vercel cron to call them
+- Cron endpoints (`/api/cron/*`) are unauthenticated — required for automated cron to call them
 - Homepage (`/`) redirects authenticated users to `/dashboard`
 - Header nav is conditional: auth users see Dashboard link, unauth users see Pricing
 
 **Database Tables** (all in `predictify` schema):
 - users, creditTransactions, accaHistory, predictionViews (app)
-- leagueStandings (synced via Vercel cron `/api/cron/sync-standings` daily)
-- matchResults (synced via Vercel cron `/api/cron/sync-results` every 30min)
+- leagueStandings (synced via cron `/api/cron/sync-standings` daily)
+- matchResults (synced via cron `/api/cron/sync-results` every 30min)
 - gameweeks, matchPredictions, weeklyMetrics, pipelineRuns (pipeline)
 
 **Content Freshness (DB-first architecture):**
-- Standings and results are synced from SportMonks → DB via Vercel cron jobs
+- Standings and results are synced from SportMonks → DB via cron jobs
 - Pages serve from DB only — never call SportMonks directly in user-facing routes (not scalable)
 - `loadResults()` in `src/lib/results.ts` is the shared loader: DB first, results.json file fallback
 - Cron endpoints auto-create their tables on first run via `ensureTable()` (raw SQL DDL)
@@ -284,7 +285,7 @@ npm run sync-results    # Fetch match results for past fixtures
 Required:
 - `NEXTAUTH_SECRET`, `NEXTAUTH_URL` (`https://mypredictify.com` in production)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
-- `DATABASE_URL` or `POSTGRES_URL` (Neon PostgreSQL — Vercel sets both)
+- `DATABASE_URL` or `POSTGRES_URL` (Postgres — set in Coolify env vars)
 - `SPORTMONKS_API_TOKEN`
 - `OPENAI_API_KEY`
 - `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
